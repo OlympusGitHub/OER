@@ -54,6 +54,8 @@
 		DBBF859D1716E615004CB92B /* oerIcon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DBBF859C1716E615004CB92B /* oerIcon@2x.png */; };
 		DBBF859F1716E6B6004CB92B /* Default-Portrait~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = DBBF859E1716E6B6004CB92B /* Default-Portrait~ipad.png */; };
 		DBBF85A11716E6BC004CB92B /* Default-Portrait@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = DBBF85A01716E6BC004CB92B /* Default-Portrait@2x~ipad.png */; };
+		DBDE84C417280E3E006D55CE /* OAI_SimpleCheckbox.m in Sources */ = {isa = PBXBuildFile; fileRef = DBDE84C317280E3E006D55CE /* OAI_SimpleCheckbox.m */; };
+		DBDE84C617282A28006D55CE /* checkmark.png in Resources */ = {isa = PBXBuildFile; fileRef = DBDE84C517282A28006D55CE /* checkmark.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -125,6 +127,9 @@
 		DBBF859C1716E615004CB92B /* oerIcon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "oerIcon@2x.png"; sourceTree = "<group>"; };
 		DBBF859E1716E6B6004CB92B /* Default-Portrait~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait~ipad.png"; sourceTree = "<group>"; };
 		DBBF85A01716E6BC004CB92B /* Default-Portrait@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait@2x~ipad.png"; sourceTree = "<group>"; };
+		DBDE84C217280E3E006D55CE /* OAI_SimpleCheckbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OAI_SimpleCheckbox.h; sourceTree = "<group>"; };
+		DBDE84C317280E3E006D55CE /* OAI_SimpleCheckbox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OAI_SimpleCheckbox.m; sourceTree = "<group>"; };
+		DBDE84C517282A28006D55CE /* checkmark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkmark.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -222,6 +227,7 @@
 		DBBF85451716E287004CB92B /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				DBDE84C517282A28006D55CE /* checkmark.png */,
 				DBBF857E1716E2EC004CB92B /* btnCancelHighlight.png */,
 				DBBF857F1716E2EC004CB92B /* btnCancelNormal.png */,
 				DBBF85801716E2EC004CB92B /* btnSubmitHighlight.png */,
@@ -267,6 +273,8 @@
 		DBBF85471716E290004CB92B /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				DBDE84C217280E3E006D55CE /* OAI_SimpleCheckbox.h */,
+				DBDE84C317280E3E006D55CE /* OAI_SimpleCheckbox.m */,
 				DBBF854F1716E2CB004CB92B /* OAI_ScrollView.h */,
 				DBBF85501716E2CB004CB92B /* OAI_ScrollView.m */,
 				DBBF85511716E2CB004CB92B /* OAI_TextField.h */,
@@ -371,6 +379,7 @@
 				DBBF859D1716E615004CB92B /* oerIcon@2x.png in Resources */,
 				DBBF859F1716E6B6004CB92B /* Default-Portrait~ipad.png in Resources */,
 				DBBF85A11716E6BC004CB92B /* Default-Portrait@2x~ipad.png in Resources */,
+				DBDE84C617282A28006D55CE /* checkmark.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -400,6 +409,7 @@
 				DBBF85791716E2D8004CB92B /* OAI_MessageBox.m in Sources */,
 				DBBF857A1716E2D8004CB92B /* OAI_OERCalculator.m in Sources */,
 				DBBF857B1716E2D8004CB92B /* OAI_Calculations.m in Sources */,
+				DBDE84C417280E3E006D55CE /* OAI_SimpleCheckbox.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

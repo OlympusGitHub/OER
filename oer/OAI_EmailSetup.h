@@ -11,6 +11,7 @@
 
 #import "OAI_ColorManager.h"
 #import "OAI_Label.h"
+#import "OAI_SimpleCheckbox.h"
 
 @interface OAI_EmailSetup : UIView {
     
@@ -18,7 +19,12 @@
     
     //objects
     UITextField* txtFacility;
+    
+    
 }
+
+@property (nonatomic, retain) NSString* strSelectedCompetitor;
+@property (nonatomic, retain) NSMutableArray* arrMyCheckboxes;
 
 - (void) sendEmail : (UIButton*) myButton;
 

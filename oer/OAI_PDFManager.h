@@ -12,6 +12,7 @@
 #import "OAI_ColorManager.h"
 #import "OAI_StringManager.h"
 #import "OAI_FileManager.h"
+#import "OAI_SimpleCheckbox.h"
 
 #define kBorderInset            20.0
 #define kBorderWidth            1.0
@@ -28,6 +29,8 @@
 
 @property (nonatomic, retain) NSString* strFacilityName;
 @property (nonatomic, retain) NSString* strPDFJustCreated;
+@property (nonatomic, retain) NSArray* arrEmailCheckboxes;
+@property (nonatomic, retain) NSString* strSelectedCompetitor;
 
 +(OAI_PDFManager* )sharedPDFManager;
 

@@ -165,9 +165,9 @@
                 //store results for AcecideC Chemical
                 [_dictResults setObject:@"" forKey:@"Chemicals_Discount_Competition"];
                 
-                [_dictResults setObject:@"4" forKey:@"Chemicals_Units Per Package_Competition"];
+                [_dictResults setObject:@"" forKey:@"Chemicals_Units Per Package_Competition"];
                 
-                [_dictResults setObject:@"98.85" forKey:@"Chemicals_Purchase Price (per case)_Competition"];
+                [_dictResults setObject:@"" forKey:@"Chemicals_Purchase Price (per case)_Competition"];
                 
                 [_dictResults setObject:@"" forKey:@"Chemicals_Maximum Use Life (# cycles per basin)_Competition"];
                 
@@ -175,7 +175,7 @@
                 
                 [_dictResults setObject:@"" forKey:@"Competition Chemical Cost Per Cycle"];
                 
-                [_dictResults setObject:@"3.50" forKey:@"Chemicals_Chemical Cost Per Scope_Competition"];
+                [_dictResults setObject:@"" forKey:@"Chemicals_Chemical Cost Per Scope_Competition"];
                 
                 [_dictResults setObject:@"" forKey:@"Chemicals_Units Required For Operation (per basin)_Competition"];
             }
@@ -258,7 +258,7 @@
                     
                     [_dictResults setObject:@"" forKey:@"Competition Detergents Cost Per Cycle"];
                     
-                    [_dictResults setObject:@"0.30" forKey:@"Detergents_Detergent Cost Per Scope_Competition"];
+                    [_dictResults setObject:@"" forKey:@"Detergents_Detergent Cost Per Scope_Competition"];
                     
                     [_dictResults setObject:@"" forKey:@"Detergents_Units Required For Operation (per basin)_Competition"];
                     
@@ -373,7 +373,7 @@
                     
                     [_dictResults setObject:@"" forKey:@"Competition Test Strips Cost Per Cycle"];
                     
-                    [_dictResults setObject:@"0.42" forKey:@"Test Strips_Test Strip Cost Per Scope_Competition"];
+                    [_dictResults setObject:@"" forKey:@"Test Strips_Test Strip Cost Per Scope_Competition"];
                     
                     [_dictResults setObject:@"" forKey:@"Test Strips_Units Required For Operation (per basin)_Competition"];
                         
@@ -412,7 +412,8 @@
                     
                     //Competition
                     
-                    float CompetitionFilter_CPS = .67;
+                    //changed 4/22 was .67
+                    float CompetitionFilter_CPS = 0.0;
                     float CompetitionFilter_CP = CompetitionFilter_CPS * cyclesPerYear;
                     
                     [_dictResults setObject:[NSString stringWithFormat:@"%.02f", CompetitionFilter_CP] forKey:@"Filters_Annual Cost_Competition"];
@@ -471,7 +472,7 @@
             [_dictResults setObject:[NSString stringWithFormat:@"%.02f", laborCPS] forKey:@"Labor_Labor Cost Per Scope_AcecideC"];
             
             //Competition
-            [_dictResults setObject:@"0.50" forKey:@"Labor_Labor Cost Per Scope_Competition"];
+            [_dictResults setObject:@"0.0" forKey:@"Labor_Labor Cost Per Scope_Competition"];
             
         } else if ([strThisKey rangeOfString:@"Operation"].location !=NSNotFound) {
             
@@ -490,11 +491,54 @@
             [_dictResults setObject:@"3 " forKey:@"Operation Time_AER Processing_AcecideC"];
             
             //Competition
-            [_dictResults setObject:@"2 " forKey:@"Operation Time_Pre-Cleaning_Competition"];
-            [_dictResults setObject:@"4 " forKey:@"Operation Time_Leakage Testing_Competition"];
-            [_dictResults setObject:@"5 " forKey:@"Operation Time_Manual Cleaning_Competition"];
-            [_dictResults setObject:@"33 " forKey:@"Operation Time_Post AER Processing_Competition"];
-            [_dictResults setObject:@"3 " forKey:@"Operation Time_AER Processing_Competition"];
+            OAI_TextField* txtAERProcessing = [_dictTextFields objectForKey:@"Operation Time_AER Processing_Competition"];
+            OAI_TextField* txtLeakageTesting = [_dictTextFields objectForKey:@"Operation Time_Leakage Testing_Competition"];
+            OAI_TextField* txtManualCleaning = [_dictTextFields objectForKey:@"Operation Time_Manual Cleaning_Competition"];
+            OAI_TextField* txtAERPostCleaning = [_dictTextFields objectForKey:@"Operation Time_Post AER Processing_Competition"];
+            OAI_TextField* txtPreCleaning = [_dictTextFields objectForKey:@"Operation Time_Pre-Cleaning_Competition"];
+            
+            NSString* strAERProcessing;
+            NSString* strLeakageTesting;
+            NSString* strManualCleaning;
+            NSString* strAERPostCleaning;
+            NSString* strPreCleaning;
+            
+            if (txtAERProcessing.text != nil) {
+                strAERProcessing = txtAERProcessing.text;
+            } else {
+                strAERProcessing = @"0";
+            }
+            
+            if (txtLeakageTesting.text != nil) {
+                strLeakageTesting = txtLeakageTesting.text;
+            } else {
+                strLeakageTesting = @"0";
+            }
+            
+            if (txtManualCleaning.text != nil) {
+                strManualCleaning = txtManualCleaning.text;
+            } else {
+                strManualCleaning = @"0";
+            }
+            
+            if (txtAERPostCleaning.text != nil) {
+                strAERPostCleaning = txtAERPostCleaning.text;
+            } else {
+                strAERPostCleaning = @"0";
+            }
+            
+            if (txtPreCleaning.text != nil) {
+                strPreCleaning = txtPreCleaning.text;
+            } else {
+                strPreCleaning = @"0";
+            }
+            
+            
+            [_dictResults setObject:strPreCleaning forKey:@"Operation Time_Pre-Cleaning_Competition"];
+            [_dictResults setObject:strLeakageTesting forKey:@"Operation Time_Leakage Testing_Competition"];
+            [_dictResults setObject:strManualCleaning forKey:@"Operation Time_Manual Cleaning_Competition"];
+            [_dictResults setObject:strAERPostCleaning forKey:@"Operation Time_Post AER Processing_Competition"];
+            [_dictResults setObject:strAERProcessing forKey:@"Operation Time_AER Processing_Competition"];
         }
     }
     

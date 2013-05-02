@@ -27,7 +27,7 @@
 #import "NSString-StripNonNumerics.h"
 
 
-@interface ViewController : UIViewController <UIScrollViewDelegate, UITextFieldDelegate, MFMailComposeViewControllerDelegate>{
+@interface ViewController : UIViewController <UIScrollViewDelegate, UITextFieldDelegate, MFMailComposeViewControllerDelegate, UIGestureRecognizerDelegate, UITableViewDataSource, UITableViewDelegate>{
     
     OAI_Calculations* calculator;
     OAI_TitleBar* titleBarManager;
@@ -41,6 +41,7 @@
     
     
     UIScrollView* scNav;
+    OAI_ScrollView* scSections;
     
     UIFont* headerFont;
     UIFont* cellFont;
@@ -54,13 +55,21 @@
     NSMutableDictionary* dictResultCells;
     NSArray* arrTypes;
     NSArray* arrResultsTableHeaders;
-    NSMutableDictionary* arrResultsData;
+    NSMutableDictionary* dictResultsData;
     NSArray* arrResultsRowHeaders;
     NSArray* arrTimeSavingsRowHeaders;
+    NSMutableDictionary* dictCompetitors;
+    NSArray* arrCompetitorNames;
+    NSArray* arrEmailCheckboxes;
     
     NSString* strFacilityName;
     
     UIView* vAccount;
+    
+    UIView* vCompChoices;
+    float compViewHeight;
+    UITableView* tblCompetitors;
+    NSString* strSelectedCompetitor;
     
 }
 
@@ -86,6 +95,9 @@
 
 - (void) sendEmail;
 
+- (void) showCompetitors : (UITapGestureRecognizer*) tgrMyTGR;
+
+- (void) addCompetitorTimes; 
 
 
 @end

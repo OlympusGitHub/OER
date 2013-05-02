@@ -62,6 +62,32 @@
 
 - (void) generatePdfWithFilePath: (NSString *)thefilePath : (NSDictionary*) dictResults {
     
+    //get which items we are going to list
+    BOOL showALDAHOL = NO;
+    BOOL showAcecide = NO;
+    BOOL showCompetitor = NO;
+    
+    for(int i=0; i<_arrEmailCheckboxes.count; i++) {
+        
+        OAI_SimpleCheckbox* thisCheckbox = [_arrEmailCheckboxes objectAtIndex:i];
+        
+        NSString* strThisCheckbox = thisCheckbox.elementID;
+        if([strThisCheckbox rangeOfString:@"ALDAHOL"].location != NSNotFound) {
+            if ([thisCheckbox.isChecked isEqualToString:@"YES"]) {
+                showALDAHOL = YES;
+            }
+        } else if ([strThisCheckbox rangeOfString:@"Acecide"].location != NSNotFound) {
+            if ([thisCheckbox.isChecked isEqualToString:@"YES"]) {
+                showAcecide = YES;
+            }
+        } else {
+            if ([thisCheckbox.isChecked isEqualToString:@"YES"]) {
+                showCompetitor = YES;
+            }
+        }
+    }
+
+    
     UIGraphicsBeginPDFContextToFile(thefilePath, CGRectZero, nil);
     
     BOOL done = NO;
@@ -140,6 +166,28 @@
         
         for(int i=0; i<arrResultsHeaders.count; i++) {
             
+            BOOL showHeader = NO;
+            NSString* strThisHeader = [arrResultsHeaders objectAtIndex:i];
+            
+            //determine if the header should be displayed or not
+            if (i==1) {
+                if (showALDAHOL) {
+                    showHeader = YES;
+                }
+            } else if (i==2) {
+                if (showAcecide) {
+                    showHeader = YES;
+                }
+            } else if (i==3) {
+                if (showCompetitor) {
+                    showHeader = YES;
+                    strThisHeader = _strSelectedCompetitor;
+                }
+            } else if (i==0) {
+                showHeader = YES;
+            }
+
+            
             //build backgrounds
             if (i==0) {
                 cellW = 190.0;
@@ -148,33 +196,34 @@
                 cellW = 126.0;
             }
             
-            //set cgsize
-            CGSize cellConstraint = CGSizeMake(cellW-2, 999.0);
-
-            NSString* strThisHeader = [arrResultsHeaders objectAtIndex:i];
-            CGSize thisHeaderSize = [strThisHeader sizeWithFont:tableFontBold constrainedToSize:cellConstraint lineBreakMode:NSLineBreakByWordWrapping];
+            if(showHeader) { 
             
-            //make border rectangle
-            borderColor = [UIColor whiteColor];
-            
-            //make border rect
-            borderFrame = CGRectMake(cellX, tableTitleFrame.origin.y+tableTitleFrame.size.height + 5.0, cellW, kLineWidth*30);
-            
-            [self drawBorder:borderColor:borderFrame];
-            
-            
-            //file the background color
-            CGPoint headerBarStartPoint = CGPointMake(cellX, tableTitleFrame.origin.y + tableTitleFrame.size.height+20);
-            CGPoint headerBarEndPoint = CGPointMake(cellX + cellW, tableTitleFrame.origin.y + tableTitleFrame.size.height+20);
-            lineWidth = kLineWidth*30;
-            [self drawLine:lineWidth:clrOlympusBlue:headerBarStartPoint:headerBarEndPoint];
-            
-            //add the header text
-            CGRect textFrame = CGRectMake(cellX, cellY+2.0, cellW, cellH);
-            textColor = [UIColor whiteColor];
-            [self drawText:strThisHeader :textFrame :tableFontBold :textColor :1];
-            
-            cellX = cellX + cellW;
+                //set cgsize
+                CGSize cellConstraint = CGSizeMake(cellW-2, 999.0);
+                
+                //make border rectangle
+                borderColor = [UIColor whiteColor];
+                
+                //make border rect
+                borderFrame = CGRectMake(cellX, tableTitleFrame.origin.y+tableTitleFrame.size.height + 5.0, cellW, kLineWidth*30);
+                
+                [self drawBorder:borderColor:borderFrame];
+                
+                
+                //file the background color
+                CGPoint headerBarStartPoint = CGPointMake(cellX, tableTitleFrame.origin.y + tableTitleFrame.size.height+20);
+                CGPoint headerBarEndPoint = CGPointMake(cellX + cellW, tableTitleFrame.origin.y + tableTitleFrame.size.height+20);
+                lineWidth = kLineWidth*30;
+                [self drawLine:lineWidth:clrOlympusBlue:headerBarStartPoint:headerBarEndPoint];
+                
+                //add the header text
+                CGRect textFrame = CGRectMake(cellX, cellY+2.0, cellW, cellH);
+                textColor = [UIColor whiteColor];
+                [self drawText:strThisHeader :textFrame :tableFontBold :textColor :1];
+                
+                cellX = cellX + cellW;
+                
+            }
             
         }
         
@@ -251,28 +300,53 @@
             //loop through the results array
             for(int x =0; x<arrResultsData.count; x++) {
                 
+                BOOL showCell = NO;
+                
+                //determine if the header should be displayed or not
+                if (x==1) {
+                    if (showALDAHOL) {
+                        showCell = YES;
+                    }
+                } else if (x==2) {
+                    if (showAcecide) {
+                        showCell = YES;
+                    }
+                } else if (x==3) {
+                    if (showCompetitor) {
+                        showCell = YES;
+                    }
+                } else if (x==0) {
+                    showCell = YES;
+                }
+
+                
                 NSString* strCellValue = [arrResultsData objectAtIndex:x];
+                
+                if (showCell) {
                                 
-                //make border rectangle
-                borderColor = [UIColor grayColor];
+                    //make border rectangle
+                    borderColor = [UIColor grayColor];
+                    
+                    //make border rect
+                    borderFrame = CGRectMake(cellX, cellY, cellW, kLineWidth*20);
+                    
+                    [self drawBorder:borderColor:borderFrame];
+                    
+                    //fill the background color
+                    CGPoint headerBarStartPoint = CGPointMake(cellX, cellY+10.0);
+                    CGPoint headerBarEndPoint = CGPointMake(cellX + cellW, cellY+10.0);
+                    lineWidth = kLineWidth*20;
+                    [self drawLine:lineWidth:backgroundColor:headerBarStartPoint:headerBarEndPoint];
+                    
+                    //add the row header text
+                    textFrame = CGRectMake(cellX, cellY+2.0, cellW, cellH);
+                    textColor = clrDarkGray;
+                    [self drawText:strCellValue :textFrame :tableFontBold :textColor :1];
+                    
+                    cellX = cellX + cellW;
+                }
                 
-                //make border rect
-                borderFrame = CGRectMake(cellX, cellY, cellW, kLineWidth*20);
-                
-                [self drawBorder:borderColor:borderFrame];
-                
-                //fill the background color
-                CGPoint headerBarStartPoint = CGPointMake(cellX, cellY+10.0);
-                CGPoint headerBarEndPoint = CGPointMake(cellX + cellW, cellY+10.0);
-                lineWidth = kLineWidth*20;
-                [self drawLine:lineWidth:backgroundColor:headerBarStartPoint:headerBarEndPoint];
-                
-                //add the row header text
-                textFrame = CGRectMake(cellX, cellY+2.0, cellW, cellH);
-                textColor = clrDarkGray;
-                [self drawText:strCellValue :textFrame :tableFontBold :textColor :1];
-                
-                cellX = cellX + cellW;
+                showCell = NO;
                 
             }
             
@@ -311,6 +385,26 @@
         for(int i=0; i<arrTypes.count+1; i++) {
             
             NSString* strHeaderValue;
+            BOOL showHeader = NO;
+            
+            //determine if the header should be displayed or not
+            if (i==1) {
+                if (showALDAHOL) {
+                    showHeader = YES;
+                }
+            } else if (i==2) {
+                if (showAcecide) {
+                    showHeader = YES;
+                }
+            } else if (i==3) {
+                if (showCompetitor) {
+                    showHeader = YES;
+                    strHeaderValue = _strSelectedCompetitor;
+                }
+            } else if (i==0) {
+                showHeader = YES;
+            }
+
             
             //set the cell width
             if (i==0) {
@@ -324,28 +418,35 @@
             
             //borders
             //make border rectangle
-            borderColor = [UIColor whiteColor];
             
-            //make border rect
-            borderFrame = CGRectMake(cellX, cellY, cellW, cellH);
+            if(showHeader) { 
             
-            [self drawBorder:borderColor:borderFrame];
+                borderColor = [UIColor whiteColor];
             
-            //background
-            CGPoint headerBarStartPoint = CGPointMake(cellX, cellY+15.0);
-            CGPoint headerBarEndPoint = CGPointMake(cellX + cellW, cellY+15.0);
-            lineWidth = kLineWidth*30;
-            [self drawLine:lineWidth:clrOlympusBlue:headerBarStartPoint:headerBarEndPoint];
+                //make border rect
+                borderFrame = CGRectMake(cellX, cellY, cellW, cellH);
+                
+                [self drawBorder:borderColor:borderFrame];
+                
+                //background
+                CGPoint headerBarStartPoint = CGPointMake(cellX, cellY+15.0);
+                CGPoint headerBarEndPoint = CGPointMake(cellX + cellW, cellY+15.0);
+                lineWidth = kLineWidth*30;
+                [self drawLine:lineWidth:clrOlympusBlue:headerBarStartPoint:headerBarEndPoint];
+                
+                //headers
+                
+                if (i>0) {
+                    textColor = [UIColor whiteColor];
+                    textFrame = CGRectMake(cellX, cellY+2.0, cellW, cellH);
+                    [self drawText:strHeaderValue :textFrame :tableFontBold:textColor:1];
+                }
+                
+                cellX = cellX + cellW;
             
-            //headers
-            
-            if (i>0) {
-                textColor = [UIColor whiteColor];
-                textFrame = CGRectMake(cellX, cellY+2.0, cellW, cellH);
-                [self drawText:strHeaderValue :textFrame :tableFontBold:textColor:1];
             }
             
-            cellX = cellX + cellW;
+            showHeader = NO;
         }
         
         //fill in the table values
@@ -409,27 +510,54 @@
             for(int x=0; x<arrCellValues.count; x++) {
                 
                 NSString* strCellValue = [arrCellValues objectAtIndex:x];
+                BOOL showCell = NO;
                 
-                //make border rectangle
-                borderColor = [UIColor grayColor];
+                //determine if the header should be displayed or not
+                if (x==1) {
+                    if (showALDAHOL) {
+                        showCell = YES;
+                    }
+                } else if (x==2) {
+                    if (showAcecide) {
+                        showCell = YES;
+                    }
+                } else if (x==3) {
+                    if (showCompetitor) {
+                        showCell = YES;
+                        strCellValue = _strSelectedCompetitor;
+                    }
+                } else if (x==0) {
+                    showCell = YES;
+                }
+
                 
-                //make border rect
-                borderFrame = CGRectMake(cellX, cellY, cellW, kLineWidth*20);
                 
-                [self drawBorder:borderColor:borderFrame];
                 
-                //fill the background color
-                CGPoint headerBarStartPoint = CGPointMake(cellX, cellY+10.0);
-                CGPoint headerBarEndPoint = CGPointMake(cellX + cellW, cellY+10.0);
-                lineWidth = kLineWidth*20;
-                [self drawLine:lineWidth:backgroundColor:headerBarStartPoint:headerBarEndPoint];
+                if(showCell) { 
                 
-                //add the row header text
-                textFrame = CGRectMake(cellX, cellY+2.0, cellW, cellH);
-                textColor = clrDarkGray;
-                [self drawText:strCellValue :textFrame :tableFontBold :textColor :1];
+                    //make border rectangle
+                    borderColor = [UIColor grayColor];
+                    
+                    //make border rect
+                    borderFrame = CGRectMake(cellX, cellY, cellW, kLineWidth*20);
+                    
+                    [self drawBorder:borderColor:borderFrame];
+                    
+                    //fill the background color
+                    CGPoint headerBarStartPoint = CGPointMake(cellX, cellY+10.0);
+                    CGPoint headerBarEndPoint = CGPointMake(cellX + cellW, cellY+10.0);
+                    lineWidth = kLineWidth*20;
+                    [self drawLine:lineWidth:backgroundColor:headerBarStartPoint:headerBarEndPoint];
+                    
+                    //add the row header text
+                    textFrame = CGRectMake(cellX, cellY+2.0, cellW, cellH);
+                    textColor = clrDarkGray;
+                    [self drawText:strCellValue :textFrame :tableFontBold :textColor :1];
+                    
+                    cellX = cellX + cellW;
+                }
                 
-                cellX = cellX + cellW;
+                showCell = NO;
 
             }
             

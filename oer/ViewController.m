@@ -43,6 +43,119 @@
     dictTextFields = [[NSMutableDictionary alloc] init];
     dictResults = [[NSMutableDictionary alloc] init];
     dictResultCells = [[NSMutableDictionary alloc] init];
+    dictCompetitors = [[NSMutableDictionary alloc] init];
+    
+    //build the competitors dictionary
+    [dictCompetitors setObject: [[NSDictionary alloc] initWithObjectsAndKeys:
+        @"2", @"Pre-Cleaning",
+        @"4", @"Leakage Test",
+        @"5", @"Manaual Cleaning",
+        @"3", @"AER Processing",
+        @"32", @"Post AER Processing", 
+        nil]
+    forKey:@"Current AER Estimates"];
+    
+    [dictCompetitors setObject: [[NSDictionary alloc] initWithObjectsAndKeys:
+         @"2", @"Pre-Cleaning",
+         @"4", @"Leakage Test",
+         @"5", @"Manaual Cleaning",
+         @"3", @"AER Processing",
+         @"33", @"Post AER Processing", 
+         nil]
+    forKey:@"Advanced Sterilization Prodcuts (ASP) Evotech"];
+    
+    [dictCompetitors setObject: [[NSDictionary alloc] initWithObjectsAndKeys:
+         @"2", @"Pre-Cleaning",
+         @"4", @"Leakage Test",
+         @"5", @"Manaual Cleaning",
+         @"3", @"AER Processing",
+         @"32", @"Post AER Processing",
+         nil]
+    forKey:@"Custom Ultrasonics System 83 Plus"];
+    
+    [dictCompetitors setObject: [[NSDictionary alloc] initWithObjectsAndKeys:
+         @"2", @"Pre-Cleaning",
+         @"4", @"Leakage Test",
+         @"5", @"Manaual Cleaning",
+         @"3", @"AER Processing",
+         @"42", @"Post AER Processing",
+         nil]
+    forKey:@"Steris System 1"];
+    
+    [dictCompetitors setObject: [[NSDictionary alloc] initWithObjectsAndKeys:
+         @"2", @"Pre-Cleaning",
+         @"4", @"Leakage Test",
+         @"5", @"Manaual Cleaning",
+         @"3", @"AER Processing",
+         @"32", @"Post AER Processing",
+         nil]
+    forKey:@"Steris System IE"];
+    
+    [dictCompetitors setObject: [[NSDictionary alloc] initWithObjectsAndKeys:
+         @"2", @"Pre-Cleaning",
+         @"4", @"Leakage Test",
+         @"5", @"Manaual Cleaning",
+         @"3", @"AER Processing",
+         @"32", @"Post AER Processing",
+         nil]
+    forKey:@"Steris Reliance"];
+    
+    [dictCompetitors setObject: [[NSDictionary alloc] initWithObjectsAndKeys:
+         @"2", @"Pre-Cleaning",
+         @"4", @"Leakage Test",
+         @"5", @"Manaual Cleaning",
+         @"3", @"AER Processing",
+         @"30", @"Post AER Processing",
+         nil]
+    forKey:@"DSD 91-E"];
+    
+    [dictCompetitors setObject: [[NSDictionary alloc] initWithObjectsAndKeys:
+         @"2", @"Pre-Cleaning",
+         @"4", @"Leakage Test",
+         @"5", @"Manaual Cleaning",
+         @"3", @"AER Processing",
+         @"30", @"Post AER Processing",
+         nil]
+    forKey:@"Medivators DSD-20ILT"];
+    
+    [dictCompetitors setObject: [[NSDictionary alloc] initWithObjectsAndKeys:
+         @"2", @"Pre-Cleaning",
+         @"4", @"Leakage Test",
+         @"5", @"Manaual Cleaning",
+         @"3", @"AER Processing",
+         @"22", @"Post AER Processing",
+         nil]
+    forKey:@"Medivators DSD-Edge"];
+    
+    [dictCompetitors setObject: [[NSDictionary alloc] initWithObjectsAndKeys:
+         @"2", @"Pre-Cleaning",
+         @"4", @"Leakage Test",
+         @"5", @"Manaual Cleaning",
+         @"3", @"AER Processing",
+         @"28", @"Post AER Processing",
+         nil]
+    forKey:@"Medivators Advantage Plus"];
+    
+    [dictCompetitors setObject: [[NSDictionary alloc] initWithObjectsAndKeys:
+         @"2", @"Pre-Cleaning",
+         @"4", @"Leakage Test",
+         @"5", @"Manaual Cleaning",
+         @"3", @"AER Processing",
+         @"28", @"Post AER Processing",
+         nil]
+    forKey:@"CER-1"];
+    
+    [dictCompetitors setObject: [[NSDictionary alloc] initWithObjectsAndKeys:
+         @"2", @"Pre-Cleaning",
+         @"4", @"Leakage Test",
+         @"5", @"Manaual Cleaning",
+         @"3", @"AER Processing",
+         @"28", @"Post AER Processing",
+         nil]
+    forKey:@"CER-2"];
+    
+    arrCompetitorNames = [[NSArray alloc] initWithObjects:@"Current AER Estimates", @"Advanced Sterilization Prodcuts (ASP) Evotech", @"Custom Ultrasonics System 83 Plus", @"Steris System 1", @"Steris System IE", @"Steris Reliance", @"DSD 91-E", @"Medivators DSD-20ILT", @"Medivators DSD-Edge", @"Medivators Advantage Plus", @"CER-1", @"CER-2", nil];
+
     
     /***********************************
      TOP BAR
@@ -198,7 +311,7 @@
             [vTableSection addSubview:vHeaderBarPadding];
             
             //set up headers
-            arrTypes = [[NSArray alloc] initWithObjects:@"Olympus OER-Pro with ALDAHOL", @"Olympus OER-Pro with Acecide-C", @"Custom Ultrasonics System 83 Plus", nil];
+            arrTypes = [[NSArray alloc] initWithObjects:@"Olympus OER-Pro with ALDAHOL", @"Olympus OER-Pro with Acecide-C", @"Select A Competitor", nil];
             
             //set up some coords
             float labelX = barThird;
@@ -223,6 +336,14 @@
                 lblThisHeader.lineBreakMode = NSLineBreakByWordWrapping;
                 lblThisHeader.textAlignment = NSTextAlignmentCenter;
                 
+                if([[arrTypes objectAtIndex:i] isEqualToString:@"Select A Competitor"]) {
+                    UITapGestureRecognizer* tgrMyTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showCompetitors:)];
+                    tgrMyTap.delegate = self;
+                    lblThisHeader.userInteractionEnabled = YES;
+                    lblThisHeader.tag = 500;
+                    [lblThisHeader addGestureRecognizer:tgrMyTap];                   
+                }
+                
                 [vTableSection addSubview:lblThisHeader];
                 
                 //increment x
@@ -230,7 +351,7 @@
             }
             
             //add the scroll view
-            OAI_ScrollView* scSections = [[OAI_ScrollView alloc] initWithFrame:CGRectMake(0.0, lblThisHeader.frame.origin.y + lblThisHeader.frame.size.height +2, vTableSection.frame.size.width, vTableSection.frame.size.height-lblThisHeader.frame.size.height)];
+            scSections = [[OAI_ScrollView alloc] initWithFrame:CGRectMake(0.0, lblThisHeader.frame.origin.y + lblThisHeader.frame.size.height +2, vTableSection.frame.size.width, vTableSection.frame.size.height-lblThisHeader.frame.size.height)];
             [vTableSection addSubview:scSections];
             
             //get the sections
@@ -421,9 +542,7 @@
             NSString* strProcedureCount = txtProcedureCount.text;
             NSString* strAnnualVol = [NSString stringWithFormat:@"Annual Volume: %@", strProcedureCount];
             CGSize strAnnualSize = [strAnnualVol sizeWithFont:[UIFont fontWithName:@"Helvetica-Bold" size:20]];
-            
-            
-            
+                        
             UILabel* lblAnnualVol = [[UILabel alloc] initWithFrame:CGRectMake(40.0, 10.0, strAnnualSize.width, strAnnualSize.height)];
             lblAnnualVol.text = strAnnualVol;
             lblAnnualVol.textColor = clrDarkGrey;
@@ -440,7 +559,7 @@
             [scResults addSubview:btnEmail];
             
             //set up the headers
-            arrResultsTableHeaders = [[NSArray alloc] initWithObjects:@"Operational Cost", @"Olympus OER-Pro with ALDAHOL", @"Olympus OER-Pro with Acecide-C", @"Custom Ultrasonics System 83 Plus", nil];
+            arrResultsTableHeaders = [[NSArray alloc] initWithObjects:@"Operational Cost", @"Olympus OER-Pro with ALDAHOL", @"Olympus OER-Pro with Acecide-C", @"Competitor", nil];
             
             arrResultsRowHeaders = [[NSArray alloc] initWithObjects:@"Cost of Service Per Scope", @"Cost of Chemical Per Scope", @"Cost of Detergent Per Scope", @"Cost of Test Strips Per Scope", @"Cost of Filters Per Scope", @"Cost of Labor Per Scope", @"Total Cost Per Scope", nil];
             
@@ -470,7 +589,6 @@
                 OAI_Label* lblResultsHeader = [[OAI_Label alloc] init];
                 [lblResultsHeader setFrame:CGRectMake(cellX, btnEmail.frame.origin.y + btnEmail.frame.size.height + 5.0, cellW, 45.0)];
                 
-                
                 lblResultsHeader.text = strThisHeader;
                 lblResultsHeader.textColor = [UIColor whiteColor];
                 lblResultsHeader.font = tableHeaderFont;
@@ -480,6 +598,10 @@
                 lblResultsHeader.layer.borderWidth = 1.0;
                 lblResultsHeader.layer.borderColor = [UIColor whiteColor].CGColor;
                 lblResultsHeader.backgroundColor = [colorManager setColor:8.0 :16.0 :123.0];
+                
+                if (i==arrResultsTableHeaders.count-1) {
+                    lblResultsHeader.tag = 100;
+                }
                 
                 [scResults addSubview:lblResultsHeader];
                 
@@ -595,8 +717,46 @@
     vEmailManager = [[OAI_EmailSetup alloc] initWithFrame:CGRectMake(0.0, 0.0-400.0, self.view.frame.size.width, 400.0)];
     [self.view addSubview:vEmailManager];
     
+    arrEmailCheckboxes = vEmailManager.arrMyCheckboxes;
+    
     //do initial calculations
     [self calculate];
+    
+    /**********COMP CHOICES VIEW**********/
+    
+    //get the splits
+    float barThird = scNav.frame.size.width/3;
+    float barTwoThirds = barThird*2;
+    float barNewThird = barTwoThirds/3;
+    float maxRowHeight = 0.0;
+    compViewHeight = 0.0;
+    
+    //get the needed height of the view and max row height
+    for(int i=0; i<arrCompetitorNames.count; i++) {
+        
+        NSString* strThisCompetitor = [arrCompetitorNames objectAtIndex:i];
+        CGSize thisCompetitorSize = [strThisCompetitor sizeWithFont:[UIFont fontWithName:@"Helvetica" size:16.0] constrainedToSize:CGSizeMake(barNewThird+2.0, 999.0) lineBreakMode:NSLineBreakByWordWrapping];
+        
+        compViewHeight = compViewHeight + thisCompetitorSize.height;
+        
+        if (thisCompetitorSize.height > maxRowHeight) {
+            maxRowHeight = thisCompetitorSize.height;
+        }
+        
+    }
+    
+    vCompChoices = [[UIView alloc] initWithFrame:CGRectMake(597.333, 370, barNewThird+8, 0.0)];
+    
+    vCompChoices.backgroundColor = [UIColor whiteColor];
+    
+    tblCompetitors = [[UITableView alloc] initWithFrame:CGRectMake(0.0, 0.0, vCompChoices.frame.size.width, vCompChoices.frame.size.height)];
+    tblCompetitors.delegate = self;
+    tblCompetitors.dataSource = self;
+    tblCompetitors.rowHeight = maxRowHeight;
+    [vCompChoices addSubview:tblCompetitors];
+    
+    
+    [self.view addSubview:vCompChoices];
     
     /*************************************
      SPLASH SCREEN
@@ -693,7 +853,90 @@
     
     [self.view addSubview:vAccount];
     [self.view bringSubviewToFront:titleBarManager];
+    
+}
 
+- (void) showCompetitors : (UITapGestureRecognizer*) tgrMyTGR {
+    
+    CGRect compFrame = vCompChoices.frame;
+    
+    if (compFrame.size.height == 0) { 
+        compFrame.size.height = compViewHeight;
+    } else {
+        compFrame.size.height = 0.0;
+    }
+    
+    //resize the table
+    CGRect tableFrame = tblCompetitors.frame;
+    tableFrame.size.height = compFrame.size.height;
+    tblCompetitors.frame = tableFrame;
+    
+    //toggle the view
+    [UIView animateWithDuration:0.4
+     
+            animations:^(void) {
+                vCompChoices.frame = compFrame;
+            }
+     
+             completion:^(BOOL finished) {
+                 nil;
+             }
+     ];
+}
+
+- (void) addCompetitorTimes {
+    
+    NSString* strAERProcessng;
+    NSString* strLeakageTesting;
+    NSString* strManualCleaning;
+    NSString* strPostAERPRocessing;
+    NSString* strPreCleaning;
+    NSString* strCompName;
+    
+    //get the values
+    for(NSString* strThisKey in dictCompetitors) {
+        if([strThisKey isEqualToString:strSelectedCompetitor]) {
+            
+            NSDictionary* dictCompData = [dictCompetitors objectForKey:strThisKey];
+            strCompName = strThisKey;
+            strAERProcessng = [dictCompData objectForKey:@"AER Processing"];
+            strLeakageTesting = [dictCompData objectForKey:@"Leakage Test"];
+            strManualCleaning = [dictCompData objectForKey:@"Manaual Cleaning"];
+            strPostAERPRocessing = [dictCompData objectForKey:@"Post AER Processing"];
+            strPreCleaning = [dictCompData objectForKey:@"Pre-Cleaning"];
+            break;
+        }
+    }
+    
+    //display the values
+    for(NSString* strThisKey in dictTextFields) {
+        
+        if ([strThisKey isEqualToString:@"Operation Time_AER Processing_Competition"]) {
+            OAI_TextField* txtThisField = [dictTextFields objectForKey:strThisKey];
+            txtThisField.text = strAERProcessng;
+        } else if ([strThisKey isEqualToString:@"Operation Time_Leakage Testing_Competition"]) {
+            OAI_TextField* txtThisField = [dictTextFields objectForKey:strThisKey];
+            txtThisField.text = strLeakageTesting;
+        } else if ([strThisKey isEqualToString:@"Operation Time_Manual Cleaning_Competition"]) {
+            OAI_TextField* txtThisField = [dictTextFields objectForKey:strThisKey];
+            txtThisField.text = strManualCleaning;
+        } else if ([strThisKey isEqualToString:@"Operation Time_Post AER Processing_Competition"]) {
+            OAI_TextField* txtThisField = [dictTextFields objectForKey:strThisKey];
+            txtThisField.text = strPostAERPRocessing;
+        } else if ([strThisKey isEqualToString:@"Operation Time_Pre-Cleaning_Competition"]) {
+            OAI_TextField* txtThisField = [dictTextFields objectForKey:strThisKey];
+            txtThisField.text = strPreCleaning;
+        }
+    }
+    
+    //change the cell label text
+    NSArray* arrNavSubviews = scNav.subviews;
+    UIView* vScrollPage1 = [arrNavSubviews objectAtIndex:1];
+    NSArray* arrScrollPage1Subs = vScrollPage1.subviews;
+    OAI_Label* lblCompetitors = [arrScrollPage1Subs objectAtIndex:3];
+    lblCompetitors.text = strCompName;
+    
+    [self calculateWithResults:nil];
     
 }
 
@@ -869,7 +1112,6 @@
     
     //validate the entries
     BOOL isValid = [self validateEntries:@"ALL"];
-    
     if (isValid) {
         calculator.dictTextFields = dictTextFields;
         [calculator calculate:YES];
@@ -983,10 +1225,11 @@
 
 - (void) showComparison : (UIButton*) myButton {
     
-    arrResultsData = [[NSMutableDictionary alloc] init];
+    dictResultsData = [[NSMutableDictionary alloc] init];
+    
     
     OAI_TextField* txtAnnualProcedures =  [dictTextFields objectForKey:@"Procedure Count"];
-    [arrResultsData setObject:txtAnnualProcedures.text forKey:@"Annual Procedures"];
+    [dictResultsData setObject:txtAnnualProcedures.text forKey:@"Annual Procedures"];
     
     float serviceCostALDAHOL;
     float serviceCostAcecideC;
@@ -1040,7 +1283,7 @@
                     [arrServiceResults addObject:strServiceAcecideCCost];
                     [arrServiceResults addObject:strServiceCompetitionCost];
                     
-                    [arrResultsData setObject:arrServiceResults forKey:@"Service Results"];
+                    [dictResultsData setObject:arrServiceResults forKey:@"Service Results"];
                     
                     OAI_Label* lblServiceCostALDAHOL = [dictResultCells objectForKey:@"Service Cost Per Scope ALDAHOL"];
                     lblServiceCostALDAHOL.text = strServiceALDAHOLCost;
@@ -1072,7 +1315,7 @@
                     [arrChemicalResults addObject:strChemicalAcecideCCost];
                     [arrChemicalResults addObject:strChemicalCompetitionCost];
                     
-                    [arrResultsData setObject:arrChemicalResults forKey:@"Chemical Results"];
+                    [dictResultsData setObject:arrChemicalResults forKey:@"Chemical Results"];
                     
                     OAI_Label* lblChemicalCostALDAHOL = [dictResultCells objectForKey:@"Chemical Cost Per Scope ALDAHOL"];
                     lblChemicalCostALDAHOL.text = strChemicalALDAHOLCost;
@@ -1104,7 +1347,7 @@
                     [arrDetergentResults addObject:strDetergentAcecideCCost];
                     [arrDetergentResults addObject:strDetergentCompetitionCost];
                     
-                    [arrResultsData setObject:arrDetergentResults forKey:@"Detergent Results"];
+                    [dictResultsData setObject:arrDetergentResults forKey:@"Detergent Results"];
                     
                     OAI_Label* lblDetergentCostALDAHOL = [dictResultCells objectForKey:@"Detergent Cost Per Scope ALDAHOL"];
                     lblDetergentCostALDAHOL.text = strDetergentALDAHOLCost;
@@ -1135,7 +1378,7 @@
                     [arrTestStripsResults addObject:strTestStripsAcecideCCost];
                     [arrTestStripsResults addObject:strTestStripsCompetitionCost];
                     
-                    [arrResultsData setObject:arrTestStripsResults forKey:@"Test Strip Results"];
+                    [dictResultsData setObject:arrTestStripsResults forKey:@"Test Strip Results"];
                     
                     OAI_Label* lblTestStripsCostALDAHOL = [dictResultCells objectForKey:@"Test Strips Cost Per Scope ALDAHOL"];
                     lblTestStripsCostALDAHOL.text = strTestStripsALDAHOLCost;
@@ -1167,7 +1410,7 @@
                     [arrFiltersResults addObject:strFilterAcecideCCost];
                     [arrFiltersResults addObject:strFilterCompetitionCost];
                     
-                    [arrResultsData setObject:arrFiltersResults forKey:@"Filter Results"];
+                    [dictResultsData setObject:arrFiltersResults forKey:@"Filter Results"];
                     
                     
                     OAI_Label* lblFilterCostALDAHOL = [dictResultCells objectForKey:@"Filters Cost Per Scope ALDAHOL"];
@@ -1200,7 +1443,7 @@
                     [arrLaborResults addObject:strLaborAcecideCCost];
                     [arrLaborResults addObject:strLaborCompetitionCost];
                     
-                    [arrResultsData setObject:arrLaborResults forKey:@"Labor Results"];
+                    [dictResultsData setObject:arrLaborResults forKey:@"Labor Results"];
                     
                     OAI_Label* lblLaborCostALDAHOL = [dictResultCells objectForKey:@"Labor Cost Per Scope ALDAHOL"];
                     lblLaborCostALDAHOL.text = strLaborALDAHOLCost;
@@ -1232,7 +1475,7 @@
         [arrTotalResults addObject:strAcecideCTotalCost];
         [arrTotalResults addObject:strCompetitionTotalCost];
         
-        [arrResultsData setObject:arrTotalResults forKey:@"Total Results"];
+        [dictResultsData setObject:arrTotalResults forKey:@"Total Results"];
         
         OAI_Label* lblTotalCostALDAHOL = [dictResultCells objectForKey:@"Total Cost Per Scope ALDAHOL"];
         lblTotalCostALDAHOL.text = strALDAHOLTotalCost;
@@ -1259,18 +1502,18 @@
     
     
     //build cost comparison bar chart
-    OAI_BarChart* barChart = [[OAI_BarChart alloc] initWithFrame:CGRectMake(40.0, lastLabelY, 300.0, 100.0)];
+    /*OAI_BarChart* barChart = [[OAI_BarChart alloc] initWithFrame:CGRectMake(40.0, lastLabelY, 300.0, 100.0)];
     
     NSArray* arrBarData = [[NSArray alloc] initWithObjects:strALDAHOLTotalCost, strAcecideCTotalCost, strCompetitionTotalCost, nil];
     NSArray* arrBarLabels = [[NSArray alloc] initWithObjects:@"Olympus OER-Pro with ALDAHOL", @"Olympus OER-Pro with Acecide-C", @"Custom Ultrasonics System 83 Plus", nil];
     
     [barChart buildBarChart:3 :arrBarData :@"Cost Comparison Chart" :YES :1:arrBarLabels];
-    [scResultsScrollView addSubview:barChart];
+    [scResultsScrollView addSubview:barChart];*/
     
     //add notes
     NSString* strCostNotes = @"The additional cost of the OER-Pro with Acecide may be offset by the time and safety improvements noted in this document.\n\nThe OER-Pro is designed to reprocess two endoscopes per cycle. The \"cost per scope\" reflects the cost for reprocessing one scope when scopes are reprocessed per cycle.\n\nThe number of cycles and the cost of filters per case varies depending on water quality and is difficult to project. Filter costs for an Olympus-purchased prefiltration system are included in this tool. Additionally, other factors such as test strip interpretation, selected chemistry and other environmental factors great influence the number of cycles before a change is required. The projected numbers provided in this calculator are only an estimate. Olympus suggests meeting with your Clinical Bioengineering Department to address local issues related to this expense.";
     
-    UILabel* lblCostNotes = [[UILabel alloc] initWithFrame:CGRectMake(40.0, barChart.frame.origin.y +  80.0, self.view.frame.size.width-80.0, 300.0)];
+    UILabel* lblCostNotes = [[UILabel alloc] initWithFrame:CGRectMake(40.0, lastLabelY, self.view.frame.size.width-80.0, 300.0)];
     lblCostNotes.text = strCostNotes;
     lblCostNotes.textColor = [colorManager setColor:66.0 :66.0 :66.0];
     lblCostNotes.font = [UIFont fontWithName:@"Helvetica" size:12.0];
@@ -1340,6 +1583,13 @@
         if (i==0) {
             strHeader = @"";
             cellW = thirdOfSpace;
+        } else if (i == arrTypes.count) {
+            if(strSelectedCompetitor != nil) {
+                strHeader = strSelectedCompetitor;
+            } else {
+                strHeader = @"Competitor";
+            }
+            
         } else {
             strHeader = [arrTypes objectAtIndex:i-1];
             cellW = tableCellWidth;
@@ -1404,7 +1654,7 @@
             [arrPreCleaning addObject:[dictResults objectForKey:@"Operation Time_Pre-Cleaning_ALDAHOL"]];
             [arrPreCleaning addObject:[dictResults objectForKey:@"Operation Time_Pre-Cleaning_AcecideC"]];
             [arrPreCleaning addObject:[dictResults objectForKey:@"Operation Time_Pre-Cleaning_Competition"]];
-            [arrResultsData setObject:arrPreCleaning forKey:@"Pre Cleaning"];
+            [dictResultsData setObject:arrPreCleaning forKey:@"Pre Cleaning"];
             
         } else if (i==1) {
             
@@ -1416,7 +1666,7 @@
             [arrLeakage addObject:[dictResults objectForKey:@"Operation Time_Leakage Testing_ALDAHOL"]];
             [arrLeakage addObject:[dictResults objectForKey:@"Operation Time_Leakage Testing_AcecideC"]];
             [arrLeakage addObject:[dictResults objectForKey:@"Operation Time_Leakage Testing_Competition"]];
-            [arrResultsData setObject:arrLeakage forKey:@"Leakage"];
+            [dictResultsData setObject:arrLeakage forKey:@"Leakage"];
             
         } else if (i==2) {
             
@@ -1428,7 +1678,7 @@
             [arrManualCleaning addObject:[dictResults objectForKey:@"Operation Time_Manual Cleaning_ALDAHOL"]];
             [arrManualCleaning addObject:[dictResults objectForKey:@"Operation Time_Manual Cleaning_AcecideC"]];
             [arrManualCleaning addObject:[dictResults objectForKey:@"Operation Time_Manual Cleaning_Competition"]];
-            [arrResultsData setObject:arrManualCleaning forKey:@"Manual Cleaning"];
+            [dictResultsData setObject:arrManualCleaning forKey:@"Manual Cleaning"];
             
         } else if (i==3) {
             
@@ -1440,7 +1690,7 @@
             [arrAERProcessing addObject:[dictResults objectForKey:@"Operation Time_AER Processing_ALDAHOL"]];
             [arrAERProcessing addObject:[dictResults objectForKey:@"Operation Time_AER Processing_AcecideC"]];
             [arrAERProcessing addObject:[dictResults objectForKey:@"Operation Time_AER Processing_Competition"]];
-            [arrResultsData setObject:arrAERProcessing forKey:@"AER Processing Cleaning"];
+            [dictResultsData setObject:arrAERProcessing forKey:@"AER Processing Cleaning"];
             
         } else if (i==4) {
             
@@ -1452,7 +1702,7 @@
             [arrAERPostProcessing addObject:[dictResults objectForKey:@"Operation Time_Post AER Processing_ALDAHOL"]];
             [arrAERPostProcessing addObject:[dictResults objectForKey:@"Operation Time_Post AER Processing_AcecideC"]];
             [arrAERPostProcessing addObject:[dictResults objectForKey:@"Operation Time_Post AER Processing_Competition"]];
-            [arrResultsData setObject:arrAERPostProcessing forKey:@"AER Post Processing Cleaning"];
+            [dictResultsData setObject:arrAERPostProcessing forKey:@"AER Post Processing Cleaning"];
             
         }
         
@@ -1506,7 +1756,7 @@
                 [arrTimeTotals addObject:[NSString stringWithFormat:@"%.0f", timeSavingsALDAHOLTotals]];
                 [arrTimeTotals addObject:[dictResults objectForKey:@"Operation Time_Post AER Processing_AcecideC"]];
                 [arrTimeTotals addObject:[NSString stringWithFormat:@"%.0f", timeSavingsCompetitionTotals]];
-                [arrResultsData setObject:arrTimeTotals forKey:@"Time Totals"];
+                [dictResultsData setObject:arrTimeTotals forKey:@"Time Totals"];
                 
                 OAI_Label* lblCellData = [[OAI_Label alloc] initWithFrame:CGRectMake(cellX, cellY, cellW, cellH)];
                 lblCellData.text = strCellValue;
@@ -1617,6 +1867,31 @@
     //[emailBody appendString:[NSString stringWithFormat:@"<div></div>"]];
     //style=\"\"
     
+    //get which items we are going to list
+    BOOL showALDAHOL = NO;
+    BOOL showAcecide = NO;
+    BOOL showCompetitor = NO;
+    
+    for(int i=0; i<arrEmailCheckboxes.count; i++) {
+        
+        OAI_SimpleCheckbox* thisCheckbox = [arrEmailCheckboxes objectAtIndex:i];
+        
+        NSString* strThisCheckbox = thisCheckbox.elementID;
+        if([strThisCheckbox rangeOfString:@"ALDAHOL"].location != NSNotFound) {
+            if ([thisCheckbox.isChecked isEqualToString:@"YES"]) {
+                showALDAHOL = YES;
+            }
+        } else if ([strThisCheckbox rangeOfString:@"Acecide"].location != NSNotFound) {
+            if ([thisCheckbox.isChecked isEqualToString:@"YES"]) {
+                showAcecide = YES;
+            }
+        } else {
+            if ([thisCheckbox.isChecked isEqualToString:@"YES"]) {
+                showCompetitor = YES;
+            }
+        }
+    }
+    
     //set the subject
     NSString* emailSubject = [NSString stringWithFormat:@"Operational Cost Projections With the Olympus OER-Pro for %@",strFacilityName];
     
@@ -1636,14 +1911,41 @@
     for(int i=0; i<arrResultsTableHeaders.count; i++) {
         
         NSString* strThisHeader = [arrResultsTableHeaders objectAtIndex:i];
+        BOOL showHeader = NO;
         
+        
+        //determine if the header should be displayed or not
+        if (i==1) {
+            if (showALDAHOL) {
+                showHeader = YES;
+            }
+        } else if (i==2) {
+            if (showAcecide) {
+                showHeader = YES;
+            }
+        } else if (i==3) {
+            if (showCompetitor) {
+                showHeader = YES;
+                strThisHeader = strSelectedCompetitor;
+            }
+        } else if (i==0) {
+            showHeader = YES;
+        }
+
+
         int width = 125;
         if (i==0) {
             width= 225;
         }
         
-        [emailBody appendString:[NSString stringWithFormat:@"<th style=\"background-color:#08107b; color:#fff; width:%ipx;\">%@</th>", width, strThisHeader]];
-        
+        if (showHeader) { 
+            [emailBody appendString:[NSString stringWithFormat:@"<th style=\"background-color:#08107b; color:#fff; width:%ipx;\">%@</th>", width, strThisHeader]];
+        }
+    
+    
+        //reset
+        showHeader = NO;
+    
     }
     
     [emailBody appendString:@"</tr></thead><tbody>"];
@@ -1665,26 +1967,50 @@
         
         //get the correct array
         if (i==0) {
-            arrThisData = [arrResultsData objectForKey:@"Service Results"];
+            arrThisData = [dictResultsData objectForKey:@"Service Results"];
         } else if (i==1) {
-            arrThisData = [arrResultsData objectForKey:@"Chemical Results"];
+            arrThisData = [dictResultsData objectForKey:@"Chemical Results"];
         } else if (i==2) {
-            arrThisData = [arrResultsData objectForKey:@"Detergent Results"];
+            arrThisData = [dictResultsData objectForKey:@"Detergent Results"];
         } else if (i==3) {
-            arrThisData = [arrResultsData objectForKey:@"Test Strip Results"];
+            arrThisData = [dictResultsData objectForKey:@"Test Strip Results"];
         } else if (i==4) {
-            arrThisData = [arrResultsData objectForKey:@"Filter Results"];
+            arrThisData = [dictResultsData objectForKey:@"Filter Results"];
         } else if (i==5) {
-            arrThisData = [arrResultsData objectForKey:@"Labor Results"];
+            arrThisData = [dictResultsData objectForKey:@"Labor Results"];
         } else if (i==6) {
-            arrThisData = [arrResultsData objectForKey:@"Total Results"];
+            arrThisData = [dictResultsData objectForKey:@"Total Results"];
         }
+        
         
         for(int x=0; x<arrThisData.count; x++) {
             
             NSString* strThisData = [arrThisData objectAtIndex:x];
+            BOOL showCell = NO;
             
-            [emailBody appendString:[NSString stringWithFormat:@"<td style=\"background-color:%@; height:20px;\">%@</td>", strRowColor, strThisData]];
+            
+            //determine if the cell should be displayed or not
+            if (x==0) {
+                if (showALDAHOL) { 
+                    showCell = YES;
+                }
+            } else if (x==1) {
+                if (showAcecide) {
+                    showCell = YES;
+                }
+            } else if (x==2) {
+                if (showCompetitor) {
+                    showCell = YES;
+                }
+            }
+            
+            //show the cell
+            if (showCell) { 
+                [emailBody appendString:[NSString stringWithFormat:@"<td style=\"background-color:%@; height:20px;\">%@</td>", strRowColor, strThisData]];
+            }
+            
+            //reset
+            showCell = NO;
         }
         
         [emailBody appendString:@"</tr>"];
@@ -1707,7 +2033,27 @@
     for(int i=0; i<arrTypes.count+1; i++) {
         
         NSString* strThisHeader;
+        BOOL showHeader = NO;
         int width = 125;
+        
+        //determine if the header should be displayed or not
+        if (i==1) {
+            if (showALDAHOL) {
+                showHeader = YES;
+            }
+        } else if (i==2) {
+            if (showAcecide) {
+                showHeader = YES;
+            }
+        } else if (i==3) {
+            if (showCompetitor) {
+                showHeader = YES;
+                strThisHeader = strSelectedCompetitor;
+            }
+        } else if (i==0) {
+            showHeader = YES;
+        }
+
         
         if (i==0) {
             width= 225;
@@ -1716,7 +2062,12 @@
             strThisHeader = [arrTypes objectAtIndex:i-1];
         }
         
-        [emailBody appendString:[NSString stringWithFormat:@"<th style=\"background-color:#08107b; color:#fff; width:%ipx;\">%@</th>", width, strThisHeader]];
+        if (showHeader) {
+            [emailBody appendString:[NSString stringWithFormat:@"<th style=\"background-color:#08107b; color:#fff; width:%ipx;\">%@</th>", width, strThisHeader]];
+        }
+        
+        //reset
+        showHeader = NO;
     }
     
     for(int i=0; i<arrTimeSavingsRowHeaders.count; i++) {
@@ -1731,28 +2082,50 @@
         }
         
         NSString* strThisRowHeader = [arrTimeSavingsRowHeaders objectAtIndex:i];
+        
         [emailBody appendString:[NSString stringWithFormat:@"<tr><td style=\"background-color:%@; height:20px;\">%@</td>", strRowColor, strThisRowHeader]];
         
         //get the correct array
         if (i==0) {
-            arrThisData = [arrResultsData objectForKey:@"Pre Cleaning"];
+            arrThisData = [dictResultsData objectForKey:@"Pre Cleaning"];
         } else if (i==1) {
-            arrThisData = [arrResultsData objectForKey:@"Leakage"];
+            arrThisData = [dictResultsData objectForKey:@"Leakage"];
         } else if (i==2) {
-            arrThisData = [arrResultsData objectForKey:@"Manual Cleaning"];
+            arrThisData = [dictResultsData objectForKey:@"Manual Cleaning"];
         } else if (i==3) {
-            arrThisData = [arrResultsData objectForKey:@"AER Processing Cleaning"];
+            arrThisData = [dictResultsData objectForKey:@"AER Processing Cleaning"];
         } else if (i==4) {
-            arrThisData = [arrResultsData objectForKey:@"AER Post Processing Cleaning"];
+            arrThisData = [dictResultsData objectForKey:@"AER Post Processing Cleaning"];
         } else if (i==5) {
-            arrThisData = [arrResultsData objectForKey:@"Time Totals"];
+            arrThisData = [dictResultsData objectForKey:@"Time Totals"];
         }
         
         for(int x=0; x<arrThisData.count; x++) {
             
             NSString* strThisData = [arrThisData objectAtIndex:x];
             
-            [emailBody appendString:[NSString stringWithFormat:@"<td style=\"background-color:%@; height:20px;\">%@</td>", strRowColor, strThisData]];
+            BOOL showCell = NO;
+            
+            //determine if the cell should be displayed or not
+            if (x==0) {
+                if (showALDAHOL) {
+                    showCell = YES;
+                }
+            } else if (x==1) {
+                if (showAcecide) {
+                    showCell = YES;
+                }
+            } else if (x==2) {
+                if (showCompetitor) {
+                    showCell = YES;
+                }
+            }
+
+            if (showCell) { 
+                [emailBody appendString:[NSString stringWithFormat:@"<td style=\"background-color:%@; height:20px;\">%@</td>", strRowColor, strThisData]];
+            }
+            //reset
+            showCell = NO;
         }
         
         [emailBody appendString:@"</tr>"];
@@ -1765,13 +2138,15 @@
     
     //build pdf
     pdfManager.strFacilityName = strFacilityName;
-    NSString* strPDFFileName = [NSString stringWithFormat:@"OER_Pro_Cost_%@.pdf", strFacilityName];
-    [arrResultsData setObject:arrResultsTableHeaders forKey:@"Results Table Headers"];
-    [arrResultsData setObject:arrResultsRowHeaders forKey:@"Results Row Headers"];
-    [arrResultsData setObject:arrTimeSavingsRowHeaders forKey:@"Time Savings Row Headers"];
-    [arrResultsData setObject:arrTypes forKey:@"Time Savings Headers"];
+    pdfManager.arrEmailCheckboxes = arrEmailCheckboxes;
     
-    [pdfManager makePDF:strPDFFileName :arrResultsData];
+    NSString* strPDFFileName = [NSString stringWithFormat:@"OER_Pro_Cost_%@.pdf", strFacilityName];
+    [dictResultsData setObject:arrResultsTableHeaders forKey:@"Results Table Headers"];
+    [dictResultsData setObject:arrResultsRowHeaders forKey:@"Results Row Headers"];
+    [dictResultsData setObject:arrTimeSavingsRowHeaders forKey:@"Time Savings Row Headers"];
+    [dictResultsData setObject:arrTypes forKey:@"Time Savings Headers"];
+    
+    [pdfManager makePDF:strPDFFileName :dictResultsData];
     
     //check to make sure the app can send email
     if ([MFMailComposeViewController canSendMail]) {
@@ -1925,10 +2300,97 @@
     }
 }
 
+#pragma mark - Tap Gesture Recognizer Methods
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    return YES;
+}
+
+
+
+#pragma mark Table View Management
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    // Return the number of sections.
+    return 1;
+}
+
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    
+    return arrCompetitorNames.count;
+}
+
+
+// Customize the appearance of table view cells.
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    static NSString *CellIdentifier = @"Cell";
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+        
+    }
+    
+    NSString* strCellValue = [arrCompetitorNames objectAtIndex:indexPath.row];
+    CGSize cellValueSize = [strCellValue sizeWithFont:[UIFont fontWithName:@"Helvetica" size:15.0] constrainedToSize:CGSizeMake(cell.frame.size.width-10.0, 999.0) lineBreakMode:NSLineBreakByWordWrapping];
+    
+    //reset the cell frame
+    CGRect cellFrame = cell.frame;
+    cellFrame.size.height = cellValueSize.height;
+    cell.frame = cellFrame;
+    
+    cell.textLabel.text = [arrCompetitorNames objectAtIndex:indexPath.row];
+    cell.textLabel.textColor = [colorManager setColor:66.0 :66.0 :66.0];
+    cell.textLabel.font = [UIFont fontWithName:@"Helvetica" size:16.0];
+    cell.textLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    cell.textLabel.numberOfLines = 0;
+    cell.textLabel.backgroundColor = [UIColor clearColor];
+    
+    UIView* vCellBackground = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, cell.frame.size.width, cell.frame.size.height)];
+    if (indexPath.row %2) {
+        vCellBackground.backgroundColor = [colorManager setColor:204. :204. :204.0];
+    } else {
+        vCellBackground.backgroundColor = [colorManager setColor:247: 235 :184];
+    }
+
+    cell.backgroundView = vCellBackground;
+    
+    
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    strSelectedCompetitor = [arrCompetitorNames objectAtIndex:indexPath.row];
+    
+    //collapse table view
+    [self showCompetitors:nil];
+    [self addCompetitorTimes];
+    
+    //change the competitor on the comparison page
+    NSArray* arrScrollViews = scNav.subviews;
+    UIView* vComparisonPage = [arrScrollViews objectAtIndex:2];
+    
+    //change the label on the comparison chart
+    UILabel* lblThisLabel = (UILabel*)[vComparisonPage viewWithTag:100];
+    lblThisLabel.text = strSelectedCompetitor;
+    
+    //pass the competitor to the email manager
+    vEmailManager.strSelectedCompetitor = strSelectedCompetitor;
+    
+    //pass the competitor to the pdf manager
+    pdfManager.strSelectedCompetitor = strSelectedCompetitor;
+    
+}
+
+#pragma mark - Default Methods
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
 
 @end
