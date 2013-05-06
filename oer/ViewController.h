@@ -73,7 +73,7 @@
     
 }
 
-- (void) calculate;
+- (void) calculate : (NSString*) strCalculateWhat;
 
 - (void) calculateWithResults : (UIButton*) myButton;
 
@@ -97,7 +97,9 @@
 
 - (void) showCompetitors : (UITapGestureRecognizer*) tgrMyTGR;
 
-- (void) addCompetitorTimes; 
+- (void) addCompetitorTimes;
+
+- (void) setDiscount : (NSString*) strDiscount;
 
 
 @end

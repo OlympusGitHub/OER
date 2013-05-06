@@ -250,6 +250,7 @@
                 OAI_TextField* thisTextEntry = [[OAI_TextField alloc] initWithFrame:CGRectMake(maxRowW + 70.0, rowY, 200.0, 30.0)];
                 thisTextEntry.delegate = self;
                 
+                
                 //id this textfield
                 if (i==0) {
                     thisTextEntry.text = [arrSpecificsRowValues objectAtIndex:i];
@@ -311,7 +312,7 @@
             [vTableSection addSubview:vHeaderBarPadding];
             
             //set up headers
-            arrTypes = [[NSArray alloc] initWithObjects:@"Olympus OER-Pro with ALDAHOL", @"Olympus OER-Pro with Acecide-C", @"Select A Competitor", nil];
+            arrTypes = [[NSArray alloc] initWithObjects:@"Olympus OER-Pro with ALDAHOL 1.8", @"Olympus OER-Pro with Acecide-C", @"Select A Competitor", nil];
             
             //set up some coords
             float labelX = barThird;
@@ -428,26 +429,56 @@
                             strTextFieldID = [NSString stringWithFormat:@"%@_%@_Competition", strThisSectionTitle, strThisSectionRowHeader];
                         }
                         
-                        OAI_TextField* txtThisInput = [[OAI_TextField alloc] initWithFrame:CGRectMake(textFieldX, textFieldY, barNewThird-2.0, 30.0)];
-                        txtThisInput.delegate = self;
-                        
-                        //set up text field label
-                        txtThisInput.textFieldTitle = strTextFieldID;
-                        
+                        //text field input type
                         //set up text field numeric type 0=int, 1=%, 2=$, 3=decimal
+                        int inputType;
                         if ([strTextFieldID rangeOfString:@"Discount"].location != NSNotFound) {
-                            txtThisInput.textFieldInputType = 1;
+                            inputType = 1;
                         } else if ([strTextFieldID rangeOfString:@"Unit"].location != NSNotFound || [strTextFieldID rangeOfString:@"Use"].location != NSNotFound || [strTextFieldID rangeOfString:@"Cleaning"].location != NSNotFound || [strTextFieldID rangeOfString:@"Processing"].location != NSNotFound || [strTextFieldID rangeOfString:@"Testing"].location != NSNotFound) {
-                            txtThisInput.textFieldInputType = 0;
+                            inputType = 0;
                         } else if ([strTextFieldID rangeOfString:@"Price"].location != NSNotFound || [strTextFieldID rangeOfString:@"Cost"].location != NSNotFound) {
-                            txtThisInput.textFieldInputType = 2;
+                            inputType = 2;
                         }
-                        
-                        //add it to the master text field dictionary
-                        [dictTextFields setObject:txtThisInput forKey:txtThisInput.textFieldTitle];
-                        
-                        //ad it to the section
-                        [scSections addSubview:txtThisInput];
+                                                
+                        //set up text fields and labels
+                        if ([strThisSectionRowHeader isEqualToString:@"Discount"] || [strThisSectionRowHeader isEqualToString:@"Additional Cost Above Service"]) {
+                            
+                            OAI_TextField* txtThisInput = [[OAI_TextField alloc] initWithFrame:CGRectMake(textFieldX, textFieldY, barNewThird-2.0, 30.0)];
+                            txtThisInput.delegate = self;
+                            txtThisInput.textFieldInputType = inputType;
+                            
+                            //set up text field label
+                            txtThisInput.textFieldTitle = strTextFieldID;
+                            
+                            if ([strThisSectionTitle isEqualToString:@"Chemicals"]) {
+                                txtThisInput.tag = 800;
+                            } else {
+                                txtThisInput.tag = 801;
+                            }
+                            
+                            //add it to the master text field dictionary
+                            [dictTextFields setObject:txtThisInput forKey:txtThisInput.textFieldTitle];
+                            
+                            //ad it to the section
+                            [scSections addSubview:txtThisInput];
+                            
+                            
+                        } else {
+                            
+                            OAI_Label* lblThisCellValue = [[OAI_Label alloc] initWithFrame:CGRectMake(textFieldX, textFieldY, barNewThird-2.0, 30.0)];
+                            lblThisCellValue.textColor = [colorManager setColor:66.0 :66.0 :66.0];
+                            lblThisCellValue.font = [UIFont fontWithName:@"Helvetica" size:20.0];
+                            lblThisCellValue.backgroundColor = [UIColor clearColor];
+                            
+                            lblThisCellValue.textFieldInputType = inputType;
+                            
+                            //add it to the master text field dictionary
+                            [dictTextFields setObject:lblThisCellValue forKey:strTextFieldID];
+                            
+                            //ad it to the section
+                            [scSections addSubview:lblThisCellValue];
+                            
+                        }
                         
                         //increment x
                         textFieldX = textFieldX + barNewThird;
@@ -559,7 +590,7 @@
             [scResults addSubview:btnEmail];
             
             //set up the headers
-            arrResultsTableHeaders = [[NSArray alloc] initWithObjects:@"Operational Cost", @"Olympus OER-Pro with ALDAHOL", @"Olympus OER-Pro with Acecide-C", @"Competitor", nil];
+            arrResultsTableHeaders = [[NSArray alloc] initWithObjects:@"Operational Cost", @"Olympus OER-Pro with ALDAHOL 1.8", @"Olympus OER-Pro with Acecide-C", @"Competitor", nil];
             
             arrResultsRowHeaders = [[NSArray alloc] initWithObjects:@"Cost of Service Per Scope", @"Cost of Chemical Per Scope", @"Cost of Detergent Per Scope", @"Cost of Test Strips Per Scope", @"Cost of Filters Per Scope", @"Cost of Labor Per Scope", @"Total Cost Per Scope", nil];
             
@@ -720,7 +751,7 @@
     arrEmailCheckboxes = vEmailManager.arrMyCheckboxes;
     
     //do initial calculations
-    [self calculate];
+    [self calculate:@"All"];
     
     /**********COMP CHOICES VIEW**********/
     
@@ -964,22 +995,44 @@
                     if ([strThisKey isEqualToString:strThisTextFieldKey]) {
                         
                         //get the text field
-                        OAI_TextField* thisTextField = [dictTextFields objectForKey:strThisTextFieldKey];
-                        
-                        NSString* strDisplayString;
-                        //convert to currency string if needed
-                        if (thisTextField.textFieldInputType == 2) {
-                            float thisNumber = [[dictResults objectForKey:strThisKey] floatValue];
-                            strDisplayString = [self convertToCurrencyString:thisNumber];
-                        } else if (thisTextField.textFieldInputType == 0) {
-                            strDisplayString = [dictResults objectForKey:strThisKey];
-                        } else if (thisTextField.textFieldInputType == 1) {
-                            strDisplayString = [dictResults objectForKey:strThisKey];
+                        if([[dictTextFields objectForKey:strThisTextFieldKey] isMemberOfClass:[OAI_TextField class]]) { 
+                            OAI_TextField* thisTextField = [dictTextFields objectForKey:strThisTextFieldKey];
+                            
+                            NSString* strDisplayString;
+                            //convert to currency string if needed
+                            if (thisTextField.textFieldInputType == 2) {
+                                float thisNumber = [[dictResults objectForKey:strThisKey] floatValue];
+                                strDisplayString = [self convertToCurrencyString:thisNumber];
+                            } else if (thisTextField.textFieldInputType == 0) {
+                                strDisplayString = [dictResults objectForKey:strThisKey];
+                            } else if (thisTextField.textFieldInputType == 1) {
+                                strDisplayString = [dictResults objectForKey:strThisKey];
+                            }
+                            
+                            //set it's text value
+                            thisTextField.text = strDisplayString;
+
+                            
+                        } else if ([[dictTextFields objectForKey:strThisTextFieldKey] isMemberOfClass:[OAI_Label class]]) {
+                            
+                            OAI_Label* lblThisLabel = [dictTextFields objectForKey:strThisTextFieldKey];
+                            
+                            NSString* strDisplayString;
+                            //convert to currency string if needed
+                            if (lblThisLabel.textFieldInputType == 2) {
+                                float thisNumber = [[dictResults objectForKey:strThisKey] floatValue];
+                                strDisplayString = [self convertToCurrencyString:thisNumber];
+                            } else if (lblThisLabel.textFieldInputType == 0) {
+                                strDisplayString = [dictResults objectForKey:strThisKey];
+                            } else if (lblThisLabel.textFieldInputType == 1) {
+                                strDisplayString = [dictResults objectForKey:strThisKey];
+                            }
+                            
+                            //set it's text value
+                            lblThisLabel.text = strDisplayString;
+                            
                         }
-                        
-                        //set it's text value
-                        thisTextField.text = strDisplayString;
-                        
+                                                
                         //stop looping
                         break;
                     }
@@ -1096,14 +1149,14 @@
 
 #pragma mark - Calculations and Conversions
 
-- (void) calculate {
+- (void) calculate : (NSString*) strCalculateWhat {
     
     //validate the entries
     BOOL isValid = [self validateEntries:@"ALL"];
     
     if (isValid) {
         calculator.dictTextFields = dictTextFields;
-        [calculator calculate:NO];
+        [calculator calculate:NO:strCalculateWhat];
     }
     
 }
@@ -1114,7 +1167,7 @@
     BOOL isValid = [self validateEntries:@"ALL"];
     if (isValid) {
         calculator.dictTextFields = dictTextFields;
-        [calculator calculate:YES];
+        [calculator calculate:YES:@"All"];
     }
 }
 
@@ -1516,7 +1569,7 @@
     UILabel* lblCostNotes = [[UILabel alloc] initWithFrame:CGRectMake(40.0, lastLabelY, self.view.frame.size.width-80.0, 300.0)];
     lblCostNotes.text = strCostNotes;
     lblCostNotes.textColor = [colorManager setColor:66.0 :66.0 :66.0];
-    lblCostNotes.font = [UIFont fontWithName:@"Helvetica" size:12.0];
+    lblCostNotes.font = [UIFont fontWithName:@"Helvetica" size:14.0];
     lblCostNotes.backgroundColor = [UIColor clearColor];
     lblCostNotes.numberOfLines = 0;
     lblCostNotes.lineBreakMode = NSLineBreakByWordWrapping;
@@ -1812,7 +1865,7 @@
     
     //add time savings notes
     OAI_Label* lblAcedideCNotes = [[OAI_Label alloc] initWithFrame:CGRectMake(40.0, lblAcedideCTitle.frame.origin.y + lblAcedideCTitle.frame.size.height-30.0, self.view.frame.size.width, 120.0)];
-    lblAcedideCNotes.text = @"Conservatively Acecide-C saving estimate vs. ALDAHOL is: 9 minutes\nAnnual staff time savings is estimated to be at least: 300 hours\nAt $15 per hour, this annual savings totals: $4500";
+    lblAcedideCNotes.text = @"Conservatively Acecide-C saving estimate vs. ALDAHOL 1.8 is: 9 minutes\nAnnual staff time savings is estimated to be at least: 300 hours\nAt $15 per hour, this annual savings totals: $4500";
     lblAcedideCNotes.textColor = [colorManager setColor:51.0 :51.0 :51.0];
     lblAcedideCNotes.font = tableCellFont;
     lblAcedideCNotes.numberOfLines = 0;
@@ -2294,10 +2347,98 @@
         //if valid calculate the results
         if (isValid) {
             
-            [self calculate];
+            if (textField.tag == 800) {
+                
+                float textFieldValue = [textField.text floatValue];
+                
+                if (textFieldValue > .105) {
+                    
+                    UIAlertView *alert = [[UIAlertView alloc]
+                      initWithTitle: @"Discount Error"
+                      message: @"Discounts cannot exceed 10 percent!"
+                      delegate: nil
+                      cancelButtonTitle:@"OK"
+                      otherButtonTitles:
+                      nil];
+                    
+                    [alert show];
+                    
+                    textField.text = @"0.05";
+                
+                } else {
+                    
+                    //fill in the other chem discount
+                    for(NSString* strThisKey in dictTextFields) {
+                        if([[dictTextFields objectForKey:strThisKey] isMemberOfClass:[OAI_TextField class]]) {
+                            
+                            OAI_TextField* txtThisField = (OAI_TextField*)[dictTextFields objectForKey:strThisKey];
+                            
+                            if(txtThisField !=textField) { 
+                            
+                                if ([strThisKey rangeOfString:@"Chemical"].location != NSNotFound) {
+                                    txtThisField.text = textField.text;
+                                }
+                            }
+                            
+                        }
+                    }
+
+                    //calculate the discount
+                    [self calculate:@"Chemicals"];
+                    
+                }
+                
+            } else if(textField.tag == 801) {
+                
+                float textFieldValue = [textField.text floatValue];
+                if (textFieldValue > .105) {
+                    
+                    UIAlertView *alert = [[UIAlertView alloc]
+                      initWithTitle: @"Discount Error"
+                      message: @"Discounts cannot exceed 10 percent!"
+                      delegate: nil
+                      cancelButtonTitle:@"OK"
+                      otherButtonTitles:
+                      nil];
+                    
+                    [alert show];
+                    
+                    textField.text = @"0.05";
+                    
+                } else { 
+
+                    [self calculate:@"Other"];
+                    
+                    //fill in the discount for each section
+                    [self setDiscount:textField.text];
+                    
+                }
+                
+                
+            } else {
+                
+                [self calculate:@"All"];
+            }
         }
         
     }
+}
+
+- (void) setDiscount : (NSString*) strDiscount {
+    
+    NSArray* arrDiscountFields = [[NSArray alloc] initWithObjects:@"Detergents_Discount_ALDAHOL", @"Detergents_Discount_AcecideC", @"Filters_Discount_AcecideC", @"Filters_Discount_ALDAHOL", @"Service_Discount_ALDAHOL", @"Service_Discount_AcecideC", @"Test Strips_Discount_ALDAHOL", @"Test Strips_Discount_AcecideC", nil];
+    
+    for(NSString* strThisKey in dictTextFields) {
+        if([[dictTextFields objectForKey:strThisKey] isMemberOfClass:[OAI_TextField class]]) {
+            OAI_TextField* txtThisField = (OAI_TextField*)[dictTextFields objectForKey:strThisKey];
+            
+            if ([arrDiscountFields containsObject:txtThisField.textFieldTitle]) {
+                txtThisField.text = strDiscount;
+            }
+            
+        }
+    }
+    
 }
 
 #pragma mark - Tap Gesture Recognizer Methods

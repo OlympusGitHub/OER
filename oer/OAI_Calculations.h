@@ -16,7 +16,7 @@
 @property (nonatomic, retain) NSMutableDictionary* dictTextFields;
 @property (nonatomic, retain) NSMutableDictionary* dictAssumptions; 
 
-- (void) calculate : (BOOL) showResults;
+- (void) calculate : (BOOL) showResults : (NSString*) strCalculateWhat;
 
 - (float) getDiscount : (OAI_TextField*) textField; 
 

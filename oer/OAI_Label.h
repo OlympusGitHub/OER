@@ -11,5 +11,6 @@
 @interface OAI_Label : UILabel
 
 @property (nonatomic, retain) NSString* myLabelID;
+@property (nonatomic, assign) int textFieldInputType;
 
 @end

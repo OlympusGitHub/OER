@@ -23,6 +23,7 @@
         self.textColor = [colorManager setColor: 66.0:66.0:66.0];
         self.font = [UIFont fontWithName:@"Helvetica" size:18.0];
         self.userInteractionEnabled = YES;
+        self.keyboardType = UIKeyboardTypeNumberPad;
     }
     return self;
 }
