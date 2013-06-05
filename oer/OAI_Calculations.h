@@ -14,9 +14,13 @@
 
 @property (nonatomic, retain) NSMutableDictionary* dictResults;
 @property (nonatomic, retain) NSMutableDictionary* dictTextFields;
-@property (nonatomic, retain) NSMutableDictionary* dictAssumptions; 
+@property (nonatomic, retain) NSMutableDictionary* dictAssumptions;
+@property (nonatomic, retain) NSMutableDictionary* dictInitialValues;
+@property (nonatomic, assign) BOOL isOpening;
 
 - (void) calculate : (BOOL) showResults : (NSString*) strCalculateWhat;
+
+- (void) calculateSection : (NSString*) strThisSection : (OAI_TextField*) txtThisField : (NSString*) strThisKey : (NSString*) strThisDicount;
 
 - (float) getDiscount : (OAI_TextField*) textField; 
 
@@ -31,5 +35,9 @@
 - (NSArray*) calculateFiltersCost : (float) myFilterDiscount : (float) myOERCount : (float) myCyclesPerYear : (float) myScopesPerBasin;
 
 - (NSArray*) calculateServiceCost : (float) myServiceDiscount : (float) myCyclesPerYear : (float) myScopesPerBasin;
+
+- (NSString*) clearDollarSymbol : (NSString*) stringToClean;
+
+- (NSString*) convertToCurrencyString : (NSDecimalNumber*) numberToConvert;
 
 @end

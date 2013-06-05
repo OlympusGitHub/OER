@@ -30,6 +30,13 @@
     /**************NOTIFICATION CENTER****************/
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(receiveNotification:) name:@"theMessenger"object:nil];
     
+    /*************************************
+     REGISTER FOR NOTIFICATIONS FOR KEYBOARD
+     **************************************/
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+    
     /**************FONTS****************/
     headerFont = [UIFont fontWithName:@"Helvetica-Bold" size:20.0];
     cellFont = [UIFont fontWithName:@"Helvetica" size:18.0];
@@ -44,6 +51,7 @@
     dictResults = [[NSMutableDictionary alloc] init];
     dictResultCells = [[NSMutableDictionary alloc] init];
     dictCompetitors = [[NSMutableDictionary alloc] init];
+    dictInitialValues = [[NSMutableDictionary alloc] init];
     
     //build the competitors dictionary
     [dictCompetitors setObject: [[NSDictionary alloc] initWithObjectsAndKeys:
@@ -250,7 +258,6 @@
                 OAI_TextField* thisTextEntry = [[OAI_TextField alloc] initWithFrame:CGRectMake(maxRowW + 70.0, rowY, 200.0, 30.0)];
                 thisTextEntry.delegate = self;
                 
-                
                 //id this textfield
                 if (i==0) {
                     thisTextEntry.text = [arrSpecificsRowValues objectAtIndex:i];
@@ -279,7 +286,6 @@
                 rowY = rowY + 45.0;
                 
             }
-            
             
             [scNav addSubview:vUserInputs];
             
@@ -396,7 +402,6 @@
                     //get the header
                     NSString* strThisSectionRowHeader = [arrThisSectionRowHeaders objectAtIndex:x];
                     
-                    
                     //set the size with a constraint
                     CGSize thisSectionSize = [strThisSectionRowHeader sizeWithFont:[UIFont fontWithName:@"Helvetica" size:20] constrainedToSize:CGSizeMake((barThird-20.0), 999.0) lineBreakMode:NSLineBreakByWordWrapping];
                     
@@ -415,7 +420,6 @@
                     //add the textfields
                     float textFieldX = barThird;
                     float textFieldY = rowY;
-                    
                     
                     for(int y=0; y<3; y++) {
                         
@@ -443,25 +447,60 @@
                         //set up text fields and labels
                         if ([strThisSectionRowHeader isEqualToString:@"Discount"] || [strThisSectionRowHeader isEqualToString:@"Additional Cost Above Service"]) {
                             
+                            if (y<2) { 
+                                OAI_TextField* txtThisInput = [[OAI_TextField alloc] initWithFrame:CGRectMake(textFieldX, textFieldY, barNewThird-2.0, 30.0)];
+                                txtThisInput.delegate = self;
+                                txtThisInput.textFieldInputType = inputType;
+                                txtThisInput.text = @"0";
+                                
+                                //set up text field label
+                                txtThisInput.textFieldTitle = strTextFieldID;
+                                
+                                                                
+                                //set initial 5% discount
+                                if ([strThisSectionRowHeader isEqualToString:@"Discount"]) {
+                                    txtThisInput.text = @"0.05";
+                                }
+                                
+                                if ([strThisSectionTitle isEqualToString:@"Chemicals"]) {
+                                    txtThisInput.tag = 800;
+                                    
+                                } else if (![strThisSectionTitle isEqualToString:@"Labor"] && ![strThisSectionTitle isEqualToString:@"Service"]) {
+                                    txtThisInput.tag = 801;
+                                } else if ([strThisSectionTitle isEqualToString:@"Labor"]) {
+                                    txtThisInput.tag = 802;
+                                } else if ([strThisSectionTitle isEqualToString:@"Service"]) {
+                                    txtThisInput.tag = 803;
+                                }
+                                
+                                //add it to the master text field dictionary
+                                [dictTextFields setObject:txtThisInput forKey:txtThisInput.textFieldTitle];
+                                
+                                //ad it to the section
+                                [scSections addSubview:txtThisInput];
+                                
+                            }
+                            
+                        } else if ([strTextFieldID rangeOfString:@"Cost Per Scope"].location != NSNotFound && y==2) {
+                            
                             OAI_TextField* txtThisInput = [[OAI_TextField alloc] initWithFrame:CGRectMake(textFieldX, textFieldY, barNewThird-2.0, 30.0)];
                             txtThisInput.delegate = self;
-                            txtThisInput.textFieldInputType = inputType;
+                            txtThisInput.textFieldInputType = 2;
+                            
+                            if ([strThisSectionTitle isEqualToString:@"Labor"]) {
+                                txtThisInput.tag = 802;
+                            } else if ([strThisSectionTitle isEqualToString:@"Service"]) {
+                                txtThisInput.tag = 804;
+                            }
                             
                             //set up text field label
                             txtThisInput.textFieldTitle = strTextFieldID;
-                            
-                            if ([strThisSectionTitle isEqualToString:@"Chemicals"]) {
-                                txtThisInput.tag = 800;
-                            } else {
-                                txtThisInput.tag = 801;
-                            }
                             
                             //add it to the master text field dictionary
                             [dictTextFields setObject:txtThisInput forKey:txtThisInput.textFieldTitle];
                             
                             //ad it to the section
                             [scSections addSubview:txtThisInput];
-                            
                             
                         } else {
                             
@@ -528,7 +567,6 @@
             
             
         } else if (i==1) {
-            
             
             //results page
             UIView* vResults = [[UIView alloc] initWithFrame:CGRectMake(772.0, 0.0, 768.0, 1004.0)];
@@ -750,8 +788,9 @@
     
     arrEmailCheckboxes = vEmailManager.arrMyCheckboxes;
     
+    
     //do initial calculations
-    [self calculate:@"All"];
+    [self calculate:@"All":YES];
     
     /**********COMP CHOICES VIEW**********/
     
@@ -971,6 +1010,55 @@
     
 }
 
+- (void) resetValues {
+    
+    if (dictInitialValues.count > 0) {
+        for(NSString* strThisKey in dictTextFields) {
+            
+            //set some ivars
+            OAI_TextField* thisTextField;
+            OAI_Label* thisLabel;
+            NSString* thisElementTitle;
+            BOOL isTextField = NO;
+            BOOL isLabel = NO;
+            
+            //determine if we are working with a textfield or label, get its id
+            if ([[dictTextFields objectForKey:strThisKey] isMemberOfClass:[OAI_TextField class]]) {
+                
+                thisTextField = [dictTextFields objectForKey:strThisKey];
+                isTextField = YES;
+                thisElementTitle = thisTextField.textFieldTitle;
+                
+            } else if ([[dictTextFields objectForKey:strThisKey] isMemberOfClass:[OAI_TextField class]]) {
+                
+                thisLabel = [dictTextFields objectForKey:strThisKey];
+                isLabel = YES;
+                thisElementTitle = thisLabel.myLabelID;
+            }
+            
+            //loop through the initial values
+            for(NSString* strThisValueKey in dictInitialValues) {
+                
+                //look for match
+                if ([thisElementTitle isEqualToString:strThisValueKey]) {
+                    
+                    //give element value
+                    if (isTextField) {
+                        thisTextField.text = [dictInitialValues objectForKey:strThisValueKey];
+                    }
+                    
+                    if (isLabel) {
+                        thisLabel.text = [dictInitialValues objectForKey:strThisValueKey];
+                    }
+                }
+            }
+            
+        }
+        
+        [self calculate:@"ALL":NO];
+    }
+}
+
 #pragma mark - Notification Center
 - (void) receiveNotification:(NSNotification* ) notification {
     
@@ -985,59 +1073,7 @@
             //get our results dictionary
             dictResults = [[notification userInfo] objectForKey:@"Results"];
             
-            //loop through the results dictionary and see what comes out
-            for(NSString* strThisKey in dictResults) {
-                
-                //loop through the text field dictionary and find a match
-                for(NSString* strThisTextFieldKey in dictTextFields) {
-                    
-                    //find a match
-                    if ([strThisKey isEqualToString:strThisTextFieldKey]) {
-                        
-                        //get the text field
-                        if([[dictTextFields objectForKey:strThisTextFieldKey] isMemberOfClass:[OAI_TextField class]]) { 
-                            OAI_TextField* thisTextField = [dictTextFields objectForKey:strThisTextFieldKey];
-                            
-                            NSString* strDisplayString;
-                            //convert to currency string if needed
-                            if (thisTextField.textFieldInputType == 2) {
-                                float thisNumber = [[dictResults objectForKey:strThisKey] floatValue];
-                                strDisplayString = [self convertToCurrencyString:thisNumber];
-                            } else if (thisTextField.textFieldInputType == 0) {
-                                strDisplayString = [dictResults objectForKey:strThisKey];
-                            } else if (thisTextField.textFieldInputType == 1) {
-                                strDisplayString = [dictResults objectForKey:strThisKey];
-                            }
-                            
-                            //set it's text value
-                            thisTextField.text = strDisplayString;
-
-                            
-                        } else if ([[dictTextFields objectForKey:strThisTextFieldKey] isMemberOfClass:[OAI_Label class]]) {
-                            
-                            OAI_Label* lblThisLabel = [dictTextFields objectForKey:strThisTextFieldKey];
-                            
-                            NSString* strDisplayString;
-                            //convert to currency string if needed
-                            if (lblThisLabel.textFieldInputType == 2) {
-                                float thisNumber = [[dictResults objectForKey:strThisKey] floatValue];
-                                strDisplayString = [self convertToCurrencyString:thisNumber];
-                            } else if (lblThisLabel.textFieldInputType == 0) {
-                                strDisplayString = [dictResults objectForKey:strThisKey];
-                            } else if (lblThisLabel.textFieldInputType == 1) {
-                                strDisplayString = [dictResults objectForKey:strThisKey];
-                            }
-                            
-                            //set it's text value
-                            lblThisLabel.text = strDisplayString;
-                            
-                        }
-                                                
-                        //stop looping
-                        break;
-                    }
-                }
-            }
+            [self showResults:dictResults];
             
         } else if ([strAction isEqualToString:@"Send Email"]) {
             
@@ -1045,8 +1081,10 @@
             [self sendEmail];
             
         } else if ([strAction isEqualToString:@"Show Account"]) {
-            
             [self toggleAccount:nil];
+            
+        } else if ([strAction isEqualToString:@"Reset All"]) {
+            [self resetValues];
         }
     }
 }
@@ -1144,19 +1182,119 @@
     
 }
 
+#pragma mark - Show Results
 
+- (void) showResults : (NSDictionary*) dictTheResults {
+    
+    //NSLog(@"%@", dictTheResults);
+    
+    //loop through the results dictionary and see what comes out
+    for(NSString* strThisKey in dictTheResults) {
+        
+        //loop through the text field dictionary and find a match
+        for(NSString* strThisTextFieldKey in dictTextFields) {
+            
+            //find a match
+            if ([strThisKey isEqualToString:strThisTextFieldKey]) {
+                
+                //get the text field
+                if([[dictTextFields objectForKey:strThisTextFieldKey] isMemberOfClass:[OAI_TextField class]]) {
+                    
+                    OAI_TextField* thisTextField = [dictTextFields objectForKey:strThisTextFieldKey];
+                    
+                    NSString* strDisplayString;
+                    //convert to currency string if needed
+                    if (thisTextField.textFieldInputType == 2) {
+                        
+                        strDisplayString = [dictResults objectForKey:strThisKey];
+                        
+                        //check to see if string starts with a dollar sign
+                        if([strDisplayString hasPrefix:@"$"]) {
+                                
+                            //strip dollar sign
+                            strDisplayString = [self stripDollarSign:strDisplayString];
+                            
+                        }
+                            
+                        //convert to nsdecimal number
+                        NSDecimalNumber* decThisNumber = [[NSDecimalNumber alloc] initWithString:strDisplayString];
+                        
+                        //convert to currency string
+                        strDisplayString = [self convertToCurrencyString:decThisNumber];
+                        
+                    } else if (thisTextField.textFieldInputType == 0) {
+                        strDisplayString = [dictTheResults objectForKey:strThisKey];
+                    } else if (thisTextField.textFieldInputType == 1) {
+                        strDisplayString = [dictTheResults objectForKey:strThisKey];
+                    }
+                    
+                    //set it's text value
+                    thisTextField.text = strDisplayString;
+                    
+                    
+                } else if ([[dictTextFields objectForKey:strThisTextFieldKey] isMemberOfClass:[OAI_Label class]]) {
+                    
+                    OAI_Label* lblThisLabel = [dictTextFields objectForKey:strThisTextFieldKey];
+                    
+                    NSString* strDisplayString;
+                    
+                    //convert to currency string if needed
+                    if (lblThisLabel.textFieldInputType == 2) {
+                        
+                        strDisplayString = [dictResults objectForKey:strThisKey];
+                        
+                        //strip dollar sign
+                        strDisplayString = [self stripDollarSign:strDisplayString];
+                        
+                        //convert to nsdecimal number
+                        NSDecimalNumber* decThisNumber = [[NSDecimalNumber alloc] initWithString:strDisplayString];
+                        
+                        //convert to currency string
+                        strDisplayString = [self convertToCurrencyString:decThisNumber];
+                        
+                        
+                    } else if (lblThisLabel.textFieldInputType == 0) {
+                        strDisplayString = [dictResults objectForKey:strThisKey];
+                    } else if (lblThisLabel.textFieldInputType == 1) {
+                        strDisplayString = [dictResults objectForKey:strThisKey];
+                    }
+                    
+                    //set it's text value
+                    lblThisLabel.text = strDisplayString;
+                    
+                }
+                
+                //stop looping
+                break;
+            }
+        }
+        
+    }
+    
+}
 
 
 #pragma mark - Calculations and Conversions
 
-- (void) calculate : (NSString*) strCalculateWhat {
+- (void) calculate : (NSString*) strCalculateWhat : (BOOL) isOpening {
+    
+    BOOL isValid = YES;
     
     //validate the entries
-    BOOL isValid = [self validateEntries:@"ALL"];
+    if (!isOpening) { 
+        isValid = [self validateEntries:strCalculateWhat:nil];
+    }
     
     if (isValid) {
+        
+        calculator.isOpening = isOpening;
         calculator.dictTextFields = dictTextFields;
         [calculator calculate:NO:strCalculateWhat];
+        
+        //if this is the first time we calculate then store the initial values
+        if (isOpening) {
+            dictInitialValues = calculator.dictInitialValues;
+        }
     }
     
 }
@@ -1164,7 +1302,7 @@
 - (void) calculateWithResults : (UIButton*) myButton {
     
     //validate the entries
-    BOOL isValid = [self validateEntries:@"ALL"];
+    BOOL isValid = [self validateEntries:@"ALL":nil];
     if (isValid) {
         calculator.dictTextFields = dictTextFields;
         [calculator calculate:YES:@"All"];
@@ -1185,7 +1323,7 @@
     return YES;
 }
 
-- (BOOL) validateEntries : (NSString*) validateWhat {
+- (BOOL) validateEntries : (NSString*) validateWhat : (UITextField*) textField; {
     
     //set up error check
     BOOL isValid = YES;
@@ -1235,6 +1373,10 @@
         
         [alert show];
         
+        if(textField) { 
+            textField.text = strCurrentTextFieldValue;
+        }
+        
     }
     
     return isValid;
@@ -1242,35 +1384,79 @@
     
 }
 
-- (NSString* ) convertToCurrencyString : (float) numberToConvert {
+- (NSString*) convertToCurrencyString : (NSDecimalNumber*) numberToConvert {
     
-    //convert to NSDecimal
-    NSDecimalNumber* decToConvert = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", numberToConvert]];
-    
-    //convert to currency string
-    NSString* currencyString = [NSNumberFormatter localizedStringFromNumber:decToConvert numberStyle:NSNumberFormatterCurrencyStyle];
+    //convert to string
+    NSString* currencyString = [NSNumberFormatter localizedStringFromNumber:numberToConvert numberStyle:NSNumberFormatterCurrencyStyle];
     
     return currencyString;
+}
+
+- (NSString*) stripDollarSign : (NSString*) stringToStrip {
+    
+    //check to see if the number is already formatted correctly
+    NSRange dollarSignCheck = [stringToStrip rangeOfString:@"$"];
+    //only strip it if it has the $
+    if (dollarSignCheck.location != NSNotFound) {
+        NSString* cleanedString = [stringToStrip substringWithRange:NSMakeRange(1, stringToStrip.length-1)];
+        return cleanedString;
+    } else {
+        return stringToStrip;
+    }
+    
+    return 0;
     
 }
+
+- (NSString*) stripDecimalPoints : (NSString*) stringToStrip {
+    
+    //check to see if the number is already formatted correctly
+    NSRange decimalCheck = [stringToStrip rangeOfString:@"."];
+    
+    //only strip it if it has the decimal
+    if (decimalCheck.location != NSNotFound) {
+        
+        NSRange endRange = [stringToStrip rangeOfString:@"."];
+        NSString* cleanedString = [stringToStrip substringWithRange:NSMakeRange(0, endRange.location)];
+        return cleanedString;
+    }
+    
+    return 0;
+    
+}
+
 
 - (BOOL) validateThisEntry : (OAI_TextField*) textField {
     
-    //set up some
+    
+    //set up BOOL
     BOOL isValid = YES;
     
-    //get the textfield input type
-    int intInputType = textField.textFieldInputType;
+    if (textField) { 
     
-    if (intInputType == 0 || intInputType == 1) {
+        //get the textfield input type
+        int intInputType = textField.textFieldInputType;
         
-        //validate that the user entered a number
-        NSString* strValue = textField.text;
         
-        isValid = [self checkStringValue:strValue];
-    }
+        
+        if (intInputType == 0 || intInputType == 1) {
+            
+            //validate that the user entered a number
+            NSString* strValue = textField.text;
+            
+            isValid = [self checkStringValue:strValue];
+            
+            
+        } else {
+            
+            
+            
+        }
+            
+        }
     
     return isValid;
+        
     
 }
 
@@ -1280,13 +1466,14 @@
     
     dictResultsData = [[NSMutableDictionary alloc] init];
     
+    //NSLog(@"%@", dictResults);
     
     OAI_TextField* txtAnnualProcedures =  [dictTextFields objectForKey:@"Procedure Count"];
     [dictResultsData setObject:txtAnnualProcedures.text forKey:@"Annual Procedures"];
     
     float serviceCostALDAHOL;
     float serviceCostAcecideC;
-    float ServiceCompetitionCost;
+    float serviceCompetitionCost;
     float chemicalCostALDAHOL;
     float chemicalCostAcecideC;
     float chemicalCompetitionCost;
@@ -1308,6 +1495,7 @@
     NSString* strAcecideCTotalCost;
     NSString* strCompetitionTotalCost;
     
+    
     UIScrollView* scResultsScrollView;
     
     //loop through the results
@@ -1324,12 +1512,21 @@
                     
                     serviceCostALDAHOL = roundf([[dictResults objectForKey:@"Service_Service Cost Per Scope_ALDAHOL"] floatValue]);
                     serviceCostAcecideC = roundf([[dictResults objectForKey:@"Service_Service Cost Per Scope_AcecideC"] floatValue]);
-                    ServiceCompetitionCost = 0.0;
+                    NSString* strServiceCompetition = [dictResults objectForKey:@"Service_Service Cost Per Scope_Competition"];
+                    
+                    //get string, strip dollar symbols and decimal, convert to float
+                    strServiceCompetition = [self stripDollarSign:strServiceCompetition];
+                    strServiceCompetition = [self stripDecimalPoints:strServiceCompetition];
+                    serviceCompetitionCost = [strServiceCompetition floatValue];
+                    
+                    NSDecimalNumber* decServiceCostALDAHOL = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", serviceCostALDAHOL]];
+                    NSDecimalNumber* decServiceCostAcecideC = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", serviceCostAcecideC]];
+                    NSDecimalNumber* decServiceCompetitionCost = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", serviceCompetitionCost]];
                     
                     //convert to currency string
-                    NSString* strServiceALDAHOLCost = [self convertToCurrencyString:serviceCostALDAHOL];
-                    NSString* strServiceAcecideCCost = [self convertToCurrencyString:serviceCostAcecideC];
-                    NSString* strServiceCompetitionCost = [self convertToCurrencyString:ServiceCompetitionCost];
+                    NSString* strServiceALDAHOLCost = [self convertToCurrencyString:decServiceCostALDAHOL];
+                    NSString* strServiceAcecideCCost = [self convertToCurrencyString:decServiceCostAcecideC];
+                    NSString* strServiceCompetitionCost = [self convertToCurrencyString:decServiceCompetitionCost];
                     
                     NSMutableArray* arrServiceResults = [[NSMutableArray alloc] init];
                     [arrServiceResults addObject:strServiceALDAHOLCost];
@@ -1356,12 +1553,21 @@
                     
                     chemicalCostALDAHOL = [[dictResults objectForKey:@"Chemicals_Chemical Cost Per Scope_ALDAHOL"] floatValue];
                     chemicalCostAcecideC = [[dictResults objectForKey:@"Chemicals_Chemical Cost Per Scope_AcecideC"] floatValue];
-                    chemicalCompetitionCost = [[dictResults objectForKey:@"Chemicals_Chemical Cost Per Scope_Competition"] floatValue];
+                    NSString* strChemicalCompetition = [dictResults objectForKey:@"Chemicals_Chemical Cost Per Scope_Competition"];
+                    
+                    //get string, strip dollar symbols and decimal, convert to float
+                    strChemicalCompetition = [self stripDollarSign:strChemicalCompetition];
+                    strChemicalCompetition = [self stripDecimalPoints:strChemicalCompetition];
+                    chemicalCompetitionCost = [strChemicalCompetition floatValue];
+                    
+                    NSDecimalNumber* decChemicalCostALDAHOL = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", chemicalCostALDAHOL]];
+                    NSDecimalNumber* decChemicalCostAcecideC = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", chemicalCostAcecideC]];
+                    NSDecimalNumber* decChemicalCompetitionCost = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", chemicalCompetitionCost]];
                     
                     //convert to currency string
-                    NSString* strChemicalALDAHOLCost = [self convertToCurrencyString:chemicalCostALDAHOL];
-                    NSString* strChemicalAcecideCCost = [self convertToCurrencyString:chemicalCostAcecideC];
-                    NSString* strChemicalCompetitionCost = [self convertToCurrencyString:chemicalCompetitionCost];
+                    NSString* strChemicalALDAHOLCost = [self convertToCurrencyString:decChemicalCostALDAHOL];
+                    NSString* strChemicalAcecideCCost = [self convertToCurrencyString:decChemicalCostAcecideC];
+                    NSString* strChemicalCompetitionCost = [self convertToCurrencyString:decChemicalCompetitionCost];
                     
                     NSMutableArray* arrChemicalResults = [[NSMutableArray alloc] init];
                     [arrChemicalResults addObject:strChemicalALDAHOLCost];
@@ -1388,12 +1594,22 @@
                     
                     detergentCostALDAHOL = [[dictResults objectForKey:@"Detergents_Detergent Cost Per Scope_ALDAHOL"] floatValue];
                     detergentCostAcecideC = [[dictResults objectForKey:@"Detergents_Detergent Cost Per Scope_AcecideC"] floatValue];
-                    detergentCostCompetition = [[dictResults objectForKey:@"Detergents_Detergent Cost Per Scope_Competition"] floatValue];
+                    NSString* strDetergentCost = [dictResults objectForKey:@"Detergents_Detergent Cost Per Scope_Competition"];
+                    
+                    //get string, strip dollar symbols and decimal, convert to float
+                    strDetergentCost = [self stripDollarSign:strDetergentCost];
+                    strDetergentCost = [self stripDecimalPoints:strDetergentCost];
+                    detergentCostCompetition = [strDetergentCost floatValue];
+                    
+                    //convert floats to NSDecimal
+                    NSDecimalNumber* decDetergentCostALDAHOL = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", detergentCostALDAHOL]];
+                    NSDecimalNumber* decDetergentCostAcecideC = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", detergentCostAcecideC]];
+                    NSDecimalNumber* decDetergentCostCompetition = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", detergentCostCompetition]];
                     
                     //convert to currency string
-                    NSString* strDetergentALDAHOLCost = [self convertToCurrencyString:detergentCostALDAHOL];
-                    NSString* strDetergentAcecideCCost = [self convertToCurrencyString:detergentCostAcecideC];
-                    NSString* strDetergentCompetitionCost = [self convertToCurrencyString:detergentCostCompetition];
+                    NSString* strDetergentALDAHOLCost = [self convertToCurrencyString:decDetergentCostALDAHOL];
+                    NSString* strDetergentAcecideCCost = [self convertToCurrencyString:decDetergentCostAcecideC];
+                    NSString* strDetergentCompetitionCost = [self convertToCurrencyString:decDetergentCostCompetition];
                     
                     NSMutableArray* arrDetergentResults = [[NSMutableArray alloc] init];
                     [arrDetergentResults addObject:strDetergentALDAHOLCost];
@@ -1419,12 +1635,22 @@
                     
                     testStripsCostALDAHOL = [[dictResults objectForKey:@"Test Strips_Test Strip Cost Per Scope_ALDAHOL"] floatValue];
                     testStripsCostAcecideC = [[dictResults objectForKey:@"Test Strips_Test Strip Cost Per Scope_AcecideC"] floatValue];
-                    testStripsCostCompetition = [[dictResults objectForKey:@"Test Strips_Test Strip Cost Per Scope_Competition"] floatValue];
+                    NSString* strTestStripsCost = [dictResults objectForKey:@"Test Strips_Test Strip Cost Per Scope_Competition"];
+                    
+                    //get string, strip dollar symbols and decimal, convert to float
+                    strTestStripsCost = [self stripDollarSign:strTestStripsCost];
+                    strTestStripsCost = [self stripDecimalPoints:strTestStripsCost];
+                    testStripsCostCompetition = [strTestStripsCost floatValue];
+                    
+                    //convert floats to NSDecimal
+                    NSDecimalNumber* decTestStripsCostALDAHOL = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", testStripsCostALDAHOL]];
+                    NSDecimalNumber* decTestStripsCostAcecideC = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", testStripsCostAcecideC]];
+                    NSDecimalNumber* decTestStripsCostCompetition = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", testStripsCostCompetition]];
                     
                     //convert to currency string
-                    NSString* strTestStripsALDAHOLCost = [self convertToCurrencyString:testStripsCostALDAHOL];
-                    NSString* strTestStripsAcecideCCost = [self convertToCurrencyString:testStripsCostAcecideC];
-                    NSString* strTestStripsCompetitionCost = [self convertToCurrencyString:testStripsCostCompetition];
+                    NSString* strTestStripsALDAHOLCost = [self convertToCurrencyString:decTestStripsCostALDAHOL];
+                    NSString* strTestStripsAcecideCCost = [self convertToCurrencyString:decTestStripsCostAcecideC];
+                    NSString* strTestStripsCompetitionCost = [self convertToCurrencyString:decTestStripsCostCompetition];
                     
                     NSMutableArray* arrTestStripsResults = [[NSMutableArray alloc] init];
                     [arrTestStripsResults addObject:strTestStripsALDAHOLCost];
@@ -1451,12 +1677,22 @@
                     
                     filtersCostALDAHOL = [[dictResults objectForKey:@"Filters_Filter Cost Per Scope_ALDAHOL"] floatValue];
                     filtersCostAcecideC = [[dictResults objectForKey:@"Filters_Filter Cost Per Scope_AcecideC"] floatValue];
-                    filtersCostCompetition = [[dictResults objectForKey:@"Filters_Filter Cost Per Scope_Competition"] floatValue];
+                    NSString* strFiltersCost = [dictResults objectForKey:@"Filters_Filter Cost Per Scope_Competition"];
+                    
+                    //get string, strip dollar symbols and decimal, convert to float
+                    strFiltersCost = [self stripDollarSign:strFiltersCost];
+                    strFiltersCost = [self stripDecimalPoints:strFiltersCost];
+                    filtersCostCompetition = [strFiltersCost floatValue];
+                    
+                    //convert floats to NSDecimal
+                    NSDecimalNumber* decFiltersCostALDAHOL = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", filtersCostALDAHOL]];
+                    NSDecimalNumber* decFiltersCostAcecideC = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", filtersCostAcecideC]];
+                    NSDecimalNumber* decFiltersCostCompetition = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", filtersCostCompetition]];
                     
                     //convert to currency string
-                    NSString* strFilterALDAHOLCost = [self convertToCurrencyString:filtersCostALDAHOL];
-                    NSString* strFilterAcecideCCost = [self convertToCurrencyString:filtersCostAcecideC];
-                    NSString* strFilterCompetitionCost = [self convertToCurrencyString:filtersCostCompetition];
+                    NSString* strFilterALDAHOLCost = [self convertToCurrencyString:decFiltersCostALDAHOL];
+                    NSString* strFilterAcecideCCost = [self convertToCurrencyString:decFiltersCostAcecideC];
+                    NSString* strFilterCompetitionCost = [self convertToCurrencyString:decFiltersCostCompetition];
                     
                     NSMutableArray* arrFiltersResults = [[NSMutableArray alloc] init];
                     [arrFiltersResults addObject:strFilterALDAHOLCost];
@@ -1484,12 +1720,22 @@
                     
                     laborCostALDAHOL = [[dictResults objectForKey:@"Labor_Labor Cost Per Scope_ALDAHOL"] floatValue];
                     laborCostAcecideC = [[dictResults objectForKey:@"Labor_Labor Cost Per Scope_AcecideC"] floatValue];
-                    laborCostCompetition = [[dictResults objectForKey:@"Labor_Labor Cost Per Scope_Competition"] floatValue];
+                    NSString* strLaborCost = [dictResults objectForKey:@"Labor_Labor Cost Per Scope_Competition"];
+                    
+                    //get string, strip dollar symbols and decimal, convert to float
+                    strLaborCost = [self stripDollarSign:strLaborCost];
+                    strLaborCost = [self stripDecimalPoints:strLaborCost];
+                    laborCostCompetition = [strLaborCost floatValue];
+                    
+                    //convert floats to NSDecimal
+                    NSDecimalNumber* decLaborCostALDAHOL = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", laborCostALDAHOL]];
+                    NSDecimalNumber* decLaborCostAcecideC = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", laborCostAcecideC]];
+                    NSDecimalNumber* decLaborCostCompetition = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", laborCostCompetition]];
                     
                     //convert to currency string
-                    NSString* strLaborALDAHOLCost = [self convertToCurrencyString:laborCostALDAHOL];
-                    NSString* strLaborAcecideCCost = [self convertToCurrencyString:laborCostAcecideC];
-                    NSString* strLaborCompetitionCost = [self convertToCurrencyString:laborCostCompetition];
+                    NSString* strLaborALDAHOLCost = [self convertToCurrencyString:decLaborCostALDAHOL];
+                    NSString* strLaborAcecideCCost = [self convertToCurrencyString:decLaborCostAcecideC];
+                    NSString* strLaborCompetitionCost = [self convertToCurrencyString:decLaborCostCompetition];
                     
                     NSMutableArray* arrLaborResults = [[NSMutableArray alloc] init];
                     [arrLaborResults addObject:strLaborALDAHOLCost];
@@ -1517,11 +1763,16 @@
         
         float totalsAcecideC = serviceCostAcecideC + chemicalCostAcecideC + detergentCostAcecideC + testStripsCostAcecideC + filtersCostAcecideC + laborCostAcecideC;
         
-        float totalsCompetition = ServiceCompetitionCost + chemicalCompetitionCost + detergentCostCompetition + testStripsCostCompetition + filtersCostCompetition + laborCostCompetition;
+        float totalsCompetition = serviceCompetitionCost + chemicalCompetitionCost + detergentCostCompetition + testStripsCostCompetition + filtersCostCompetition + laborCostCompetition;
         
-        strALDAHOLTotalCost = [self convertToCurrencyString:totalsALDAHOL];
-        strAcecideCTotalCost = [self convertToCurrencyString:totalsAcecideC];
-        strCompetitionTotalCost = [self convertToCurrencyString:totalsCompetition];
+        //convert floats to NSDecimal
+        NSDecimalNumber* decTotalsALDAHOL = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", totalsALDAHOL]];
+        NSDecimalNumber* decTotalsAcecideC = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", totalsAcecideC]];
+        NSDecimalNumber* decTotalsCompetition = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", totalsCompetition]];
+        
+        strALDAHOLTotalCost = [self convertToCurrencyString:decTotalsALDAHOL];
+        strAcecideCTotalCost = [self convertToCurrencyString:decTotalsAcecideC];
+        strCompetitionTotalCost = [self convertToCurrencyString:decTotalsCompetition];
         
         NSMutableArray* arrTotalResults = [[NSMutableArray alloc] init];
         [arrTotalResults addObject:strALDAHOLTotalCost];
@@ -2231,14 +2482,16 @@
         //attach the pdf file
         [mailViewController addAttachmentData:pdfData mimeType:@"application/pdf" fileName:strPDFFileName];
         
+        
         //get path to pdf file
-        NSString* pdf2FilePath = [documentsDirectory stringByAppendingPathComponent:@"OER_MarketingContent.pdf"];
+        /*NSString* pdf2FilePath = [documentsDirectory stringByAppendingPathComponent:@"OER_MarketingContent.pdf"];
         
         //convert pdf file to NSData
         NSData* pdf2Data = [NSData dataWithContentsOfFile:pdf2FilePath];
         
         //attach the pdf file
-        [mailViewController addAttachmentData:pdf2Data mimeType:@"application/pdf" fileName:@"OER_MarketingContent.pdf"];
+        [mailViewController addAttachmentData:pdf2Data mimeType:@"application/pdf" fileName:@"OER_MarketingContent.pdf"];*/
+    
         
         
         [self presentViewController:mailViewController animated:YES completion:NULL];
@@ -2278,9 +2531,81 @@
     [controller dismissViewControllerAnimated:YES completion:nil];
 }
 
+#pragma mark - Keyboard Methods
+- (void) keyboardDidShow:(NSNotification*)notification {
+    
+    CGRect keyboardFrame = [[[notification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    
+    UIWindow *window = [[[UIApplication sharedApplication] windows]objectAtIndex:0];
+    UIView *mainSubviewOfWindow = window.rootViewController.view;
+    CGRect keyboardFrameConverted = [mainSubviewOfWindow convertRect:keyboardFrame fromView:window];
+    
+    myKeyboardFrame = keyboardFrameConverted;
+    
+    [self checkKeyboardConflict];
+}
+
+-(void)keyboardWillHide:(NSNotification*)notification{
+    
+    //[scSections setContentOffset:myScrollViewOrigiOffSet animated:YES];
+}
+
+- (void) checkKeyboardConflict {
+    
+    //get the first responder
+    UIView* vFirstResponder = [self findFirstResponder:self.view];
+    BOOL isTextField = NO;
+    UIView* vParent;
+    float objDiff;
+    
+    //make sure we are working wiht a text field
+    if ([vFirstResponder isMemberOfClass:[OAI_TextField class]]) {
+        
+        isTextField = YES;
+        
+        if ((vFirstResponder.frame.origin.y+300.0) > myKeyboardFrame.origin.y) {
+            
+            //get the difference between the two origins
+            objDiff = ((vFirstResponder.frame.origin.y+440.0) - myKeyboardFrame.origin.y);
+            
+            //scroll view frame
+            CGPoint svOffSet = CGPointMake(myScrollViewOrigiOffSet.x, 0+objDiff);
+            
+            [scSections setContentOffset:svOffSet animated:YES];
+        }
+    }
+}
+
+- (UIView *)findFirstResponder : (UIView*) viewToSearch {
+    
+    if (viewToSearch.isFirstResponder) {
+        return viewToSearch;
+    }
+    
+    for (UIView *subView in viewToSearch.subviews) {
+        UIView* firstResponder = [self findFirstResponder:subView];
+        
+        if (firstResponder != nil) {
+            return firstResponder;
+        }
+    }
+    
+    return nil;
+}
+
+
 
 
 #pragma mark - TextField Delegate Methods
+
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField {
+    
+    //store the current text field data
+    strCurrentTextFieldValue = textField.text;
+    
+    return YES;
+    
+}
 
 - (BOOL)textFieldShouldReturn:(OAI_TextField *)textField {
     
@@ -2291,7 +2616,7 @@
 }
 
 - (void)textFieldDidEndEditing:(OAI_TextField *)textField {
-    
+        
     //trapping for account info text fields
     if (textField.tag > 600 && textField.tag < 605) {
         
@@ -2340,7 +2665,7 @@
         if(textField.text.length > 0 || textField.text != nil) {
             
             //validate it
-            isValid = [self validateEntries:textField.textFieldTitle];
+            isValid = [self validateEntries:textField.textFieldTitle:textField];
             
         }
         
@@ -2363,7 +2688,7 @@
                     
                     [alert show];
                     
-                    textField.text = @"0.05";
+                    textField.text = strCurrentTextFieldValue;
                 
                 } else {
                     
@@ -2384,11 +2709,13 @@
                     }
 
                     //calculate the discount
-                    [self calculate:@"Chemicals"];
+                    [self calculate:@"Chemicals":NO];
                     
                 }
                 
             } else if(textField.tag == 801) {
+                
+                //other discounts
                 
                 float textFieldValue = [textField.text floatValue];
                 if (textFieldValue > .105) {
@@ -2403,21 +2730,143 @@
                     
                     [alert show];
                     
-                    textField.text = @"0.05";
+                    textField.text = strCurrentTextFieldValue;
                     
-                } else { 
+                } else {
+                    
+                    //fill in the discount for each section
+                    [self setDiscount:textField.text];
+                    
+                    [self calculate:@"Other":NO];
+                    
+                }
+                
+                
+            } else if (textField.tag == 802) {
+                
+                //labor text field
+                BOOL isLaborValid = YES;
+                
+                NSString* strWorkingString = textField.text;
+                
+                //check to see if user put in just a text string
+                NSCharacterSet* alphaSet = [NSCharacterSet characterSetWithCharactersInString:@"$.0123456789"];
+                alphaSet = [alphaSet invertedSet];
+                NSRange r = [strWorkingString rangeOfCharacterFromSet:alphaSet];
+                if (r.location != NSNotFound) {
+                    isLaborValid = NO;
+                }
+                
+                if (!isLaborValid) {
+                    
+                    UIAlertView *alert = [[UIAlertView alloc]
+                      initWithTitle: @"Labor Cost Error"
+                      message: @"Please enter a numeric or currency figure in this section."
+                      delegate: nil
+                      cancelButtonTitle:@"OK"
+                      otherButtonTitles:
+                      nil];
+                    
+                    [alert show];
+                    
+                    //replace with initial item
+                    textField.text = strCurrentTextFieldValue;
+                    
+                } else {
+                    
+                    strWorkingString = [self stripDollarSign:strWorkingString];
+                    
+                    //convert str to decimal
+                    NSDecimalNumber* decCurrency = [[NSDecimalNumber alloc] initWithString:strWorkingString];
+                    
+                    NSLog(@"%@", [self convertToCurrencyString:decCurrency]);
+                    //convert string to currency
+                    textField.text = [self convertToCurrencyString:decCurrency];
+                    
+                    [self calculate:@"Labor":NO];
+                    
+                }
+            
+            } else if (textField.tag == 803) {
 
-                    [self calculate:@"Other"];
+                float textFieldValue = [textField.text floatValue];
+                if (textFieldValue > .105) {
+                    
+                    UIAlertView *alert = [[UIAlertView alloc]
+                                          initWithTitle: @"Discount Error"
+                                          message: @"Discounts cannot exceed 10 percent!"
+                                          delegate: nil
+                                          cancelButtonTitle:@"OK"
+                                          otherButtonTitles:
+                                          nil];
+                    
+                    [alert show];
+                    
+                    textField.text = strCurrentTextFieldValue;
+                    
+                } else {
+                    
+                    
+                    [self calculate:@"Service":NO];
                     
                     //fill in the discount for each section
                     [self setDiscount:textField.text];
                     
                 }
                 
+            } else if (textField.tag == 804) {
+                
+                
+                
+                //labor text field
+                BOOL isServiceValid = YES;
+                
+                NSString* strWorkingString = textField.text;
+                
+                //check to see if user put in just a text string
+                NSCharacterSet* alphaSet = [NSCharacterSet characterSetWithCharactersInString:@"$.0123456789"];
+                alphaSet = [alphaSet invertedSet];
+                NSRange r = [strWorkingString rangeOfCharacterFromSet:alphaSet];
+                if (r.location != NSNotFound) {
+                    isServiceValid = NO;
+                }
+                
+                if (!isServiceValid) {
+                    
+                    UIAlertView *alert = [[UIAlertView alloc]
+                                          initWithTitle: @"Labor Cost Error"
+                                          message: @"Please enter a numeric or currency figure in this section."
+                                          delegate: nil
+                                          cancelButtonTitle:@"OK"
+                                          otherButtonTitles:
+                                          nil];
+                    
+                    [alert show];
+                    
+                    //replace with initial item
+                    textField.text = strCurrentTextFieldValue;
+                    
+                } else {
+                    
+                    strWorkingString = [self stripDollarSign:strWorkingString];
+                    
+                    //convert str to decimal
+                    NSDecimalNumber* decCurrency = [[NSDecimalNumber alloc] initWithString:strWorkingString];
+                    
+                    //convert string to currency
+                    strWorkingString = [self convertToCurrencyString:decCurrency];
+                    
+                    textField.text = strWorkingString;
+                    
+                    [self calculate:@"Service":NO];
+                    
+                    
+                }
+                
                 
             } else {
                 
-                [self calculate:@"All"];
+                [self calculate:@"All":NO];
             }
         }
         
@@ -2441,6 +2890,8 @@
     
 }
 
+
+
 #pragma mark - Tap Gesture Recognizer Methods
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
@@ -2449,7 +2900,7 @@
 
 
 
-#pragma mark Table View Management
+#pragma mark - Table View Management
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     // Return the number of sections.
     return 1;

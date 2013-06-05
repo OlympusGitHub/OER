@@ -51,6 +51,15 @@
         [btnAccount setBackgroundColor:[UIColor clearColor]];
         [self addSubview:btnAccount];
     
+    //add the reset data button
+    UIImage* imgReset = [UIImage imageNamed:@"btnReload.png"];
+    UIButton* btnReset = [[UIButton alloc] initWithFrame:CGRectMake(btnAccount.frame.origin.x+btnAccount.frame.size.width + 20.0, 2.0, imgReset.size.width, imgReset.size.height)];
+    [btnReset setImage:imgReset forState:UIControlStateNormal];
+    [btnReset addTarget:self action:@selector(resetAll:) forControlEvents:UIControlEventTouchUpInside];
+    [btnReset setBackgroundColor:[UIColor clearColor]];
+    [self addSubview:btnReset];
+
+    
     //add title bar title
     CGSize titleSize = [titleBarTitle sizeWithFont:[UIFont fontWithName:@"Helvetica-Bold" size:20.0]];
     
@@ -73,6 +82,16 @@
     /*This is the call back to the notification center, */
     [[NSNotificationCenter defaultCenter] postNotificationName:@"theMessenger" object:self userInfo: userData];
     
+}
+
+- (void) resetAll : (UIButton*) myButton {
+    
+    //return dictionary of results
+    NSMutableDictionary* userData = [[NSMutableDictionary alloc] init];
+    [userData setObject:@"Reset All" forKey:@"Action"];
+    
+    /*This is the call back to the notification center, */
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"theMessenger" object:self userInfo: userData];
 }
 
 /*

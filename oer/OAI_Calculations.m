@@ -12,22 +12,51 @@
 
 - (void) calculate : (BOOL) showResults : (NSString*) strCalculateWhat {
     
+    /*
+     Legend:
+     LP = List Price
+     CP = Custom Price (Purchase Price) = List Price * Discount
+     EOC = Estimated Operating Cost = (customPrice/unitsPerCase)*unitsRecommendedForOperation
+     UPC = Units Per Case - from assumptions
+     URFO = Units Required For Operation - from assumptions
+     ENC = Estimated Number of Cycles (Maximum) - from assumptions
+     CPS = Cost Per Scope = Cost Per Cycle/Scopes Per Basin
+     CPC = Cost Per Cycle = EOC/ENC
+     
+     numeric type 0=int, 1=%, 2=$, 3=decimal
+     */
+    
+    /*
+     for(NSString* strThisKey in _dictTextFields) {
+        NSLog(@"%@", strThisKey);
+    }
+     */
+    
+    
+    //determine what we are calculating
     BOOL doChemicals = NO;
     BOOL doOthers = NO;
+    BOOL doLabor = NO;
+    BOOL doService = NO;
     
     if([strCalculateWhat isEqualToString:@"Chemicals"]) {
         doChemicals = YES;
     } else if ([strCalculateWhat isEqualToString:@"Others"]) {
         doOthers = YES;
+    } else if ([strCalculateWhat isEqualToString:@"Labor"]) {
+        doLabor = YES;
+    } else if ([strCalculateWhat isEqualToString:@"Service"]) {
+        doService = YES;
     } else {
         doChemicals = YES;
         doOthers = YES;
+        doLabor = YES;
+        doService = YES;
     }
     
-    _dictResults = [[NSMutableDictionary alloc] init];
+    //init dictionary to hold our return values
+      _dictResults = [[NSMutableDictionary alloc] init];
     
-    NSMutableDictionary* dictFieldsToCalculate = [[NSMutableDictionary alloc] init];
-        
     //set the number of OERs needed
     OAI_TextField* txtProcedureCount = [_dictTextFields objectForKey:@"Procedure Count"];
     float procedureCount = [txtProcedureCount.text floatValue];
@@ -40,462 +69,108 @@
     float scopesPerBasin = [txtScopesPerBasin.text floatValue];
     float cyclesPerYear = roundf(procedureCount/scopesPerBasin);
     int intCyclesPerYear = (int)cyclesPerYear;
+    
+    [_dictResults setObject:[NSString stringWithFormat:@"%f", scopesPerBasin] forKey:@"Scopes Per Basin"];
     [_dictResults setObject:[NSString stringWithFormat:@"%i", intCyclesPerYear] forKey:@"Annual Cycle Count"];
-    
-    //these are the assumptions provided in the excel sheet
-    
-    //list prices
-    float ALDAHOL_LP = 115.00;
-    float Comply_Strips_LP = 105.00;
-    float Acecide_Test_Strips_LP = 90.00;
-    float AcecideC_LP = 990.00;
-    float EndoQuick_LP = 100.0;
-    
-    //filters array
-    NSArray* arrFiltersCost = [[NSArray alloc] init];
-    
-    //filters
-    
-    /* 
-        Legend: 
-            CP = Custom Price (Purchase Price) = List Price * Discount
-            EOC = Estimated Operating Cost = (customPrice/unitsPerCase)*unitsRecommendedForOperation
-            UPC = Units Per Case - from assumptions
-            URFO = Units Required For Operation - from assumptions
-            ENC = Estimated Number of Cycles (Maximum) - from assumptions
-            CPS = Cost Per Scope = Cost Per Cycle/Scopes Per Basin
-            CPC = Cost Per Cycle = EOC/ENC
-    */
         
+    //get textfield values - work with float/doubles then convert everything to required numeric type
+    OAI_TextField* txtThisField;
+    
+    
+    NSString* strThisDiscount;
     
     for(NSString* strThisKey in _dictTextFields) {
         
-        //check to see if we are calculating chemicalss
+        //get the text field
+        if ([[_dictTextFields objectForKey:strThisKey] isMemberOfClass:[OAI_TextField class]]) {
+            txtThisField = [_dictTextFields objectForKey:strThisKey];
+        }
+                
         if (doChemicals) {
             
-            //set the chemistry values
+            //get the chemical discount
             if ([strThisKey rangeOfString:@"Chemicals"].location != NSNotFound) {
-            
-                //set the ALDAHOL values
-                if ([strThisKey rangeOfString:@"ALDAHOL"].location !=NSNotFound) {
-                    
-                    //get the discount
-                    if ([strThisKey rangeOfString:@"Discount"].location !=NSNotFound) {
-                        
-                        //values needed to be displayed
-                        float ALDAHOLChemicalDiscount = 0.0;
-                        float ALDAHOLChemicalCP = 0.0;
-                        float ALDAHOLChemicalEOC = 0.0;
-                        float ALDAHOLChemicalUPC = 4;
-                        float ALDAHOLChemicalURFO = 5;
-                        float ALDAHOLChemicalENC = 17;
-                        float ALDAHOLChemicalCPC = 0.0;
-                        float ALDAHOLChemicalCPS = 0.0;
-                        
-                        OAI_TextField* txtThisDiscount = [_dictTextFields objectForKey:strThisKey];
-                        ALDAHOLChemicalDiscount = [self getDiscount:txtThisDiscount];
-                        
-                        //ALDAHOL Chemical Custom Price
-                        ALDAHOLChemicalCP = [self calculateDiscounts:ALDAHOLChemicalDiscount :ALDAHOL_LP];
-                        //ALDAHOL Chemical EOC - (CP/UPC)*URFO
-                        ALDAHOLChemicalEOC = [self calculateEstimatedOperationalCost:ALDAHOLChemicalCP :ALDAHOLChemicalUPC :ALDAHOLChemicalURFO];
-                        //ALDAHOL chemical cost per cylce - UPC/ENC
-                        ALDAHOLChemicalCPC = [self calculateCostPerCycle:ALDAHOLChemicalEOC:ALDAHOLChemicalENC];
-                        //ALDAHOL chemical cost per scope
-                        ALDAHOLChemicalCPS = [self calculateCostPerScope:scopesPerBasin :ALDAHOLChemicalCPC];
-                        
-                        //store results for ALDAHOL Chemical
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLChemicalDiscount] forKey:@"Chemicals_Discount_ALDAHOL"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLChemicalUPC] forKey:@"Chemicals_Units Per Package_ALDAHOL"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLChemicalCP] forKey:@"Chemicals_Purchase Price (per case)_ALDAHOL"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLChemicalENC] forKey:@"Chemicals_Maximum Use Life (# cycles per basin)_ALDAHOL"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLChemicalEOC] forKey:@"ALDAHOL Chemical Estimated Operational Cost"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLChemicalCPC] forKey:@"ALDAHOL Chemical Cost Per Cycle"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLChemicalCPS] forKey:@"Chemicals_Chemical Cost Per Scope_ALDAHOL"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLChemicalURFO] forKey:@"Chemicals_Units Required For Operation (per basin)_ALDAHOL"];
-                        
-                    }//endALDAHOL Chemical
-                    
-                } else if ([strThisKey rangeOfString:@"Acecide"].location !=NSNotFound) {
-                    
-                    //get the discount
-                    if ([strThisKey rangeOfString:@"Discount"].location !=NSNotFound) {
-                        
-                        float AcecideCChemicalDiscount = 0.0;
-                        float AcecideCChemicalCP = 0.0;
-                        float AcecideCChemicalEOC = 0.0;
-                        float AcecideCChemicalUPC = 6;
-                        float AcecideCChemicalURFO = 1;
-                        float AcecideCChemicalENC = 18;
-                        float AcecideCChemicalCPC = 0.0;
-                        float AcecideCChemicalCPS = 0.0;
-                        
-                        OAI_TextField* txtThisDiscount = [_dictTextFields objectForKey:strThisKey];
-                        AcecideCChemicalDiscount = [self getDiscount:txtThisDiscount];
-                        
-                        //AcecideC Chemical Custom Price
-                        AcecideCChemicalCP = [self calculateDiscounts:AcecideCChemicalDiscount :AcecideC_LP];
-                        //AcecideC Chemical EOC - (CP/UPC)*URFO
-                        AcecideCChemicalEOC = [self calculateEstimatedOperationalCost:AcecideCChemicalCP :AcecideCChemicalUPC :AcecideCChemicalURFO];
-                        //AcecideC chemical cost per cylce - UPC/ENC
-                        AcecideCChemicalCPC = [self calculateCostPerCycle:AcecideCChemicalEOC:AcecideCChemicalENC];
-                        //AcecideC chemical cost per scope
-                        AcecideCChemicalCPS = [self calculateCostPerScope:scopesPerBasin :AcecideCChemicalCPC];
-                        
-                        //store results for AcecideC Chemical
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", AcecideCChemicalDiscount] forKey:@"Chemicals_Discount_AcecideC"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", AcecideCChemicalUPC] forKey:@"Chemicals_Units Per Package_AcecideC"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", AcecideCChemicalCP] forKey:@"Chemicals_Purchase Price (per case)_AcecideC"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", AcecideCChemicalENC] forKey:@"Chemicals_Maximum Use Life (# cycles per basin)_AcecideC"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", AcecideCChemicalEOC] forKey:@"AcecideC Chemical Estimated Operational Cost"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", AcecideCChemicalCPC] forKey:@"AcecideC Chemical Cost Per Cycle"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", AcecideCChemicalCPS] forKey:@"Chemicals_Chemical Cost Per Scope_AcecideC"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", AcecideCChemicalURFO] forKey:@"Chemicals_Units Required For Operation (per basin)_AcecideC"];
-                        
-                    }//end Acecidic Chemical
                 
-                } else if ([strThisKey rangeOfString:@"Competition"].location !=NSNotFound) {
+                //include the discount and compeition text fields
+                if([strThisKey rangeOfString:@"Discount"].location != NSNotFound || [strThisKey rangeOfString:@"Competition"].location != NSNotFound) {
                     
-                    //store results for AcecideC Chemical
-                    [_dictResults setObject:@"" forKey:@"Chemicals_Discount_Competition"];
+                    //get the discount
+                    if([strThisKey rangeOfString:@"Discount"].location != NSNotFound) { 
+                        strThisDiscount = txtThisField.text;
+                    }
                     
-                    [_dictResults setObject:@"" forKey:@"Chemicals_Units Per Package_Competition"];
-                    
-                    [_dictResults setObject:@"" forKey:@"Chemicals_Purchase Price (per case)_Competition"];
-                    
-                    [_dictResults setObject:@"" forKey:@"Chemicals_Maximum Use Life (# cycles per basin)_Competition"];
-                    
-                    [_dictResults setObject:@"" forKey:@"Competition Chemical Estimated Operational Cost"];
-                    
-                    [_dictResults setObject:@"" forKey:@"Competition Chemical Cost Per Cycle"];
-                    
-                    [_dictResults setObject:@"" forKey:@"Chemicals_Chemical Cost Per Scope_Competition"];
-                    
-                    [_dictResults setObject:@"" forKey:@"Chemicals_Units Required For Operation (per basin)_Competition"];
+                    [self calculateSection:@"Chemicals":txtThisField:strThisKey:strThisDiscount];
                 }
             }
-            
-        }//end do chems check
+        }
         
-        
-        //check to see if we are calculating the others
         if (doOthers) {
             
-            if ([strThisKey rangeOfString:@"Detergent"].location !=NSNotFound) {
+            //get discount
+            if ([strThisKey rangeOfString:@"Detergents"].location != NSNotFound) {
                 
+                //include the discount and compeition text fields
+                if([strThisKey rangeOfString:@"Discount"].location != NSNotFound || [strThisKey rangeOfString:@"Competition"].location != NSNotFound) {
                 
-                
-                //set the ALDAHOL values
-                if ([strThisKey rangeOfString:@"ALDAHOL"].location !=NSNotFound) {
-                    
                     //get the discount
-                    if ([strThisKey rangeOfString:@"Discount"].location !=NSNotFound) {
-                        
-                        //values needed to be displayed
-                        float ALDAHOLDetergentDiscount = 0.0;
-                        float ALDAHOLDetergentCP = 0.0;
-                        float ALDAHOLDetergentEOC = 0.0;
-                        float ALDAHOLDetergentUPC = 3;
-                        float ALDAHOLDetergentURFO = 1;
-                        float ALDAHOLDetergentENC = 30;
-                        float ALDAHOLDetergentCPC = 0.0;
-                        float ALDAHOLDetergentCPS = 0.0;
-                        
-                        OAI_TextField* txtThisDiscount = [_dictTextFields objectForKey:strThisKey];
-                        ALDAHOLDetergentDiscount = [self getDiscount:txtThisDiscount];
-                        
-                        //ALDAHOL Chemical Custom Price
-                        ALDAHOLDetergentCP = [self calculateDiscounts:ALDAHOLDetergentDiscount :EndoQuick_LP];
-                        //ALDAHOL Chemical EOC - (CP/UPC)*URFO
-                        ALDAHOLDetergentEOC = [self calculateEstimatedOperationalCost:ALDAHOLDetergentCP :ALDAHOLDetergentUPC :ALDAHOLDetergentURFO];
-                        //ALDAHOL chemical cost per cylce - UPC/ENC
-                        ALDAHOLDetergentCPC = [self calculateCostPerCycle:ALDAHOLDetergentEOC:ALDAHOLDetergentENC];
-                        //ALDAHOL chemical cost per scope
-                        ALDAHOLDetergentCPS = [self calculateCostPerScope:scopesPerBasin :ALDAHOLDetergentCPC];
-                        
-                        //store results for ALDAHOL Chemical
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLDetergentDiscount] forKey:@"Detergents_Discount_ALDAHOL"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLDetergentUPC] forKey:@"Detergents_Units Per Package_ALDAHOL"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLDetergentCP] forKey:@"Detergents_Purchase Price (per case)_ALDAHOL"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLDetergentENC] forKey:@"Detergents_Maximum Use Life (# cycles per basin)_ALDAHOL"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLDetergentEOC] forKey:@"ALDAHOL Detergents Estimated Operational Cost"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLDetergentCPC] forKey:@"ALDAHOL Detergents Cost Per Cycle"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLDetergentCPS] forKey:@"Detergents_Detergent Cost Per Scope_ALDAHOL"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLDetergentURFO] forKey:@"Detergents_Units Required For Operation (per basin)_ALDAHOL"];
-                        
-                        //the numbers are identical AcecideC for the detergent
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLDetergentDiscount] forKey:@"Detergents_Discount_AcecideC"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLDetergentUPC] forKey:@"Detergents_Units Per Package_AcecideC"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLDetergentCP] forKey:@"Detergents_Purchase Price (per case)_AcecideC"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLDetergentENC] forKey:@"Detergents_Maximum Use Life (# cycles per basin)_AcecideC"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLDetergentEOC] forKey:@"AcecideC Detergents Estimated Operational Cost"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLDetergentCPC] forKey:@"AcecideC Detergents Cost Per Cycle"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLDetergentCPS] forKey:@"Detergents_Detergent Cost Per Scope_AcecideC"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLDetergentURFO] forKey:@"Detergents_Units Required For Operation (per basin)_AcecideC"];
-                        
-                        //set the detergent cost for competition
-                        
-                        [_dictResults setObject:@"" forKey:@"Detergents_Discount_Competition"];
-                        
-                        [_dictResults setObject:@"" forKey:@"Detergents_Units Per Package_Competition"];
-                        
-                        [_dictResults setObject:@"" forKey:@"Detergents_Purchase Price (per case)_Competition"];
-                        
-                        [_dictResults setObject:@"" forKey:@"Detergents_Maximum Use Life (# cycles per basin)_Competition"];
-                        
-                        [_dictResults setObject:@"" forKey:@"Competition Detergents Estimated Operational Cost"];
-                        
-                        [_dictResults setObject:@"" forKey:@"Competition Detergents Cost Per Cycle"];
-                        
-                        [_dictResults setObject:@"" forKey:@"Detergents_Detergent Cost Per Scope_Competition"];
-                        
-                        [_dictResults setObject:@"" forKey:@"Detergents_Units Required For Operation (per basin)_Competition"];
-                        
-                    }//end ALDAHOL Detergent
-                
-                }
-            
-            } else if ([strThisKey rangeOfString:@"Test Strips"].location !=NSNotFound) {
-                
-                //set the ALDAHOL values
-                if ([strThisKey rangeOfString:@"ALDAHOL"].location !=NSNotFound) {
-                    
-                    //get the discount
-                    if ([strThisKey rangeOfString:@"Discount"].location !=NSNotFound) {
-                        
-                        //values needed to be displayed
-                        float ALDAHOLTestStripsDiscount = 0.0;
-                        float ALDAHOLTestStripCP = 0.0;
-                        float ALDAHOLTestStripEOC = 0.0;
-                        float ALDAHOLTestStripUPC = 120;
-                        float ALDAHOLTestStripURFO = 1;
-                        float ALDAHOLTestStripENC = 1;
-                        float ALDAHOLTestStripCPC = 0.0;
-                        float ALDAHOLTestStripCPS = 0.0;
-                        
-                        OAI_TextField* txtThisDiscount = [_dictTextFields objectForKey:strThisKey];
-                        ALDAHOLTestStripsDiscount = [self getDiscount:txtThisDiscount];
-                        
-                        //ALDAHOL Chemical Custom Price
-                        ALDAHOLTestStripCP = [self calculateDiscounts:ALDAHOLTestStripsDiscount :Comply_Strips_LP];
-                        //ALDAHOL Chemical EOC - (CP/UPC)*URFO
-                        ALDAHOLTestStripEOC = [self calculateEstimatedOperationalCost:ALDAHOLTestStripCP :ALDAHOLTestStripUPC :ALDAHOLTestStripURFO];
-                        //ALDAHOL chemical cost per cylce - UPC/ENC
-                        ALDAHOLTestStripCPC = [self calculateCostPerCycle:ALDAHOLTestStripEOC:ALDAHOLTestStripENC];
-                        //ALDAHOL chemical cost per scope
-                        ALDAHOLTestStripCPS = [self calculateCostPerScope:scopesPerBasin :ALDAHOLTestStripCPC];
-                        
-                        //store results for ALDAHOL Chemical
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLTestStripsDiscount] forKey:@"Test Strips_Discount_ALDAHOL"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLTestStripUPC] forKey:@"Test Strips_Units Per Package_ALDAHOL"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLTestStripCP] forKey:@"Test Strips_Purchase Price (per case)_ALDAHOL"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLTestStripENC] forKey:@"Test Strips_Maximum Use Life (# cycles per basin)_ALDAHOL"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLTestStripEOC] forKey:@"ALDAHOL Test Strips Estimated Operational Cost"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLTestStripCPC] forKey:@"ALDAHOL Test Strips Cost Per Cycle"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLTestStripCPS] forKey:@"Test Strips_Test Strip Cost Per Scope_ALDAHOL"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLTestStripURFO] forKey:@"Test Strip_Units Required For Operation (per basin)_ALDAHOL"];
+                    if([strThisKey rangeOfString:@"Discount"].location != NSNotFound) {
+                        strThisDiscount = txtThisField.text;
                     }
+
+                    [self calculateSection:@"Detergents":txtThisField:strThisKey:strThisDiscount];
                     
-                } else if ([strThisKey rangeOfString:@"Acecide"].location !=NSNotFound) {
-                        
-                    //get the discount
-                    if ([strThisKey rangeOfString:@"Discount"].location !=NSNotFound) {
-                        
-                        //values needed to be displayed
-                        float AcecideCTestStripsDiscount = 0.0;
-                        float AcecideCTestStripCP = 0.0;
-                        float AcecideCTestStripEOC = 0.0;
-                        float AcecideCTestStripUPC = 100;
-                        float AcecideCTestStripURFO = 1;
-                        float AcecideCTestStripENC = 1;
-                        float AcecideCTestStripCPC = 0.0;
-                        float AcecideCTestStripCPS = 0.0;
-                        
-                        OAI_TextField* txtThisDiscount = [_dictTextFields objectForKey:strThisKey];
-                        AcecideCTestStripsDiscount = [self getDiscount:txtThisDiscount];
-                        
-                        //ALDAHOL Chemical Custom Price
-                        AcecideCTestStripCP = [self calculateDiscounts:AcecideCTestStripsDiscount :Acecide_Test_Strips_LP];
-                        //ALDAHOL Chemical EOC - (CP/UPC)*URFO
-                        AcecideCTestStripEOC = [self calculateEstimatedOperationalCost:AcecideCTestStripCP :AcecideCTestStripUPC :AcecideCTestStripURFO];
-                        //ALDAHOL chemical cost per cylce - UPC/ENC
-                        AcecideCTestStripCPC = [self calculateCostPerCycle:AcecideCTestStripEOC:AcecideCTestStripENC];
-                        //ALDAHOL chemical cost per scope
-                        AcecideCTestStripCPS = [self calculateCostPerScope:scopesPerBasin :AcecideCTestStripCPC];
-                        
-                        //store results for ALDAHOL Chemical
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", AcecideCTestStripsDiscount] forKey:@"Test Strips_Discount_AcecideC"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", AcecideCTestStripUPC] forKey:@"Test Strips_Units Per Package_AcecideC"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", AcecideCTestStripCP] forKey:@"Test Strips_Purchase Price (per case)_AcecideC"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", AcecideCTestStripENC] forKey:@"Test Strips_Maximum Use Life (# cycles per basin)_AcecideC"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", AcecideCTestStripEOC] forKey:@"AcecideC Test Strips Estimated Operational Cost"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", AcecideCTestStripCPC] forKey:@"AcecideC Test Strips Cost Per Cycle"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", AcecideCTestStripCPS] forKey:@"Test Strips_Test Strip Cost Per Scope_AcecideC"];
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", AcecideCTestStripURFO] forKey:@"Test Strip_Units Required For Operation (per basin)_AcecideC"];
-                        
-                        //set the competition here as well
-                        //set the detergent cost for competition
-                        
-                        [_dictResults setObject:@"" forKey:@"Test Strips_Discount_Competition"];
-                        
-                        [_dictResults setObject:@"" forKey:@"Test Strips_Units Per Package_Competition"];
-                        
-                        [_dictResults setObject:@"" forKey:@"Test Strips_Purchase Price (per case)_Competition"];
-                        
-                        [_dictResults setObject:@"" forKey:@"Test Strips_Maximum Use Life (# cycles per basin)_Competition"];
-                        
-                        [_dictResults setObject:@"" forKey:@"Competition Test Strips Estimated Operational Cost"];
-                        
-                        [_dictResults setObject:@"" forKey:@"Competition Test Strips Cost Per Cycle"];
-                        
-                        [_dictResults setObject:@"" forKey:@"Test Strips_Test Strip Cost Per Scope_Competition"];
-                        
-                        [_dictResults setObject:@"" forKey:@"Test Strips_Units Required For Operation (per basin)_Competition"];
-                            
-                    }
                 }
                 
-            } else if ([strThisKey rangeOfString:@"Filters"].location !=NSNotFound) {
+            } else if ([strThisKey rangeOfString:@"Test Strips"].location != NSNotFound) {
                 
-                //set the ALDAHOL values
-                if ([strThisKey rangeOfString:@"ALDAHOL"].location !=NSNotFound) {
+                //include the discount and compeition text fields
+                if([strThisKey rangeOfString:@"Discount"].location != NSNotFound || [strThisKey rangeOfString:@"Competition"].location != NSNotFound) {
                     
                     //get the discount
-                    if ([strThisKey rangeOfString:@"Discount"].location !=NSNotFound) {
-                        
-                        float ALDAHOLFiltersDiscount = 0.0;
-                        
-                        OAI_TextField* txtThisDiscount = [_dictTextFields objectForKey:strThisKey];
-                        ALDAHOLFiltersDiscount = [self getDiscount:txtThisDiscount];
-                        
-                        //get the filter cost
-                        arrFiltersCost = [self calculateFiltersCost:ALDAHOLFiltersDiscount:OERCount:cyclesPerYear:scopesPerBasin];
-                        
-                        //pull the results
-                        NSString* strFilterCP = [arrFiltersCost objectAtIndex:0];
-                        NSString* strFilterCPS = [arrFiltersCost objectAtIndex:1];
-                        
-                        //ALDAHOL
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLFiltersDiscount] forKey:@"Filters_Discount_ALDAHOL"];
-                        [_dictResults setObject:strFilterCP forKey:@"Filters_Annual Cost_ALDAHOL"];
-                        [_dictResults setObject:strFilterCPS forKey:@"Filters_Filter Cost Per Scope_ALDAHOL"];
-                        
-                        //AcecideC
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLFiltersDiscount] forKey:@"Filters_Discount_AcecideC"];
-                        [_dictResults setObject:strFilterCP forKey:@"Filters_Annual Cost_AcecideC"];
-                        [_dictResults setObject:strFilterCPS forKey:@"Filters_Filter Cost Per Scope_AcecideC"];
-                        
-                        //Competition
-                        
-                        //changed 4/22 was .67
-                        float CompetitionFilter_CPS = 0.0;
-                        float CompetitionFilter_CP = CompetitionFilter_CPS * cyclesPerYear;
-                        
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", CompetitionFilter_CP] forKey:@"Filters_Annual Cost_Competition"];
-                        [_dictResults setObject:[NSString stringWithFormat:@"%.02f", CompetitionFilter_CPS] forKey:@"Filters_Filter Cost Per Scope_Competition"];
-                        
+                    if([strThisKey rangeOfString:@"Discount"].location != NSNotFound) {
+                        strThisDiscount = txtThisField.text;
                     }
+
+                    [self calculateSection:@"Test Strips":txtThisField:strThisKey:strThisDiscount];
+                    
                 }
+                
+            } else if ([strThisKey rangeOfString:@"Filters"].location != NSNotFound) {
+                
+                //include the discount and compeition text fields
+                if([strThisKey rangeOfString:@"Discount"].location != NSNotFound || [strThisKey rangeOfString:@"Competition"].location != NSNotFound) {
+                    
+                    //get the discount
+                    if([strThisKey rangeOfString:@"Discount"].location != NSNotFound) {
+                        strThisDiscount = txtThisField.text;
+                    }
+                    
+                    [self calculateSection:@"Filters":txtThisField:strThisKey:strThisDiscount];
+                    
+                }
+                
             }
-        }//end doOthers check
             
+        }
         
-        //non-discount calculations
-        if ([strThisKey rangeOfString:@"Service"].location !=NSNotFound) {
-            
-            //set the ALDAHOL values
-            if ([strThisKey rangeOfString:@"ALDAHOL"].location !=NSNotFound) {
-                
-                //get the discount
-                if ([strThisKey rangeOfString:@"Discount"].location !=NSNotFound) {
-                    
-                    float ALDAHOLServiceDiscount = 0.0;
-                    
-                    OAI_TextField* txtThisDiscount = [_dictTextFields objectForKey:strThisKey];
-                    ALDAHOLServiceDiscount = [self getDiscount:txtThisDiscount];
-                    
-                    NSArray* arrServiceCost = [self calculateServiceCost:ALDAHOLServiceDiscount:cyclesPerYear:scopesPerBasin];
-                    
-                    //pull the results
-                    NSString* strServiceCP = [arrServiceCost objectAtIndex:0];
-                    NSString* strServiceCPS = [arrServiceCost objectAtIndex:1];
-                    
-                    //ALDAHOL
-                    [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLServiceDiscount] forKey:@"Service_Discount_ALDAHOL"];
-                    [_dictResults setObject:strServiceCP forKey:@"Service_Annual Cost_ALDAHOL"];
-                    [_dictResults setObject:strServiceCPS forKey:@"Service_Service Cost Per Scope_ALDAHOL"];
-                    
-                    //AcecideC
-                    [_dictResults setObject:[NSString stringWithFormat:@"%.02f", ALDAHOLServiceDiscount] forKey:@"Service_Discount_AcecideC"];
-                    [_dictResults setObject:strServiceCP forKey:@"Service_Annual Cost_AcecideC"];
-                    [_dictResults setObject:strServiceCPS forKey:@"Service_Service Cost Per Scope_AcecideC"];
-                    
-                    //Competition
-                    [_dictResults setObject:@""forKey:@"Service_Annual Cost_Competition"];
-                    [_dictResults setObject:@"" forKey:@"Service_Filter Cost Per Scope_Competition"];
-                                        
-                }
+        if (doLabor) {
+            if ([strThisKey rangeOfString:@"Labor"].location != NSNotFound) {
+                [self calculateSection:@"Labor":txtThisField:strThisKey:strThisDiscount];
             }
-            
-        } else if ([strThisKey rangeOfString:@"Labor"].location !=NSNotFound) {
-            
-            float laborCAS = 0.0;
-            float laborCPS = (laborCAS/cyclesPerYear)/scopesPerBasin;
-            
-            //ALDAHOL Labor
-            [_dictResults setObject:[NSString stringWithFormat:@"%.02f", laborCAS] forKey:@"Labor_Additional Cost Above Service_ALDAHOL"];
-            [_dictResults setObject:[NSString stringWithFormat:@"%.02f", laborCPS] forKey:@"Labor_Labor Cost Per Scope_ALDAHOL"];
-            
-            //AcecideC Labor
-            [_dictResults setObject:[NSString stringWithFormat:@"%.02f", laborCAS] forKey:@"Labor_Additional Cost Above Service_AcecideC"];
-            [_dictResults setObject:[NSString stringWithFormat:@"%.02f", laborCPS] forKey:@"Labor_Labor Cost Per Scope_AcecideC"];
-            
-            //Competition
-            [_dictResults setObject:@"0.0" forKey:@"Labor_Labor Cost Per Scope_Competition"];
-            
-        } else if ([strThisKey rangeOfString:@"Operation"].location !=NSNotFound) {
+        }
+        
+        if (doService) { 
+            if ([strThisKey rangeOfString:@"Service"].location != NSNotFound) {
+                [self calculateSection:@"Service":txtThisField:strThisKey:strThisDiscount];
+            }
+        }
+
+    }
+    
+    //operation time
+    for(NSString* strThisKey in _dictTextFields) {
+        
+        if ([strThisKey rangeOfString:@"Operation Time"].location !=NSNotFound) {
             
             //ALDAHOL
             [_dictResults setObject:@"2 " forKey:@"Operation Time_Pre-Cleaning_ALDAHOL"];
@@ -560,18 +235,287 @@
             [_dictResults setObject:strManualCleaning forKey:@"Operation Time_Manual Cleaning_Competition"];
             [_dictResults setObject:strAERPostCleaning forKey:@"Operation Time_Post AER Processing_Competition"];
             [_dictResults setObject:strAERProcessing forKey:@"Operation Time_AER Processing_Competition"];
+            
+        } else if ([strThisKey rangeOfString:@"Labor_Additional"].location !=NSNotFound) {
+            
+            OAI_TextField* txtThisLabor = [_dictTextFields objectForKey:strThisKey];
+            
+            //convert to a float
+            NSNumberFormatter* nf = [[NSNumberFormatter alloc] init];
+            [nf setNumberStyle:NSNumberFormatterCurrencyStyle];
+            NSNumber* number = [nf numberFromString:txtThisLabor.text];
+            
+            float laborCAS = [number floatValue];
+            float laborCPS = (laborCAS/cyclesPerYear)/scopesPerBasin;
+            
+            //ALDAHOL Labor
+            //set the ALDAHOL values
+            if ([strThisKey rangeOfString:@"ALDAHOL"].location !=NSNotFound) {
+                [_dictResults setObject:[NSString stringWithFormat:@"%.02f", laborCAS] forKey:@"Labor_Additional Cost Above Service_ALDAHOL"];
+                [_dictResults setObject:[NSString stringWithFormat:@"%.02f", laborCPS] forKey:@"Labor_Labor Cost Per Scope_ALDAHOL"];
+            } else if ([strThisKey rangeOfString:@"Acecide"].location !=NSNotFound) {
+                //AcecideC Labor
+                [_dictResults setObject:[NSString stringWithFormat:@"%.02f", laborCAS] forKey:@"Labor_Additional Cost Above Service_AcecideC"];
+                [_dictResults setObject:[NSString stringWithFormat:@"%.02f", laborCPS] forKey:@"Labor_Labor Cost Per Scope_AcecideC"];
+                
+            }
+            
+        } else if ([strThisKey rangeOfString:@"Labor_Labor Cost Per Scope_Competition"].location !=NSNotFound) {
+            //Competition Labor
+            
+            //set the Labor cost for competition
+            OAI_TextField* txtCostPerScope = [_dictTextFields objectForKey:@"Labor_Labor Cost Per Scope_Competition"];
+            NSString* strLaborCompCPS = txtCostPerScope.text;
+            
+            //check to make sure result is not nil
+            if (strLaborCompCPS == nil) {
+                strLaborCompCPS = @"$0.0";
+            }
+            
+            //[_dictResults setObject:[NSString stringWithFormat:@"%.02f", laborCAS] forKey:@"Labor_Additional Cost Above Service_Competition"];
+            [_dictResults setObject:strLaborCompCPS forKey:@"Labor_Labor Cost Per Scope_Competition"];
         }
+        
+    }
+
+    
+    //NSLog(@"%@", _dictResults);
+    //get those results based on base and textfield values, place into dictionary
+    
+    NSMutableDictionary* userData = [[NSMutableDictionary alloc] init];
+    _dictInitialValues = [[NSMutableDictionary alloc] init];
+    
+    if (_isOpening) {
+        _dictInitialValues = _dictResults;
     }
     
-    //return the data
-    NSMutableDictionary* userData = [[NSMutableDictionary alloc] init];
+    //return dictionary of results
     [userData setObject:_dictResults forKey:@"Results"];
     [userData setObject:@"Show Results" forKey:@"Action"];
     
-    /*This is the call back to the notification center, */
+    //This is the call back to the notification center,
     [[NSNotificationCenter defaultCenter] postNotificationName:@"theMessenger" object:self userInfo: userData];
 
+        
 }
+
+- (void) calculateSection : (NSString*) strThisSection : (OAI_TextField*) txtThisField : (NSString*) strThisKey : (NSString*) strThisDiscount {
+    
+    //these are the assumptions provided in the excel sheet
+    
+    
+    
+    //list prices
+    float ALDAHOL_LP = 115.00;
+    float Comply_Strips_LP = 105.00;
+    float Acecide_Test_Strips_LP = 90.00;
+    float AcecideC_LP = 990.00;
+    float EndoQuick_LP = 100.0;
+    
+    BOOL isALDAHOL = NO;
+    BOOL isAcecide = NO;
+    BOOL isCompetition = NO;
+    
+    //values needed to be displayed
+    float thisDiscount = [strThisDiscount floatValue];
+    float thisCP = 0.0;
+    float thisEOC = 0.0;
+    float thisUPC = 0.0;
+    float thisURFO = 0.0;
+    float thisENC = 0.0;
+    float thisCPC = 0.0;
+    float thisCPS = 0.0;
+    float thisLP = 0.0;
+    
+    NSString* strKeySuffix;
+    NSString* strKeyPrefix;
+    NSString* strThisSectionPlural;
+    NSString* strLaborCPSKey;
+    
+    //get our base numbers
+    float cyclesPerYear = [[_dictResults objectForKey:@"Annual Cycle Count"] floatValue];
+    float OERCount = [[_dictResults objectForKey:@"OER Count"] floatValue];
+    float scopesPerBasin = [[_dictResults objectForKey:@"Scopes Per Basin"] floatValue];
+    
+    //set section and section values
+    if([strThisSection isEqualToString:@"Chemicals"]) {
+        strThisSectionPlural = @"Chemicals";
+        strThisSection = @"Chemical";
+        //pricing is different for ALDAHOL and Acecide
+        if ([strThisKey rangeOfString:@"ALDAHOL"].location !=NSNotFound) {
+            thisLP = ALDAHOL_LP;
+            thisUPC = 4;
+            thisURFO = 5;
+            thisENC = 17;
+        } else if ([strThisKey rangeOfString:@"Acecide"].location !=NSNotFound) {
+            thisLP = AcecideC_LP;
+            thisUPC = 6;
+            thisURFO = 1;
+            thisENC = 18;
+        }
+    } else if ([strThisSection isEqualToString:@"Detergents"]) {
+        strThisSectionPlural = @"Detergents";
+        strThisSection = @"Detergent";
+        thisUPC = 3;
+        thisURFO = 1;
+        thisENC = 30;
+        thisLP = 95.00;
+    } else if ([strThisKey rangeOfString:@"Test Strips"].location !=NSNotFound) {
+        strThisSection = @"Test Strip";
+        strThisSectionPlural = @"Test Strips";
+        if ([strThisKey rangeOfString:@"ALDAHOL"].location !=NSNotFound) {
+            thisUPC = 12;
+            thisURFO = 1;
+            thisENC = 1;
+            thisLP = 99.75;
+        } else if ([strThisKey rangeOfString:@"AcecideC"].location !=NSNotFound) {
+            thisUPC = 100;
+            thisURFO = 1;
+            thisENC = 1;
+            thisLP = 85.50;
+        }
+    } else if ([strThisKey rangeOfString:@"Filters"].location !=NSNotFound) {
+        strThisSection = @"Filter";
+        strThisSectionPlural = @"Filters";
+    } else if ([strThisKey rangeOfString:@"Labor"].location !=NSNotFound) {
+        //get value and determine what we are working with
+        if ([strThisKey rangeOfString:@"ALDAHOL"].location !=NSNotFound) {
+            isALDAHOL = YES;
+            strLaborCPSKey = @"Labor_Labor Cost Per Scope_ALDAHOL";
+        } else if ([strThisKey rangeOfString:@"Acecide"].location !=NSNotFound) {
+            isAcecide = YES;
+            strLaborCPSKey = @"Labor_Labor Cost Per Scope_AcecideC";
+        } else if ([strThisKey rangeOfString:@"Competition"].location !=NSNotFound) {
+            isCompetition = YES;
+            strLaborCPSKey = @"Labor_Labor Cost Per Scope_Competition";
+        }
+    }
+    
+    //set product properties
+    if ([strThisKey rangeOfString:@"ALDAHOL"].location !=NSNotFound) {
+        isALDAHOL = YES;
+        strKeySuffix = @"_ALDAHOL";
+        strKeyPrefix = @"ALDAHOL";
+    } else if ([strThisKey rangeOfString:@"Acecide"].location !=NSNotFound) {
+        isAcecide = YES;
+        strKeySuffix = @"_AcecideC";
+        strKeyPrefix = @"Acecide";
+    } else if ([strThisKey rangeOfString:@"Competition"].location !=NSNotFound) {
+        isCompetition = YES;
+        strKeySuffix = @"_Competition";
+        strKeyPrefix = @"Competition";
+        
+    }
+    
+    if (!isCompetition) {
+        
+        if ([strThisSection isEqualToString:@"Detergent"] || [strThisSection isEqualToString:@"Chemical"] || [strThisSection isEqualToString:@"Test Strip"]) { 
+            
+            //get custom pricing
+            thisCP = [self calculateDiscounts:[strThisDiscount floatValue]:thisLP];
+            
+            //get EOC Formula:(CP/UPC)*URFO
+            thisEOC = [self calculateEstimatedOperationalCost:thisCP :thisUPC :thisURFO];
+            
+            //get cost per cylce - UPC/ENC
+            thisCPC = [self calculateCostPerCycle:thisEOC:thisENC];
+            
+            //get cost per scope
+            thisCPS = [self calculateCostPerScope:scopesPerBasin :thisCPC];
+            
+            //store results
+            [_dictResults setObject:[NSString stringWithFormat:@"%.02f", thisDiscount] forKey:[NSString stringWithFormat:@"%@_Discount%@", strThisSectionPlural, strKeySuffix]];
+            
+            [_dictResults setObject:[NSString stringWithFormat:@"%.02f", thisUPC] forKey:[NSString stringWithFormat:@"%@_Units Per Package%@", strThisSectionPlural, strKeySuffix]];
+            
+            [_dictResults setObject:[NSString stringWithFormat:@"%.02f", thisCP] forKey:[NSString stringWithFormat:@"%@_Purchase Price (per case)%@", strThisSectionPlural, strKeySuffix]];
+            
+            [_dictResults setObject:[NSString stringWithFormat:@"%.02f", thisENC] forKey:[NSString stringWithFormat:@"%@_Maximum Use Life (# cycles per basin)%@", strThisSectionPlural, strKeySuffix ]];
+            
+            [_dictResults setObject:[NSString stringWithFormat:@"%.02f", thisEOC] forKey:[NSString stringWithFormat:@"%@ %@ Estimated Operational Cost", strThisSection, strKeyPrefix]];
+            
+            [_dictResults setObject:[NSString stringWithFormat:@"%.02f", thisCPC] forKey:[NSString stringWithFormat:@"%@ %@ Cost Per Cycle", strThisSection, strKeyPrefix]];
+            
+            [_dictResults setObject:[NSString stringWithFormat:@"%.02f", thisCPS] forKey:[NSString stringWithFormat:@"%@_%@ Cost Per Scope%@", strThisSectionPlural, strThisSection, strKeySuffix]];
+            
+            [_dictResults setObject:[NSString stringWithFormat:@"%.02f", thisURFO] forKey:[NSString stringWithFormat:@"%@_Units Required For Operation (per basin)%@", strThisSectionPlural, strKeySuffix]];
+            
+        } else if ([strThisSection isEqualToString:@"Filter"]) {
+           
+            //get the filter cost
+            NSArray* arrFiltersCost = [self calculateFiltersCost:thisDiscount:OERCount:cyclesPerYear:scopesPerBasin];
+            
+            //pull the results
+            NSString* strFilterCP = [arrFiltersCost objectAtIndex:0];
+            NSString* strFilterCPS = [arrFiltersCost objectAtIndex:1];
+            
+            [_dictResults setObject:[NSString stringWithFormat:@"%.02f", thisDiscount] forKey:[NSString stringWithFormat:@"Filters_Discount%@", strKeySuffix]];
+            [_dictResults setObject:strFilterCP forKey:[NSString stringWithFormat:@"Filters_Annual Cost%@", strKeySuffix]];
+            [_dictResults setObject:strFilterCPS forKey:[NSString stringWithFormat:@"Filters_Filter Cost Per Scope%@", strKeySuffix]];
+            
+        } else if ([strThisSection isEqualToString:@"Labor"]) {
+            
+            NSString* strLaborCost;
+            
+            if ([txtThisField.textFieldTitle isEqualToString:@"Labor_Additional Cost Above Service_ALDAHOL"] || [txtThisField.textFieldTitle isEqualToString:@"Labor_Additional Cost Above Service_AcecideC"]) {
+                
+                strLaborCost = txtThisField.text;
+                
+                if(!strLaborCost) {
+                    strLaborCost = @"0.0";
+                }
+                
+                //formula = (cycles per year/labor cost)/scopes per basin
+                float laborCost = [strLaborCost floatValue];
+                float laborCPS = 0.0;
+                
+                if (laborCost !=0) { 
+                    laborCPS = (cyclesPerYear/laborCost)/scopesPerBasin;
+                }
+                
+                //store the data
+                [_dictResults setObject:[NSString stringWithFormat:@"%f", laborCost] forKey:[NSString stringWithFormat:@"Labor_Additional Cost Above Service%@", strKeySuffix]];
+                [_dictResults setObject:[NSString stringWithFormat:@"%.02f", laborCPS] forKey:[NSString stringWithFormat:@"Labor_Labor Cost Per Scope_%@", strKeySuffix]];
+                
+            }
+            
+
+            
+        } else if ([strThisSection isEqualToString:@"Service"]) {
+            
+            NSArray* arrServiceCost = [self calculateServiceCost:thisDiscount:cyclesPerYear:scopesPerBasin];
+            
+            NSString* strServiceCP = [arrServiceCost objectAtIndex:0];
+            NSString* strServiceCPS = [arrServiceCost objectAtIndex:1];
+            
+            [_dictResults setObject:[NSString stringWithFormat:@"%.02f", thisDiscount] forKey:[NSString stringWithFormat:@"Service_Discount%@", strKeySuffix]];
+            [_dictResults setObject:strServiceCP forKey:[NSString stringWithFormat:@"Service_Annual Cost%@", strKeySuffix]];
+            [_dictResults setObject:strServiceCPS forKey:[NSString stringWithFormat:@"Service_Service Cost Per Scope%@", strKeySuffix]];
+
+            
+        }
+        
+    } else {
+        
+        if ([strThisKey rangeOfString:@"Cost Per Scope"].location != NSNotFound) {
+            
+            NSString* strThisValue = txtThisField.text;
+            if (!strThisValue) {
+                strThisValue = @"0.00";
+            }
+            
+            //strip $ if the string has one
+            strThisValue = [self clearDollarSymbol:strThisValue];
+        
+            [_dictResults setObject:strThisValue forKey:strThisKey];
+    
+        }
+    }
+
+    
+}
+
+   
 
 #pragma mark - Calculate Discount
 
@@ -587,12 +531,13 @@
         //only strip it if it has the %
         if (percentSymbolCheck.location != NSNotFound) {
             
-            float thisPercent = [self cleanPercentageSymbol:textField.text];
+            float thisPercent = [[self cleanPercentageSymbol:textField.text] floatValue];
             discount = thisPercent/100;
         
         } else {
             
             discount = [textField.text floatValue];
+            
         }
         
     } else {
@@ -602,8 +547,8 @@
         
     }
     
-    
     return discount;
+    
 
 }
 
@@ -681,7 +626,7 @@
     
 }
 
-- (float) cleanPercentageSymbol : (NSString*) stringToClean {
+- (NSString*) cleanPercentageSymbol : (NSString*) stringToClean {
     
     //check to see if the number is already formatted correctly
     NSRange percentSymbolCheck = [stringToClean rangeOfString:@"%"];
@@ -689,18 +634,18 @@
     if (percentSymbolCheck.location != NSNotFound) {
 
         NSString* cleanedString = [stringToClean substringWithRange:NSMakeRange(0, stringToClean.length-1)];
-        return [cleanedString floatValue];
+        return cleanedString;
     
     } else {
         
-        return [stringToClean floatValue];
+        return stringToClean;
     
     }
 
     
 }
 
-- (float) clearnDollarSymbol : (NSString*) stringToClean {
+- (NSString*) clearDollarSymbol : (NSString*) stringToClean {
     
     //check to see if the number is already formatted correctly
     NSRange dollarSignCheck = [stringToClean rangeOfString:@"$"];
@@ -708,11 +653,13 @@
     if (dollarSignCheck.location != NSNotFound) {
         
         NSString* cleanedString = [stringToClean substringWithRange:NSMakeRange(1, stringToClean.length-1)];
-        return [cleanedString floatValue];
+        
+        
+        return cleanedString;
         
     } else {
         
-        return [stringToClean floatValue];
+        return stringToClean;
         
     }
     
@@ -720,6 +667,15 @@
 
     
 }
+
+- (NSString*) convertToCurrencyString : (NSDecimalNumber*) numberToConvert {
+    
+    //convert to string
+    NSString* currencyString = [NSNumberFormatter localizedStringFromNumber:numberToConvert numberStyle:NSNumberFormatterCurrencyStyle];
+    
+    return currencyString;
+}
+
 
 
 

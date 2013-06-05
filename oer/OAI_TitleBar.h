@@ -19,4 +19,6 @@
 
 - (void) toggleAccount : (UIButton* ) btnAccount;
 
+- (void) resetAll : (UIButton*) myButton;
+
 @end

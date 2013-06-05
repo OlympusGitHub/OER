@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DB0FA26C174E51C700F358C8 /* PDF Code in Resources */ = {isa = PBXBuildFile; fileRef = DB0FA26B174E51C700F358C8 /* PDF Code */; };
+		DB9ED7A9174FC42D00F65851 /* btnReload.png in Resources */ = {isa = PBXBuildFile; fileRef = DB9ED7A8174FC42D00F65851 /* btnReload.png */; };
 		DBBF85221716E267004CB92B /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DBBF85211716E267004CB92B /* UIKit.framework */; };
 		DBBF85241716E267004CB92B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DBBF85231716E267004CB92B /* Foundation.framework */; };
 		DBBF85261716E267004CB92B /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DBBF85251716E267004CB92B /* CoreGraphics.framework */; };
@@ -59,6 +61,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		DB0FA26B174E51C700F358C8 /* PDF Code */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "PDF Code"; sourceTree = "<group>"; };
+		DB9ED7A8174FC42D00F65851 /* btnReload.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btnReload.png; sourceTree = "<group>"; };
 		DBBF851E1716E267004CB92B /* oer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = oer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DBBF85211716E267004CB92B /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		DBBF85231716E267004CB92B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -227,6 +231,7 @@
 		DBBF85451716E287004CB92B /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				DB9ED7A8174FC42D00F65851 /* btnReload.png */,
 				DBDE84C517282A28006D55CE /* checkmark.png */,
 				DBBF857E1716E2EC004CB92B /* btnCancelHighlight.png */,
 				DBBF857F1716E2EC004CB92B /* btnCancelNormal.png */,
@@ -246,6 +251,7 @@
 		DBBF85461716E28B004CB92B /* Singletons */ = {
 			isa = PBXGroup;
 			children = (
+				DB0FA26B174E51C700F358C8 /* PDF Code */,
 				DBBF855E1716E2D8004CB92B /* OAI_PDFManager.h */,
 				DBBF855F1716E2D8004CB92B /* OAI_PDFManager.m */,
 				DBBF85601716E2D8004CB92B /* OAI_StringManager.h */,
@@ -380,6 +386,8 @@
 				DBBF859F1716E6B6004CB92B /* Default-Portrait~ipad.png in Resources */,
 				DBBF85A11716E6BC004CB92B /* Default-Portrait@2x~ipad.png in Resources */,
 				DBDE84C617282A28006D55CE /* checkmark.png in Resources */,
+				DB0FA26C174E51C700F358C8 /* PDF Code in Resources */,
+				DB9ED7A9174FC42D00F65851 /* btnReload.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

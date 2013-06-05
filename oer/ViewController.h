@@ -53,6 +53,7 @@
     NSMutableDictionary* dictTextFields;
     NSMutableDictionary* dictResults;
     NSMutableDictionary* dictResultCells;
+    NSMutableDictionary* dictInitialValues;
     NSArray* arrTypes;
     NSArray* arrResultsTableHeaders;
     NSMutableDictionary* dictResultsData;
@@ -71,15 +72,21 @@
     UITableView* tblCompetitors;
     NSString* strSelectedCompetitor;
     
+    NSString* strCurrentTextFieldValue;
+    
+    CGRect myKeyboardFrame;
+    UITextField* myTextElement;
+    CGPoint myScrollViewOrigiOffSet;
+    
 }
 
-- (void) calculate : (NSString*) strCalculateWhat;
+- (void) calculate : (NSString*) strCalculateWhat : (BOOL) isOpening;
 
 - (void) calculateWithResults : (UIButton*) myButton;
 
 - (BOOL) checkStringValue : (NSString*) stringToCheck;
 
-- (BOOL) validateEntries : (NSString*) validateWhat;
+- (BOOL) validateEntries : (NSString*) validateWhat : (UITextField*) textField;
 
 - (BOOL) validateThisEntry : (OAI_TextField*) textField;
 
@@ -87,7 +94,7 @@
 
 - (void) showCalculations : (UIButton*) myButton;
 
-- (NSString* ) convertToCurrencyString : (float) numToConvert;
+- (NSString* ) convertToCurrencyString : (NSDecimalNumber*) numberToConvert;
 
 - (UIView*) getTimeSavings : (UIScrollView*) parentScroll;
 
@@ -100,6 +107,19 @@
 - (void) addCompetitorTimes;
 
 - (void) setDiscount : (NSString*) strDiscount;
+
+- (NSString*) stripDollarSign : (NSString*) stringToStrip;
+
+- (NSString*) stripDecimalPoints : (NSString*) stringToStrip;
+
+- (void) checkKeyboardConflict;
+
+- (void) resetValues;
+
+- (void) showResults : (NSDictionary*) dictResults;
+
+
+
 
 
 @end
