@@ -20,6 +20,8 @@
 {
     [super viewDidLoad];
     
+    hasItems = YES;    
+    
     /**************MANAGERS****************/
     calculator = [[OAI_Calculations alloc] init];
     colorManager = [[OAI_ColorManager alloc] init];
@@ -70,7 +72,7 @@
          @"3", @"AER Processing",
          @"33", @"Post AER Processing", 
          nil]
-    forKey:@"Advanced Sterilization Prodcuts (ASP) Evotech"];
+    forKey:@"Advanced Sterilization Products (ASP) Evotech"];
     
     [dictCompetitors setObject: [[NSDictionary alloc] initWithObjectsAndKeys:
          @"2", @"Pre-Cleaning",
@@ -162,7 +164,10 @@
          nil]
     forKey:@"CER-2"];
     
-    arrCompetitorNames = [[NSArray alloc] initWithObjects:@"Current AER Estimates", @"Advanced Sterilization Prodcuts (ASP) Evotech", @"Custom Ultrasonics System 83 Plus", @"Steris System 1", @"Steris System IE", @"Steris Reliance", @"DSD 91-E", @"Medivators DSD-20ILT", @"Medivators DSD-Edge", @"Medivators Advantage Plus", @"CER-1", @"CER-2", nil];
+    arrCompetitorNames = [[NSArray alloc] initWithObjects:@"Current AER Estimates", @"Advanced Sterilization Products (ASP) Evotech", @"Custom Ultrasonics System 83 Plus", @"Steris System 1", @"Steris System IE", @"Steris Reliance", @"DSD 91-E", @"Medivators DSD-20ILT", @"Medivators DSD-Edge", @"Medivators Advantage Plus", @"CER-1", @"CER-2", nil];
+    
+    //set main view (so we can over ride touchesBegan
+    vMainView = [[OAI_View alloc] initWithFrame:self.view.frame];
 
     
     /***********************************
@@ -172,7 +177,7 @@
     titleBarManager = [[OAI_TitleBar alloc] initWithFrame:CGRectMake(0.0, 0.0, self.view.bounds.size.width, 40.0)];
     titleBarManager.titleBarTitle = @"OER Comparison Calculator";
     [titleBarManager buildTitleBar];
-    [self.view addSubview:titleBarManager];
+    [vMainView addSubview:titleBarManager];
     
     scNav = [[UIScrollView alloc] initWithFrame:CGRectMake(0.0, titleBarManager.frame.origin.y + titleBarManager.frame.size.height, self.view.frame.size.width, self.view.frame.size.height-titleBarManager.frame.size.height)];
     [scNav setContentSize: CGSizeMake(768*3, self.view.frame.size.height-titleBarManager.frame.size.height)];
@@ -182,7 +187,7 @@
     [scNav setDelaysContentTouches:NO];
     [scNav setContentSize:CGSizeMake(768*3, 1004)];
     
-    [self.view addSubview:scNav];
+    [vMainView addSubview:scNav];
     
     //add the scroll view pages
     for(int i=0; i<3; i++) {
@@ -257,6 +262,7 @@
                 //set the text fields
                 OAI_TextField* thisTextEntry = [[OAI_TextField alloc] initWithFrame:CGRectMake(maxRowW + 70.0, rowY, 200.0, 30.0)];
                 thisTextEntry.delegate = self;
+                thisTextEntry.returnKeyType = UIReturnKeyDone;
                 
                 //id this textfield
                 if (i==0) {
@@ -318,7 +324,7 @@
             [vTableSection addSubview:vHeaderBarPadding];
             
             //set up headers
-            arrTypes = [[NSArray alloc] initWithObjects:@"Olympus OER-Pro with ALDAHOL 1.8", @"Olympus OER-Pro with Acecide-C", @"Select A Competitor", nil];
+            arrTypes = [[NSArray alloc] initWithObjects:@"Olympus OER-Pro with ALDAHOL 1.8", @"Olympus OER-Pro with Acecide-C", @"Select A \nCompetitor", nil];
             
             //set up some coords
             float labelX = barThird;
@@ -343,22 +349,26 @@
                 lblThisHeader.lineBreakMode = NSLineBreakByWordWrapping;
                 lblThisHeader.textAlignment = NSTextAlignmentCenter;
                 
-                if([[arrTypes objectAtIndex:i] isEqualToString:@"Select A Competitor"]) {
+                if([[arrTypes objectAtIndex:i] isEqualToString:@"Select A \nCompetitor"]) {
+                    
                     UITapGestureRecognizer* tgrMyTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showCompetitors:)];
                     tgrMyTap.delegate = self;
                     lblThisHeader.userInteractionEnabled = YES;
                     lblThisHeader.tag = 500;
-                    [lblThisHeader addGestureRecognizer:tgrMyTap];                   
+                    [lblThisHeader addGestureRecognizer:tgrMyTap];
+                    
                 }
                 
                 [vTableSection addSubview:lblThisHeader];
+                
                 
                 //increment x
                 labelX = labelX + labelW + 1.0;
             }
             
             //add the scroll view
-            scSections = [[OAI_ScrollView alloc] initWithFrame:CGRectMake(0.0, lblThisHeader.frame.origin.y + lblThisHeader.frame.size.height +2, vTableSection.frame.size.width, vTableSection.frame.size.height-lblThisHeader.frame.size.height)];
+            scSections = [[OAI_ScrollView alloc] initWithFrame:CGRectMake(0.0, lblThisHeader.frame.origin.y + lblThisHeader.frame.size.height +2, vTableSection.bounds.size.width, vTableSection.frame.size.height-lblThisHeader.frame.size.height)];
+            [scSections flashScrollIndicators];
             [vTableSection addSubview:scSections];
             
             //get the sections
@@ -452,6 +462,7 @@
                                 txtThisInput.delegate = self;
                                 txtThisInput.textFieldInputType = inputType;
                                 txtThisInput.text = @"0";
+                                txtThisInput.returnKeyType = UIReturnKeyDone;
                                 
                                 //set up text field label
                                 txtThisInput.textFieldTitle = strTextFieldID;
@@ -464,7 +475,6 @@
                                 
                                 if ([strThisSectionTitle isEqualToString:@"Chemicals"]) {
                                     txtThisInput.tag = 800;
-                                    
                                 } else if (![strThisSectionTitle isEqualToString:@"Labor"] && ![strThisSectionTitle isEqualToString:@"Service"]) {
                                     txtThisInput.tag = 801;
                                 } else if ([strThisSectionTitle isEqualToString:@"Labor"]) {
@@ -486,6 +496,7 @@
                             OAI_TextField* txtThisInput = [[OAI_TextField alloc] initWithFrame:CGRectMake(textFieldX, textFieldY, barNewThird-2.0, 30.0)];
                             txtThisInput.delegate = self;
                             txtThisInput.textFieldInputType = 2;
+                            txtThisInput.returnKeyType = UIReturnKeyDone;
                             
                             if ([strThisSectionTitle isEqualToString:@"Labor"]) {
                                 txtThisInput.tag = 802;
@@ -508,6 +519,7 @@
                             lblThisCellValue.textColor = [colorManager setColor:66.0 :66.0 :66.0];
                             lblThisCellValue.font = [UIFont fontWithName:@"Helvetica" size:20.0];
                             lblThisCellValue.backgroundColor = [UIColor clearColor];
+                            lblThisCellValue.myLabelID = strTextFieldID;
                             
                             lblThisCellValue.textFieldInputType = inputType;
                             
@@ -547,7 +559,7 @@
             float labelY = sectionY;
             
             //add disclaimer
-            CGSize disclaimerSize = [stringManager.strDisclaimer sizeWithFont:[UIFont fontWithName:@"Helvetica" size:12.0] constrainedToSize:CGSizeMake(scNav.frame.size.width-10.0, 999.0) lineBreakMode:NSLineBreakByWordWrapping];
+            CGSize disclaimerSize = [stringManager.strDisclaimer sizeWithFont:[UIFont fontWithName:@"Helvetica" size:12.0] constrainedToSize:CGSizeMake(scNav.frame.size.width-30.0, 999.0) lineBreakMode:NSLineBreakByWordWrapping];
             
             UILabel* lblDisclaimer = [[UILabel alloc] initWithFrame:CGRectMake(sectionX+20.0, labelY, disclaimerSize.width, disclaimerSize.height)];
             lblDisclaimer.text = stringManager.strDisclaimer;
@@ -567,6 +579,10 @@
             
             
         } else if (i==1) {
+            
+            arrResultHeaders = [[NSMutableArray alloc] init];
+            arrResultsRowHeaderLabels = [[NSMutableArray alloc] init];
+            arrResultsRowHeaderChecks = [[NSMutableArray alloc] init];
             
             //results page
             UIView* vResults = [[UIView alloc] initWithFrame:CGRectMake(772.0, 0.0, 768.0, 1004.0)];
@@ -642,19 +658,19 @@
             UIFont* tableCellFont = [UIFont fontWithName:@"Helvetica" size:14];
             
             float cellW = 0.0;
-            float cellX = 40.0;
+            float cellX = 60.0;
             float cellY = 100.0;
             for(int i=0; i<arrResultsTableHeaders.count; i++) {
                 
                 if (i==0) {
-                    cellW = thirdOfSpace;
+                    cellW = thirdOfSpace-20.0;
                 } else {
                     cellW = tableCellWidth;
                 }
                 
                 //get header
                 NSString* strThisHeader = [arrResultsTableHeaders objectAtIndex:i];
-                
+                                
                 OAI_Label* lblResultsHeader = [[OAI_Label alloc] init];
                 [lblResultsHeader setFrame:CGRectMake(cellX, btnEmail.frame.origin.y + btnEmail.frame.size.height + 5.0, cellW, 45.0)];
                 
@@ -672,6 +688,7 @@
                     lblResultsHeader.tag = 100;
                 }
                 
+                [arrResultHeaders addObject:lblResultsHeader];
                 [scResults addSubview:lblResultsHeader];
                 
                 cellX = lblResultsHeader.frame.origin.x + lblResultsHeader.frame.size.width;
@@ -680,7 +697,7 @@
             }
             
             //fill in the cell data
-            cellX = 40.0;
+            cellX = 60.0;
             cellW = 0.0;
             for(int i=0; i<arrResultsRowHeaders.count; i++) {
                 
@@ -694,7 +711,18 @@
                 
                 //add the row header
                 NSString* strRowHeader = [arrResultsRowHeaders objectAtIndex:i];
-                cellW = thirdOfSpace;
+                
+                //add the checkbox
+                if(i<(arrResultsRowHeaders.count-1)) {
+                    OAI_CheckBox* thisCheckbox = [[OAI_CheckBox alloc] initWithFrame:CGRectMake(30.0, cellY, 30.0, 30.0)];
+                    thisCheckbox.isChecked = YES;
+                    thisCheckbox.strMyOperCostType = strRowHeader;
+                    [scResults addSubview:thisCheckbox];
+                    [arrResultsRowHeaderChecks addObject:thisCheckbox];
+                }
+                
+                //add label
+                cellW = thirdOfSpace-20.0;
                 OAI_Label* lblRowHeader = [[OAI_Label alloc] initWithFrame:CGRectMake(cellX, cellY, cellW, 40.0)];
                 lblRowHeader.text = strRowHeader;
                 lblRowHeader.textColor = clrDarkGrey;
@@ -702,6 +730,9 @@
                 lblRowHeader.backgroundColor = clrThisCell;
                 lblRowHeader.layer.borderWidth = 1.0;
                 lblRowHeader.layer.borderColor = [UIColor whiteColor].CGColor;
+                
+                //add label to label dictionary
+                [arrResultsRowHeaderLabels addObject:lblRowHeader];
                 
                 [scResults addSubview:lblRowHeader];
                 
@@ -767,8 +798,181 @@
                 cellY = cellY + 40.0;
                 
                 //reset x
-                cellX = 40.0;
+                cellX = 60.0;
             }
+            
+            //add notes
+            NSString* strCostNotes = @"Items marked in red will not appear in email message!\n\nThe additional cost of the OER-Pro with Acecide may be offset by the time and safety improvements noted in this document.\n\nThe OER-Pro is designed to reprocess two endoscopes per cycle. The \"cost per scope\" reflects the cost for reprocessing one scope when scopes are reprocessed per cycle.\n\nThe number of cycles and the cost of filters per case varies depending on water quality and is difficult to project. Filter costs for an Olympus-purchased prefiltration system are included in this tool. Additionally, other factors such as test strip interpretation, selected chemistry and other environmental factors great influence the number of cycles before a change is required. The projected numbers provided in this calculator are only an estimate. Olympus suggests meeting with your Clinical Bioengineering Department to address local issues related to this expense.";
+            
+            UILabel* lblCostNotes = [[UILabel alloc] initWithFrame:CGRectMake(40.0, cellY, self.view.frame.size.width-80.0, 300.0)];
+            lblCostNotes.text = strCostNotes;
+            lblCostNotes.textColor = [colorManager setColor:66.0 :66.0 :66.0];
+            lblCostNotes.font = [UIFont fontWithName:@"Helvetica" size:14.0];
+            lblCostNotes.backgroundColor = [UIColor clearColor];
+            lblCostNotes.numberOfLines = 0;
+            lblCostNotes.lineBreakMode = NSLineBreakByWordWrapping;
+            [scResults addSubview:lblCostNotes];
+            
+            //build the time comparison table
+            UILabel* lblTimeTable = [[UILabel alloc] initWithFrame:CGRectMake(40.0, lblCostNotes.frame.origin.y + lblCostNotes.frame.size.height, self.view.frame.size.width, 40.0)];
+            lblTimeTable.text = @"Time Savings:";
+            lblTimeTable.textColor = clrDarkGrey;
+            lblTimeTable.textAlignment = NSTextAlignmentLeft;
+            lblTimeTable.font = [UIFont fontWithName:@"Helvetica-Bold" size:20];
+            lblTimeTable.backgroundColor = [UIColor clearColor];
+            [scResults addSubview:lblTimeTable];
+            
+            cellW = 0.0;
+            cellX = 40.0;
+            cellY = lblTimeTable.frame.origin.y + lblTimeTable.frame.size.height + 10.0;
+            
+            UILabel* lblTimeSavingsHeader;
+            
+            for(int i=0; i<arrTypes.count+1; i++) {
+                
+                //add row header space holder
+                NSString* strHeader;
+                if (i==0) {
+                    strHeader = @"";
+                    cellW = thirdOfSpace;
+                } else if (i == arrTypes.count) {
+                    if(strSelectedCompetitor != nil) {
+                        strHeader = strSelectedCompetitor;
+                    } else {
+                        strHeader = @"Competitor";
+                    }
+                    
+                } else {
+                    strHeader = [arrTypes objectAtIndex:i-1];
+                    cellW = tableCellWidth;
+                }
+                
+                lblTimeSavingsHeader = [[UILabel alloc] initWithFrame:CGRectMake(cellX, cellY, cellW, 45.0)];
+                lblTimeSavingsHeader.text = strHeader;
+                lblTimeSavingsHeader.textColor = [UIColor whiteColor];
+                lblTimeSavingsHeader.font = tableHeaderFont;
+                lblTimeSavingsHeader.numberOfLines = 0;
+                lblTimeSavingsHeader.lineBreakMode = NSLineBreakByWordWrapping;
+                lblTimeSavingsHeader.backgroundColor = [colorManager setColor:8.0 :16.0 :123.0];
+                lblTimeSavingsHeader.textAlignment = NSTextAlignmentCenter;
+                lblTimeSavingsHeader.layer.borderWidth = 1.0;
+                lblTimeSavingsHeader.layer.borderColor = [UIColor whiteColor].CGColor;
+                
+                [scResults addSubview:lblTimeSavingsHeader];
+                
+                cellX = lblTimeSavingsHeader.frame.origin.x + lblTimeSavingsHeader.frame.size.width;
+                
+                [dictResultCells setObject:lblTimeSavingsHeader forKey:strHeader];
+                
+            }
+            
+            //set up the row headers
+            arrTimeSavingsRowHeaders = [[NSArray alloc] initWithObjects:@"Pre-Cleaning", @"Leakage Testing", @"Manual Cleaning", @"AER Processing", @"Post-AER Processing", @"Total Time Per Cycle (Minutes)", nil];
+            
+            float rowX = 40.0;
+            float rowY = lblTimeSavingsHeader.frame.origin.y + lblTimeSavingsHeader.frame.size.height;
+            float rowW = thirdOfSpace;
+            float rowH = 40.0;
+            
+            for(int i=0; i<arrTimeSavingsRowHeaders.count; i++) {
+                                
+                //alternate colors
+                UIColor* clrThisCell;
+                if(i%2) {
+                    clrThisCell = [colorManager setColor:253.0 :236.0 :190.0];
+                } else {
+                    clrThisCell = [colorManager setColor:230.0:230.0:230.0];
+                }
+                
+                NSString* strTimeSavngsRowHeader = [arrTimeSavingsRowHeaders objectAtIndex:i];
+                
+                OAI_Label* lblTimeSavingsRowHeader = [[OAI_Label alloc] initWithFrame:CGRectMake(rowX, rowY, rowW, rowH)];
+                lblTimeSavingsRowHeader.text = strTimeSavngsRowHeader;
+                lblTimeSavingsRowHeader.textColor = [colorManager setColor:51.0 :51.0 :51.0];
+                lblTimeSavingsRowHeader.font = tableCellFont;
+                lblTimeSavingsRowHeader.backgroundColor = clrThisCell;
+                lblTimeSavingsRowHeader.layer.borderWidth = 1.0;
+                lblTimeSavingsRowHeader.layer.borderColor = [UIColor whiteColor].CGColor;
+                [scResults addSubview:lblTimeSavingsRowHeader];
+                
+                
+                NSString* strSuffix; 
+                for(int x=0; x<3; x++) {
+                    
+                    //change w
+                    rowW = tableCellWidth;
+                 
+                    if (x==0) {
+                        strSuffix = @"_ALDAHOL";
+                    } else if (x==1) {
+                        strSuffix = @"_AcecideC";
+                    } else if (x==2) {
+                        strSuffix = @"_Competition";
+                    }
+                    
+                    //increment x
+                    if (x==0) {
+                        rowX = rowX + lblTimeSavingsRowHeader.frame.size.width;
+                    } else {
+                        rowX = rowX + tableCellWidth;
+                    }
+                                        
+                    OAI_Label* lblThisLabel = [[OAI_Label alloc] initWithFrame:CGRectMake(rowX, rowY, rowW, 40.0)];
+                    
+                    lblThisLabel.textColor = clrDarkGrey;
+                    lblThisLabel.font = tableCellFont;
+                    lblThisLabel.backgroundColor = clrThisCell;
+                    lblThisLabel.layer.borderWidth = 1.0;
+                    lblThisLabel.layer.borderColor = [UIColor whiteColor].CGColor;
+                    
+                    
+                    [scResults addSubview:lblThisLabel];
+                    
+                    //add the label to the dictResultsCells dictionary
+                    NSString* strThisKey = [NSString stringWithFormat:@"%@%@", strTimeSavngsRowHeader, strSuffix];
+                    
+                    lblThisLabel.myLabelID = strThisKey;
+                    
+                    [dictResultCells setObject:lblThisLabel forKey:strThisKey];
+                                        
+                }
+                
+                //increment y
+                rowY = rowY + 40.0;
+                
+                //reset rowX
+                rowX = 40.0;
+                
+                rowW = thirdOfSpace;
+                
+            }
+            
+            OAI_Label* lblTimeSavingNotes = [[OAI_Label alloc] initWithFrame:CGRectMake(40.0, rowY-40.0, self.view.frame.size.width-40.0, 200.0)];
+            lblTimeSavingNotes.text = @"Our intimate knowledge of endoscope design allows us to use proprietary technologies to provide you with an enhanced reprocessing experience. As part of that experience, the OER-Pro eliminates 7 of the 11 recommended manual cleaning steps.";
+            lblTimeSavingNotes.textColor = [colorManager setColor:51.0 :51.0 :51.0];
+            lblTimeSavingNotes.font = tableCellFont;
+            lblTimeSavingNotes.backgroundColor = [UIColor clearColor];
+            lblTimeSavingNotes.numberOfLines = 0;
+            lblTimeSavingNotes.lineBreakMode = NSLineBreakByWordWrapping;
+            [scResults addSubview:lblTimeSavingNotes];
+            
+            //add time savings notes
+            OAI_Label* lblAcedideCTitle = [[OAI_Label alloc] initWithFrame:CGRectMake(40.0, lblTimeSavingNotes.frame.origin.y+lblTimeSavingNotes.frame.size.height-40.0, 200.0, 30.0)];
+            lblAcedideCTitle.text = @"Acecide-C:";
+            lblAcedideCTitle.textColor = [colorManager setColor:51.0 :51.0 :51.0];
+            lblAcedideCTitle.font = tableHeaderFont;
+            lblAcedideCTitle.backgroundColor = [UIColor clearColor];
+            [scResults addSubview:lblAcedideCTitle];
+            
+            //add time savings notes
+            OAI_Label* lblAcedideCNotes = [[OAI_Label alloc] initWithFrame:CGRectMake(40.0, lblAcedideCTitle.frame.origin.y + lblAcedideCTitle.frame.size.height-30.0, self.view.frame.size.width, 120.0)];
+            lblAcedideCNotes.text = @"Conservatively Acecide-C saving estimate vs. ALDAHOL 1.8 is: 9 minutes\nAnnual staff time savings is estimated to be at least: 300 hours\nAt $15 per hour, this annual savings totals: $4500";
+            lblAcedideCNotes.textColor = [colorManager setColor:51.0 :51.0 :51.0];
+            lblAcedideCNotes.font = tableCellFont;
+            lblAcedideCNotes.numberOfLines = 0;
+            lblAcedideCNotes.lineBreakMode = NSLineBreakByWordWrapping;
+            lblAcedideCNotes.backgroundColor = [UIColor clearColor];
+            [scResults addSubview:lblAcedideCNotes];
             
             //set the scResults content size
             [scResults setContentSize:CGSizeMake(vResults.frame.size.width, 1500.0)];
@@ -784,7 +988,7 @@
     /***********EMAIL**************/
     
     vEmailManager = [[OAI_EmailSetup alloc] initWithFrame:CGRectMake(0.0, 0.0-400.0, self.view.frame.size.width, 400.0)];
-    [self.view addSubview:vEmailManager];
+    [vMainView addSubview:vEmailManager];
     
     arrEmailCheckboxes = vEmailManager.arrMyCheckboxes;
     
@@ -822,11 +1026,12 @@
     tblCompetitors = [[UITableView alloc] initWithFrame:CGRectMake(0.0, 0.0, vCompChoices.frame.size.width, vCompChoices.frame.size.height)];
     tblCompetitors.delegate = self;
     tblCompetitors.dataSource = self;
-    tblCompetitors.rowHeight = maxRowHeight;
+    tblCompetitors.rowHeight = 60.0;
+    tblCompetitors.userInteractionEnabled = YES;
     [vCompChoices addSubview:tblCompetitors];
     
     
-    [self.view addSubview:vCompChoices];
+    [vMainView addSubview:vCompChoices];
     
     /*************************************
      SPLASH SCREEN
@@ -838,7 +1043,7 @@
     if (needsSplash) {
         CGRect myBounds = self.view.bounds;
         appSplashScreen = [[OAI_SplashScreen alloc] initWithFrame:CGRectMake(myBounds.origin.x, myBounds.origin.y, myBounds.size.width, myBounds.size.height)];
-        [self.view addSubview:appSplashScreen];
+        [vMainView addSubview:appSplashScreen];
         [appSplashScreen runSplashScreenAnimation];
     }
     
@@ -921,8 +1126,10 @@
     [btnCloseX setBackgroundColor:[UIColor clearColor]];
     [vAccount addSubview:btnCloseX];
     
-    [self.view addSubview:vAccount];
-    [self.view bringSubviewToFront:titleBarManager];
+    [vMainView addSubview:vAccount];
+    [vMainView bringSubviewToFront:titleBarManager];
+    
+    [self.view addSubview:vMainView];
     
 }
 
@@ -965,8 +1172,8 @@
     
     //get the values
     for(NSString* strThisKey in dictCompetitors) {
+        
         if([strThisKey isEqualToString:strSelectedCompetitor]) {
-            
             NSDictionary* dictCompData = [dictCompetitors objectForKey:strThisKey];
             strCompName = strThisKey;
             strAERProcessng = [dictCompData objectForKey:@"AER Processing"];
@@ -1013,6 +1220,33 @@
 - (void) resetValues {
     
     if (dictInitialValues.count > 0) {
+        
+        //reset the selected competitor to nil
+        strSelectedCompetitor = nil;
+        
+        //reset the title of the competition in the comparison table
+        
+        //reset select a competitor label
+        NSArray* arrVCSubviews = self.view.subviews;
+        
+        for(int i=0; i<arrVCSubviews.count; i++) {
+            if ([[arrVCSubviews objectAtIndex:i] isMemberOfClass:[UIScrollView class]]) {
+                UIScrollView* svThisView = [arrVCSubviews objectAtIndex:i];
+                NSArray* arrScrollViewSubs = svThisView.subviews;
+                UIView* vThisView = [arrScrollViewSubs objectAtIndex:1];
+                NSArray* arrThisViewSubs = vThisView.subviews;
+                for(int x=0; x<arrThisViewSubs.count; x++) {
+                    
+                    if ([[arrThisViewSubs objectAtIndex:x] isMemberOfClass:[OAI_Label class]]) {
+                        OAI_Label* lblThisLabel = [arrThisViewSubs objectAtIndex:x];
+                        if(lblThisLabel.tag == 500) {
+                            lblThisLabel.text = @"Select A \nCompetitor";
+                        }
+                    }
+                }
+            }
+        }
+        
         for(NSString* strThisKey in dictTextFields) {
             
             //set some ivars
@@ -1029,7 +1263,7 @@
                 isTextField = YES;
                 thisElementTitle = thisTextField.textFieldTitle;
                 
-            } else if ([[dictTextFields objectForKey:strThisKey] isMemberOfClass:[OAI_TextField class]]) {
+            } else if ([[dictTextFields objectForKey:strThisKey] isMemberOfClass:[OAI_Label class]]) {
                 
                 thisLabel = [dictTextFields objectForKey:strThisKey];
                 isLabel = YES;
@@ -1085,6 +1319,13 @@
             
         } else if ([strAction isEqualToString:@"Reset All"]) {
             [self resetValues];
+            
+        } else if ([strAction isEqualToString:@"Checkbox Toggle"]) {
+            
+            NSString* strThisRowHeader = [[notification userInfo] objectForKey:@"Row Header"];
+            OAI_CheckBox* thisCheckbox = [[notification userInfo] objectForKey:@"Checkbox"];
+            
+            [self resetComparisonDisplay:strThisRowHeader:thisCheckbox];
         }
     }
 }
@@ -1186,7 +1427,6 @@
 
 - (void) showResults : (NSDictionary*) dictTheResults {
     
-    //NSLog(@"%@", dictTheResults);
     
     //loop through the results dictionary and see what comes out
     for(NSString* strThisKey in dictTheResults) {
@@ -1453,7 +1693,7 @@
             
         }
             
-        }
+    }
     
     return isValid;
         
@@ -1495,8 +1735,14 @@
     NSString* strAcecideCTotalCost;
     NSString* strCompetitionTotalCost;
     
-    
     UIScrollView* scResultsScrollView;
+    
+    OAI_Label* lblCompHeader = [arrResultHeaders objectAtIndex:3];
+    if (!strSelectedCompetitor) {
+        lblCompHeader.alpha = 0.0;
+    } else {
+        lblCompHeader.alpha = 1.0;
+    }
     
     //loop through the results
     for(NSString* strThisKey in dictResults) {
@@ -1513,6 +1759,7 @@
                     serviceCostALDAHOL = roundf([[dictResults objectForKey:@"Service_Service Cost Per Scope_ALDAHOL"] floatValue]);
                     serviceCostAcecideC = roundf([[dictResults objectForKey:@"Service_Service Cost Per Scope_AcecideC"] floatValue]);
                     NSString* strServiceCompetition = [dictResults objectForKey:@"Service_Service Cost Per Scope_Competition"];
+                    
                     
                     //get string, strip dollar symbols and decimal, convert to float
                     strServiceCompetition = [self stripDollarSign:strServiceCompetition];
@@ -1544,6 +1791,12 @@
                     OAI_Label* lblServiceCostCompetition = [dictResultCells objectForKey:@"Service Cost Per Scope Competition"];
                     lblServiceCostCompetition.text = strServiceCompetitionCost;
                     
+                    if(!strSelectedCompetitor) {
+                        lblServiceCostCompetition.alpha = 0.0;
+                    } else {
+                        lblServiceCostCompetition.alpha = 1.0;
+                    }
+                    
                 }
                 
             } else if ([strThisKey rangeOfString:@"Chemicals"].location !=NSNotFound) {
@@ -1554,15 +1807,17 @@
                     chemicalCostALDAHOL = [[dictResults objectForKey:@"Chemicals_Chemical Cost Per Scope_ALDAHOL"] floatValue];
                     chemicalCostAcecideC = [[dictResults objectForKey:@"Chemicals_Chemical Cost Per Scope_AcecideC"] floatValue];
                     NSString* strChemicalCompetition = [dictResults objectForKey:@"Chemicals_Chemical Cost Per Scope_Competition"];
+                    //-->had to do this because for some reason the competition chemcical value was not translating to a float value
+                    float thisNumber = [strChemicalCompetition floatValue];
+                    chemicalCompetitionCost = thisNumber;
                     
                     //get string, strip dollar symbols and decimal, convert to float
                     strChemicalCompetition = [self stripDollarSign:strChemicalCompetition];
                     strChemicalCompetition = [self stripDecimalPoints:strChemicalCompetition];
-                    chemicalCompetitionCost = [strChemicalCompetition floatValue];
                     
                     NSDecimalNumber* decChemicalCostALDAHOL = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", chemicalCostALDAHOL]];
                     NSDecimalNumber* decChemicalCostAcecideC = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", chemicalCostAcecideC]];
-                    NSDecimalNumber* decChemicalCompetitionCost = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", chemicalCompetitionCost]];
+                    NSDecimalNumber* decChemicalCompetitionCost = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f",  thisNumber]];
                     
                     //convert to currency string
                     NSString* strChemicalALDAHOLCost = [self convertToCurrencyString:decChemicalCostALDAHOL];
@@ -1584,6 +1839,12 @@
                     
                     OAI_Label* lblChemicalCostCompetition = [dictResultCells objectForKey:@"Chemical Cost Per Scope Competition"];
                     lblChemicalCostCompetition.text = strChemicalCompetitionCost;
+                    
+                    if(!strSelectedCompetitor) {
+                        lblChemicalCostCompetition.alpha = 0.0;
+                    } else {
+                        lblChemicalCostCompetition.alpha = 1.0;
+                    }
                     
                 }
                 
@@ -1626,6 +1887,14 @@
                     
                     OAI_Label* lblDetergentCostCompetition = [dictResultCells objectForKey:@"Detergent Cost Per Scope Competition"];
                     lblDetergentCostCompetition.text = strDetergentCompetitionCost;
+                    
+                    if(!strSelectedCompetitor) {
+                        lblDetergentCostCompetition.alpha = 0.0;
+                    } else {
+                        lblDetergentCostCompetition.alpha = 1.0;
+                    }
+                    
+                    
                 }
                 
             } else if ([strThisKey rangeOfString:@"Test Strips"].location !=NSNotFound) {
@@ -1667,6 +1936,12 @@
                     
                     OAI_Label* lblTestStripsCostCompetition = [dictResultCells objectForKey:@"Test Strips Cost Per Scope Competition"];
                     lblTestStripsCostCompetition.text = strTestStripsCompetitionCost;
+                    
+                    if(!strSelectedCompetitor) {
+                        lblTestStripsCostCompetition.alpha = 0.0;
+                    } else {
+                        lblTestStripsCostCompetition.alpha = 1.0;
+                    }
                     
                 }
                 
@@ -1711,6 +1986,12 @@
                     OAI_Label* lblFilterCostCompetition = [dictResultCells objectForKey:@"Filters Cost Per Scope Competition"];
                     lblFilterCostCompetition.text = strFilterCompetitionCost;
                     
+                    if(!strSelectedCompetitor) {
+                        lblFilterCostCompetition.alpha = 0.0;
+                    } else {
+                        lblFilterCostCompetition.alpha = 1.0;
+                    }
+                    
                 }
                 
             } else if ([strThisKey rangeOfString:@"Labor"].location !=NSNotFound) {
@@ -1753,6 +2034,12 @@
                     OAI_Label* lblLaborCostCompetition = [dictResultCells objectForKey:@"Labor Cost Per Scope Competition"];
                     lblLaborCostCompetition.text = strLaborCompetitionCost;
                     
+                    if(!strSelectedCompetitor) {
+                        lblLaborCostCompetition.alpha = 0.0;
+                    } else {
+                        lblLaborCostCompetition.alpha = 1.0;
+                    }
+                    
                 }
                 
             }
@@ -1790,12 +2077,26 @@
         OAI_Label* lblTotalCostCompetition = [dictResultCells objectForKey:@"Total Cost Per Scope Competition"];
         lblTotalCostCompetition.text = strCompetitionTotalCost;
         
+        if (!strSelectedCompetitor) {
+            lblTotalCostCompetition.alpha = 0.0;
+        } else {
+            lblTotalCostCompetition.alpha = 1.0;
+        }
+        
         //getting the y location of the chart
         lastLabelY = lblTotalCostALDAHOL.frame.origin.y + lblTotalCostALDAHOL.frame.size.height + 10.0;
     }
     
     //get the page to add the chart to
     NSArray* arrPages = scNav.subviews;
+    
+    //check to see if tableview is displayed
+    CGRect compFrame = vCompChoices.frame;
+    if (compFrame.size.height > 1) {
+        [self showCompetitors:nil];
+    }
+    
+    //scroll to the page
     for(UIView* vThisView in arrPages) {
         
         if (vThisView.frame.origin.x == 772.0) {
@@ -1804,39 +2105,7 @@
         }
     }
     
-    
-    //build cost comparison bar chart
-    /*OAI_BarChart* barChart = [[OAI_BarChart alloc] initWithFrame:CGRectMake(40.0, lastLabelY, 300.0, 100.0)];
-    
-    NSArray* arrBarData = [[NSArray alloc] initWithObjects:strALDAHOLTotalCost, strAcecideCTotalCost, strCompetitionTotalCost, nil];
-    NSArray* arrBarLabels = [[NSArray alloc] initWithObjects:@"Olympus OER-Pro with ALDAHOL", @"Olympus OER-Pro with Acecide-C", @"Custom Ultrasonics System 83 Plus", nil];
-    
-    [barChart buildBarChart:3 :arrBarData :@"Cost Comparison Chart" :YES :1:arrBarLabels];
-    [scResultsScrollView addSubview:barChart];*/
-    
-    //add notes
-    NSString* strCostNotes = @"The additional cost of the OER-Pro with Acecide may be offset by the time and safety improvements noted in this document.\n\nThe OER-Pro is designed to reprocess two endoscopes per cycle. The \"cost per scope\" reflects the cost for reprocessing one scope when scopes are reprocessed per cycle.\n\nThe number of cycles and the cost of filters per case varies depending on water quality and is difficult to project. Filter costs for an Olympus-purchased prefiltration system are included in this tool. Additionally, other factors such as test strip interpretation, selected chemistry and other environmental factors great influence the number of cycles before a change is required. The projected numbers provided in this calculator are only an estimate. Olympus suggests meeting with your Clinical Bioengineering Department to address local issues related to this expense.";
-    
-    UILabel* lblCostNotes = [[UILabel alloc] initWithFrame:CGRectMake(40.0, lastLabelY, self.view.frame.size.width-80.0, 300.0)];
-    lblCostNotes.text = strCostNotes;
-    lblCostNotes.textColor = [colorManager setColor:66.0 :66.0 :66.0];
-    lblCostNotes.font = [UIFont fontWithName:@"Helvetica" size:14.0];
-    lblCostNotes.backgroundColor = [UIColor clearColor];
-    lblCostNotes.numberOfLines = 0;
-    lblCostNotes.lineBreakMode = NSLineBreakByWordWrapping;
-    [scResultsScrollView addSubview:lblCostNotes];
-    
-    //add time savings chart
-    UIView* vTimeSavings = [self getTimeSavings:scResultsScrollView];
-    CGRect timeSavingsFrame = vTimeSavings.frame;
-    timeSavingsFrame.origin.x = 0.0;
-    timeSavingsFrame.origin.y = lblCostNotes.frame.origin.y + lblCostNotes.frame.size.height-50.0;
-    timeSavingsFrame.size.width = scResultsScrollView.frame.size.width;
-    vTimeSavings.frame = timeSavingsFrame;
-    
-    [scResultsScrollView addSubview:vTimeSavings];
-    
-    //get row headers
+    [self getTimeSavings];
     
     //set up a point
     float pageX = 1 * 772.0;
@@ -1848,283 +2117,117 @@
     
 }
 
-- (UIView*) getTimeSavings : (UIScrollView*) parentScroll {
-    
-    UIView* vTimeSavingsTable = [[UIView alloc] init];
-    
-    float tableH = 0.0;
-    
-    float availableSpace = parentScroll.frame.size.width - 80.0;
-    float thirdOfSpace = availableSpace/3;
-    float remainingSpace = thirdOfSpace*2;
-    float tableCellWidth = remainingSpace/3;
-    
-    UIFont* tableHeaderFont = [UIFont fontWithName:@"Helvetica-Bold" size:15];
-    UIFont* tableCellFont = [UIFont fontWithName:@"Helvetica" size:14];
+- (void) getTimeSavings {
     
     float timeSavingsALDAHOLTotals = 0.0;
     float timeSavingsAcedideCTotals = 0.0;
     float timeSavingsCompetitionTotals = 0.0;
     
-    UILabel* lblTimeTable = [[UILabel alloc] initWithFrame:CGRectMake(0.0, 0.0, self.view.frame.size.width, 40.0)];
-    lblTimeTable.text = @"Time Savings:";
-    lblTimeTable.textColor = clrDarkGrey;
-    lblTimeTable.textAlignment = NSTextAlignmentCenter;
-    lblTimeTable.font = [UIFont fontWithName:@"Helvetica-Bold" size:20];
-    lblTimeTable.backgroundColor = [UIColor clearColor];
-    [vTimeSavingsTable addSubview:lblTimeTable];
     
-    
-    float cellW = 0.0;
-    float cellX = 40.0;
-    float cellY = 50.0;
-    UILabel* lblTimeSavingsHeader;
-    
-    for(int i=0; i<arrTypes.count+1; i++) {
+    //loop through the results
+    for(NSString* strThisKey in dictResults) {
         
-        //add row header space holder
-        NSString* strHeader;
-        if (i==0) {
-            strHeader = @"";
-            cellW = thirdOfSpace;
-        } else if (i == arrTypes.count) {
-            if(strSelectedCompetitor != nil) {
-                strHeader = strSelectedCompetitor;
-            } else {
-                strHeader = @"Competitor";
+        //make sure we are dealing with operation time results
+        if ([strThisKey rangeOfString:@"Operation Time_"].location !=NSNotFound) {
+            
+            //get the cell value
+            NSString* strThisValue = [dictResults objectForKey:strThisKey];
+            
+            //get the suffix
+            NSArray* arrThisKey = [strThisKey componentsSeparatedByString:@"_"];
+            
+            //add up the totals
+            if ([[arrThisKey objectAtIndex:2] isEqualToString:@"ALDAHOL"]) {
+                timeSavingsALDAHOLTotals = timeSavingsALDAHOLTotals + [strThisValue floatValue];
+            } else if ([[arrThisKey objectAtIndex:2] isEqualToString:@"AcecideC"]) {
+                timeSavingsAcedideCTotals = timeSavingsAcedideCTotals + [strThisValue floatValue];
+            } else if ([[arrThisKey objectAtIndex:2] isEqualToString:@"Competition"]) {
+                timeSavingsCompetitionTotals = timeSavingsCompetitionTotals + [strThisValue floatValue];
             }
             
-        } else {
-            strHeader = [arrTypes objectAtIndex:i-1];
-            cellW = tableCellWidth;
+            //set up the key for the dictCells and dump data as array into dictResultsData
+            NSString* strThisObj;
+            
+            
+            
+            if ([strThisKey rangeOfString:@"Post"].location != NSNotFound) {
+                strThisObj = [NSString stringWithFormat:@"Post-AER Processing_%@", [arrThisKey objectAtIndex:2]];
+            } else { 
+                strThisObj = [NSString stringWithFormat:@"%@_%@", [arrThisKey objectAtIndex:1], [arrThisKey objectAtIndex:2]];
+            }
+            
+            //get the right label and pass the value to it
+            if ([dictResultCells objectForKey:strThisObj]) {
+                OAI_Label* lblThisLabel = [dictResultCells objectForKey:strThisObj];
+                lblThisLabel.text = strThisValue;
+                
+                if ([[arrThisKey objectAtIndex:2] isEqualToString:@"Competition"]) {
+                    if (!strSelectedCompetitor) {
+                        lblThisLabel.alpha = 0.0;
+                    } else {
+                        lblThisLabel.alpha = 1.0;
+                    }
+                }
+            }
+            
         }
-        
-        lblTimeSavingsHeader = [[UILabel alloc] initWithFrame:CGRectMake(cellX, cellY, cellW, 45.0)];
-        lblTimeSavingsHeader.text = strHeader;
-        lblTimeSavingsHeader.textColor = [UIColor whiteColor];
-        lblTimeSavingsHeader.font = tableHeaderFont;
-        lblTimeSavingsHeader.numberOfLines = 0;
-        lblTimeSavingsHeader.lineBreakMode = NSLineBreakByWordWrapping;
-        lblTimeSavingsHeader.backgroundColor = [colorManager setColor:8.0 :16.0 :123.0];
-        lblTimeSavingsHeader.textAlignment = NSTextAlignmentCenter;
-        lblTimeSavingsHeader.layer.borderWidth = 1.0;
-        lblTimeSavingsHeader.layer.borderColor = [UIColor whiteColor].CGColor;
-        
-        [vTimeSavingsTable addSubview:lblTimeSavingsHeader];
-        
-        cellX = lblTimeSavingsHeader.frame.origin.x + lblTimeSavingsHeader.frame.size.width;
         
     }
     
-    //set up the row headers
-    arrTimeSavingsRowHeaders = [[NSArray alloc] initWithObjects:@"Pre-Cleaning", @"Leakage Testing", @"Manual Cleaning", @"AER PRocessing", @"Post-AER Processing", @"Total Time Per Cycle (Minutes)", nil];
+    //add the total times
+    for(NSString* strThisCellKey in dictResultCells) {
+        
+        OAI_Label* lblThisLabel = [dictResultCells objectForKey:strThisCellKey];
+        
+        if([strThisCellKey rangeOfString:@"Total Time"].location !=NSNotFound) {
+            if([strThisCellKey rangeOfString:@"ALDAHOL"].location != NSNotFound) {
+                lblThisLabel.text = [NSString stringWithFormat:@"%.00f", timeSavingsALDAHOLTotals];
+            } else if ([strThisCellKey rangeOfString:@"AcecideC"].location != NSNotFound) {
+                lblThisLabel.text = [NSString stringWithFormat:@"%.00f", timeSavingsAcedideCTotals];
+            } else if ([strThisCellKey rangeOfString:@"Competition"].location != NSNotFound) {
+                lblThisLabel.text = [NSString stringWithFormat:@"%.00f", timeSavingsCompetitionTotals];
+                
+                if (!strSelectedCompetitor) {
+                    lblThisLabel.alpha = 0.0;
+                } else {
+                    lblThisLabel.alpha = 1.0;
+                }
+            }
+        }
+    }
     
-    float rowY = lblTimeSavingsHeader.frame.origin.y + lblTimeSavingsHeader.frame.size.height;
-    float rowX = 40.0;
-    float rowW = thirdOfSpace;
-    float rowH = 40.0;
-    
+    //get the header label
+    OAI_Label* lblThisLabel = [dictResultCells objectForKey:@"Competitor"];
+    if (!strSelectedCompetitor) {
+        lblThisLabel.alpha = 0.0;
+    } else {
+        lblThisLabel.alpha = 1.0;
+        lblThisLabel.text = strSelectedCompetitor;
+    }
+
+    NSArray* arrResultCellKeys = [dictResultCells allKeys];
+    NSArray* arrSuffixes = [[NSArray alloc] initWithObjects:@"ALDAHOL", @"AcecideC", @"Competition", nil];
     for(int i=0; i<arrTimeSavingsRowHeaders.count; i++) {
         
-        NSMutableArray* arrTimeSavingValues = [[NSMutableArray alloc] init];
+        NSMutableArray* arrTempArray = [[NSMutableArray alloc] init];
         
-        //alternate colors
-        UIColor* clrThisCell;
-        if(i%2) {
-            clrThisCell = [colorManager setColor:253.0 :236.0 :190.0];
-        } else {
-            clrThisCell = [colorManager setColor:230.0:230.0:230.0];
-        }
-        
-        NSString* strTimeSavngsRowHeader = [arrTimeSavingsRowHeaders objectAtIndex:i];
-        
-        OAI_Label* lblTimeSavingsRowHeader = [[OAI_Label alloc] initWithFrame:CGRectMake(rowX, rowY, rowW, rowH)];
-        lblTimeSavingsRowHeader.text = strTimeSavngsRowHeader;
-        lblTimeSavingsRowHeader.textColor = [colorManager setColor:51.0 :51.0 :51.0];
-        lblTimeSavingsRowHeader.font = tableCellFont;
-        lblTimeSavingsRowHeader.backgroundColor = clrThisCell;
-        lblTimeSavingsRowHeader.layer.borderWidth = 1.0;
-        lblTimeSavingsRowHeader.layer.borderColor = [UIColor whiteColor].CGColor;
-        [vTimeSavingsTable addSubview:lblTimeSavingsRowHeader];
-        
-        //display the values
-        if (i==0) {
+        for(int y=0; y<arrSuffixes.count; y++) {
             
-            [arrTimeSavingValues addObject:[dictResults objectForKey:@"Operation Time_Pre-Cleaning_ALDAHOL"]];
-            [arrTimeSavingValues addObject:[dictResults objectForKey:@"Operation Time_Pre-Cleaning_AcecideC"]];
-            [arrTimeSavingValues addObject:[dictResults objectForKey:@"Operation Time_Pre-Cleaning_Competition"]];
             
-            NSMutableArray* arrPreCleaning = [[NSMutableArray alloc] init];
-            [arrPreCleaning addObject:[dictResults objectForKey:@"Operation Time_Pre-Cleaning_ALDAHOL"]];
-            [arrPreCleaning addObject:[dictResults objectForKey:@"Operation Time_Pre-Cleaning_AcecideC"]];
-            [arrPreCleaning addObject:[dictResults objectForKey:@"Operation Time_Pre-Cleaning_Competition"]];
-            [dictResultsData setObject:arrPreCleaning forKey:@"Pre Cleaning"];
             
-        } else if (i==1) {
+            NSString* strThisKey = [NSString stringWithFormat:@"%@_%@", [arrTimeSavingsRowHeaders objectAtIndex:i], [arrSuffixes objectAtIndex:y]];
             
-            [arrTimeSavingValues addObject:[dictResults objectForKey:@"Operation Time_Leakage Testing_ALDAHOL"]];
-            [arrTimeSavingValues addObject:[dictResults objectForKey:@"Operation Time_Leakage Testing_AcecideC"]];
-            [arrTimeSavingValues addObject:[dictResults objectForKey:@"Operation Time_Leakage Testing_Competition"]];
-            
-            NSMutableArray* arrLeakage = [[NSMutableArray alloc] init];
-            [arrLeakage addObject:[dictResults objectForKey:@"Operation Time_Leakage Testing_ALDAHOL"]];
-            [arrLeakage addObject:[dictResults objectForKey:@"Operation Time_Leakage Testing_AcecideC"]];
-            [arrLeakage addObject:[dictResults objectForKey:@"Operation Time_Leakage Testing_Competition"]];
-            [dictResultsData setObject:arrLeakage forKey:@"Leakage"];
-            
-        } else if (i==2) {
-            
-            [arrTimeSavingValues addObject:[dictResults objectForKey:@"Operation Time_Manual Cleaning_ALDAHOL"]];
-            [arrTimeSavingValues addObject:[dictResults objectForKey:@"Operation Time_Manual Cleaning_AcecideC"]];
-            [arrTimeSavingValues addObject:[dictResults objectForKey:@"Operation Time_Manual Cleaning_Competition"]];
-            
-            NSMutableArray* arrManualCleaning = [[NSMutableArray alloc] init];
-            [arrManualCleaning addObject:[dictResults objectForKey:@"Operation Time_Manual Cleaning_ALDAHOL"]];
-            [arrManualCleaning addObject:[dictResults objectForKey:@"Operation Time_Manual Cleaning_AcecideC"]];
-            [arrManualCleaning addObject:[dictResults objectForKey:@"Operation Time_Manual Cleaning_Competition"]];
-            [dictResultsData setObject:arrManualCleaning forKey:@"Manual Cleaning"];
-            
-        } else if (i==3) {
-            
-            [arrTimeSavingValues addObject:[dictResults objectForKey:@"Operation Time_AER Processing_ALDAHOL"]];
-            [arrTimeSavingValues addObject:[dictResults objectForKey:@"Operation Time_AER Processing_AcecideC"]];
-            [arrTimeSavingValues addObject:[dictResults objectForKey:@"Operation Time_AER Processing_Competition"]];
-            
-            NSMutableArray* arrAERProcessing = [[NSMutableArray alloc] init];
-            [arrAERProcessing addObject:[dictResults objectForKey:@"Operation Time_AER Processing_ALDAHOL"]];
-            [arrAERProcessing addObject:[dictResults objectForKey:@"Operation Time_AER Processing_AcecideC"]];
-            [arrAERProcessing addObject:[dictResults objectForKey:@"Operation Time_AER Processing_Competition"]];
-            [dictResultsData setObject:arrAERProcessing forKey:@"AER Processing Cleaning"];
-            
-        } else if (i==4) {
-            
-            [arrTimeSavingValues addObject:[dictResults objectForKey:@"Operation Time_Post AER Processing_ALDAHOL"]];
-            [arrTimeSavingValues addObject:[dictResults objectForKey:@"Operation Time_Post AER Processing_AcecideC"]];
-            [arrTimeSavingValues addObject:[dictResults objectForKey:@"Operation Time_Post AER Processing_Competition"]];
-            
-            NSMutableArray* arrAERPostProcessing = [[NSMutableArray alloc] init];
-            [arrAERPostProcessing addObject:[dictResults objectForKey:@"Operation Time_Post AER Processing_ALDAHOL"]];
-            [arrAERPostProcessing addObject:[dictResults objectForKey:@"Operation Time_Post AER Processing_AcecideC"]];
-            [arrAERPostProcessing addObject:[dictResults objectForKey:@"Operation Time_Post AER Processing_Competition"]];
-            [dictResultsData setObject:arrAERPostProcessing forKey:@"AER Post Processing Cleaning"];
-            
-        }
-        
-        cellX = thirdOfSpace + 40.0;
-        cellY = rowY;
-        cellW = tableCellWidth;
-        float cellH = 40.0;
-        
-        for(int x=0; x<arrTimeSavingValues.count; x++) {
-            
-            //caclualte totals
-            if (x==0) {
-                timeSavingsALDAHOLTotals = timeSavingsALDAHOLTotals + [[arrTimeSavingValues objectAtIndex:x] floatValue];
-            } else if (x==1) {
-                timeSavingsAcedideCTotals = timeSavingsAcedideCTotals + [[arrTimeSavingValues objectAtIndex:x] floatValue];
-            } else if (x==2) {
-                timeSavingsCompetitionTotals = timeSavingsCompetitionTotals + [[arrTimeSavingValues objectAtIndex:x] floatValue];
+            if ([arrResultCellKeys containsObject:strThisKey]) {
+                
+                OAI_Label* lblThisLabel = [dictResultCells objectForKey:strThisKey];
+                [arrTempArray addObject:lblThisLabel.text];
             }
-            
-            OAI_Label* lblCellData = [[OAI_Label alloc] initWithFrame:CGRectMake(cellX, cellY, cellW, cellH)];
-            lblCellData.text = [arrTimeSavingValues objectAtIndex:x];
-            lblCellData.textColor = [colorManager setColor:51.0 :51.0 :51.0];
-            lblCellData.font = tableCellFont;
-            lblCellData.backgroundColor = clrThisCell;
-            lblCellData.layer.borderWidth = 1.0;
-            lblCellData.layer.borderColor = [UIColor whiteColor].CGColor;
-            [vTimeSavingsTable addSubview:lblCellData];
-            
-            //increment cellX
-            cellX = cellX + tableCellWidth;
-            
         }
         
-        cellX = thirdOfSpace + 40.0;
-        cellY = rowY;
-        //add the totals row
-        if (i==arrTimeSavingsRowHeaders.count-1) {
-            
-            for(int x=0; x<3; x++) {
-                
-                NSString* strCellValue;
-                if (x==0) {
-                    strCellValue = [NSString stringWithFormat:@"%.0f", timeSavingsALDAHOLTotals];
-                } else if (x==1) {
-                    strCellValue = [NSString stringWithFormat:@"%.0f", timeSavingsAcedideCTotals];
-                } else if (x==2) {
-                    strCellValue = [NSString stringWithFormat:@"%.0f", timeSavingsCompetitionTotals];
-                }
-                
-                NSMutableArray* arrTimeTotals = [[NSMutableArray alloc] init];
-                [arrTimeTotals addObject:[NSString stringWithFormat:@"%.0f", timeSavingsALDAHOLTotals]];
-                [arrTimeTotals addObject:[dictResults objectForKey:@"Operation Time_Post AER Processing_AcecideC"]];
-                [arrTimeTotals addObject:[NSString stringWithFormat:@"%.0f", timeSavingsCompetitionTotals]];
-                [dictResultsData setObject:arrTimeTotals forKey:@"Time Totals"];
-                
-                OAI_Label* lblCellData = [[OAI_Label alloc] initWithFrame:CGRectMake(cellX, cellY, cellW, cellH)];
-                lblCellData.text = strCellValue;
-                lblCellData.textColor = [colorManager setColor:51.0 :51.0 :51.0];
-                lblCellData.font = tableCellFont;
-                lblCellData.backgroundColor = clrThisCell;
-                lblCellData.layer.borderWidth = 1.0;
-                lblCellData.layer.borderColor = [UIColor whiteColor].CGColor;
-                [vTimeSavingsTable addSubview:lblCellData];
-                
-                //increment cellX
-                cellX = cellX + tableCellWidth;
-                
-            }
-            
-        }
-        
-        //increment y
-        rowY = rowY + 40.0;
-        tableH = tableH + 40.0;
-        
+        [dictResultsData setObject:arrTempArray forKey:[arrTimeSavingsRowHeaders objectAtIndex:i]];
     }
-    
-    //add time savings notes
-    OAI_Label* lblTimeSavingNotesTitle = [[OAI_Label alloc] initWithFrame:CGRectMake(40.0, rowY+10.0, 200.0, 30.0)];
-    lblTimeSavingNotesTitle.text = @"OER-Pro Time Values:";
-    lblTimeSavingNotesTitle.textColor = [colorManager setColor:51.0 :51.0 :51.0];
-    lblTimeSavingNotesTitle.font = tableHeaderFont;
-    lblTimeSavingNotesTitle.backgroundColor = [UIColor clearColor];
-    [vTimeSavingsTable addSubview:lblTimeSavingNotesTitle];
-    
-    //reset the height
-    CGRect timeSavingsTableFrame = vTimeSavingsTable.frame;
-    timeSavingsTableFrame.size.height = tableH;
-    vTimeSavingsTable.frame = timeSavingsTableFrame;
-    
-    OAI_Label* lblTimeSavingNotes = [[OAI_Label alloc] initWithFrame:CGRectMake(40.0, lblTimeSavingNotesTitle.frame.origin.y-40.0, self.view.frame.size.width-40.0, 200.0)];
-    lblTimeSavingNotes.text = @"Our intimate knowledge of endoscope design allows us to use proprietary technologies to provide you with an enhanced reprocessing experience. As part of that experience, the OER-Pro eliminates 7 of the 11 recommended manual cleaning steps.";
-    lblTimeSavingNotes.textColor = [colorManager setColor:51.0 :51.0 :51.0];
-    lblTimeSavingNotes.font = tableCellFont;
-    lblTimeSavingNotes.backgroundColor = [UIColor clearColor];
-    lblTimeSavingNotes.numberOfLines = 0;
-    lblTimeSavingNotes.lineBreakMode = NSLineBreakByWordWrapping;
-    [vTimeSavingsTable addSubview:lblTimeSavingNotes];
-    
-    //add time savings notes
-    OAI_Label* lblAcedideCTitle = [[OAI_Label alloc] initWithFrame:CGRectMake(40.0, lblTimeSavingNotes.frame.origin.y+lblTimeSavingNotes.frame.size.height-40.0, 200.0, 30.0)];
-    lblAcedideCTitle.text = @"Acecide-C:";
-    lblAcedideCTitle.textColor = [colorManager setColor:51.0 :51.0 :51.0];
-    lblAcedideCTitle.font = tableHeaderFont;
-    lblAcedideCTitle.backgroundColor = [UIColor clearColor];
-    [vTimeSavingsTable addSubview:lblAcedideCTitle];
-    
-    //add time savings notes
-    OAI_Label* lblAcedideCNotes = [[OAI_Label alloc] initWithFrame:CGRectMake(40.0, lblAcedideCTitle.frame.origin.y + lblAcedideCTitle.frame.size.height-30.0, self.view.frame.size.width, 120.0)];
-    lblAcedideCNotes.text = @"Conservatively Acecide-C saving estimate vs. ALDAHOL 1.8 is: 9 minutes\nAnnual staff time savings is estimated to be at least: 300 hours\nAt $15 per hour, this annual savings totals: $4500";
-    lblAcedideCNotes.textColor = [colorManager setColor:51.0 :51.0 :51.0];
-    lblAcedideCNotes.font = tableCellFont;
-    lblAcedideCNotes.numberOfLines = 0;
-    lblAcedideCNotes.lineBreakMode = NSLineBreakByWordWrapping;
-    lblAcedideCNotes.backgroundColor = [UIColor clearColor];
-    [vTimeSavingsTable addSubview:lblAcedideCNotes];
-    
-    return vTimeSavingsTable;
+
+
 }
 
 - (void) showCalculations : (UIButton*) myButton {
@@ -2138,29 +2241,158 @@
     [scNav setContentOffset:scrollOffset animated:YES];
 }
 
+- (void) resetComparisonDisplay : (NSString*) strThisRowHeader : (OAI_CheckBox*) thisCheckbox {
+    
+    for(int i=0; i<arrResultsRowHeaders.count; i++) {
+        
+        if ([strThisRowHeader isEqualToString:[arrResultsRowHeaders objectAtIndex:i]]) {
+        
+            OAI_Label* lblThisRowHeader = [arrResultsRowHeaderLabels objectAtIndex:i];
+            
+            if (thisCheckbox.isChecked) {
+                lblThisRowHeader.textColor = [UIColor blackColor];
+            } else {
+                lblThisRowHeader.textColor = [UIColor redColor];
+            }
+        }
+    }
+    
+    [self totalComparisons];
+}
+
+- (void) totalComparisons {
+    
+    //set the bool to yes
+    hasItems = YES;
+    
+    int cpsCount = 0;
+    competitionTotal = 0.0;
+    aldaholTotal = 0.0;
+    acedicdeTotal = 0.0;
+    
+    //loop through the checkboxes
+    for(int i=0; i<arrResultsRowHeaderChecks.count; i++) {
+        
+        //get a checkbox
+        OAI_CheckBox* thisCheckbox = [arrResultsRowHeaderChecks objectAtIndex:i];
+        
+        //check if it is checked or not
+        if (thisCheckbox.isChecked) {
+            
+            //get what row it is related to
+            NSString* strThisRowType = thisCheckbox.strMyOperCostType;
+            
+            //get just the type name
+            NSArray* arrRowTypeWords = [strThisRowType componentsSeparatedByString:@" "];
+            NSString* strThisType = [arrRowTypeWords objectAtIndex:2];
+            
+            //loop through the dictionary that holds the results cells
+            for(NSString* strThisKey in dictResultCells) {
+                
+                //look for the items that match this row type (cost of xxxx per scope)
+                if ([strThisKey rangeOfString:strThisType].location !=NSNotFound) {
+                    
+                    //extract the label from the dict
+                    OAI_Label* lblThisResult = [dictResultCells objectForKey:strThisKey];
+                    
+                    //get its value
+                    NSString* strThisValue = lblThisResult.text;
+                    strThisValue = [self stripDollarSign:strThisValue];
+                    float thisValue = [strThisValue floatValue];
+                    
+                    //check which item we are totaling
+                    if ([strThisKey rangeOfString:@"AcecideC"].location !=NSNotFound) {
+                        acedicdeTotal = acedicdeTotal + thisValue;
+                    } else if ([strThisKey rangeOfString:@"ALDAHOL"].location !=NSNotFound) {
+                        aldaholTotal = aldaholTotal+ thisValue;
+                    } else if ([strThisKey rangeOfString:@"Competition"].location !=NSNotFound) {
+                        competitionTotal = competitionTotal + thisValue;
+                    }
+                    
+                    cpsCount = cpsCount + 1;
+                    
+                }
+            }
+        }
+        
+    }
+    
+    if (cpsCount > 0) {
+        
+        //convert the totals to currency
+        NSDecimalNumber* decTotalCostAcecideC = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", acedicdeTotal]];
+        NSDecimalNumber* decTotalCostALDAHOL = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", aldaholTotal]];
+        NSDecimalNumber* decTotalCostCompetition = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", competitionTotal]];
+        
+        NSString* strTotalCostAcecideC = [self convertToCurrencyString:decTotalCostAcecideC];
+        NSString* strTotalCostALDAHOL = [self convertToCurrencyString:decTotalCostALDAHOL];
+        NSString* strTotalCostCompetition = [self convertToCurrencyString:decTotalCostCompetition];
+        
+        //loop through the dictionary that holds the results cells - looking for the totals cells
+        for(NSString* strThisKey in dictResultCells) {
+          
+            if ([strThisKey rangeOfString:@"Total"].location !=NSNotFound) {
+                
+                OAI_Label* lblThisLabel = [dictResultCells objectForKey:strThisKey];
+             
+                //check which item we are totaling
+                if ([strThisKey rangeOfString:@"AcecideC"].location !=NSNotFound) {
+                    lblThisLabel.text = strTotalCostAcecideC;
+                } else if ([strThisKey rangeOfString:@"ALDAHOL"].location !=NSNotFound) {
+                    lblThisLabel.text = strTotalCostALDAHOL;
+                } else if ([strThisKey rangeOfString:@"Competition"].location !=NSNotFound) {
+                    lblThisLabel.text = strTotalCostCompetition;
+                }
+            }
+        }
+        
+    } else {
+        
+        hasItems = NO;
+        
+    }
+}
+
 #pragma mark - Email Methods
 
 - (void) toggleEmailSetup : (UIButton*) myButton; {
     
-    CGRect emailManagerFrame = vEmailManager.frame;
+    if (hasItems) { 
     
-    if (emailManagerFrame.origin.y == -400.0) {
-        emailManagerFrame.origin.y = 0.0;
+        CGRect emailManagerFrame = vEmailManager.frame;
+        
+        if (emailManagerFrame.origin.y == -400.0) {
+            emailManagerFrame.origin.y = 0.0;
+        } else {
+            emailManagerFrame.origin.y = 0.0-400.0;
+        }
+        
+        [UIView animateWithDuration:0.4
+                         animations:^{
+                             vEmailManager.frame = emailManagerFrame;
+                         }
+         
+                         completion:^(BOOL finished){
+                             nil;
+                         }
+         
+         ];
+        
     } else {
-        emailManagerFrame.origin.y = 0.0-400.0;
+        
+        UIAlertView *alert = [[UIAlertView alloc]
+          initWithTitle: @"Comparison Warning"
+          message: @"You must select at least one item to send out an email."
+          delegate: nil
+          cancelButtonTitle:@"OK"
+          otherButtonTitles:
+          nil];
+        
+        [alert show];
     }
     
-    [UIView animateWithDuration:0.4
-                     animations:^{
-                         vEmailManager.frame = emailManagerFrame;
-                     }
-     
-                     completion:^(BOOL finished){
-                         nil;
-                     }
-     
-     ];
-    
+
+
 }
 
 - (void) sendEmail {
@@ -2265,13 +2497,19 @@
             strRowColor = @"#e6e6e6";
         }
         
-        NSString* strThisRowHeader = [arrResultsRowHeaders objectAtIndex:i];
-        [emailBody appendString:[NSString stringWithFormat:@"<tr><td style=\"background-color:%@; height:20px;\">%@</td>", strRowColor, strThisRowHeader]];
-        NSArray* arrThisData;
         
-        //get the correct array
+        //get whether the user wants to display this row
+        BOOL isChecked = YES;
+        if (i<6) { 
+            OAI_CheckBox* thisCheckbox = [arrResultsRowHeaderChecks objectAtIndex:i];
+            isChecked = thisCheckbox.isChecked;
+        }
+        
+        NSArray* arrThisData;
+        //get the correct array and check if we are going to display it based on the checkbox
         if (i==0) {
             arrThisData = [dictResultsData objectForKey:@"Service Results"];
+            
         } else if (i==1) {
             arrThisData = [dictResultsData objectForKey:@"Chemical Results"];
         } else if (i==2) {
@@ -2286,39 +2524,66 @@
             arrThisData = [dictResultsData objectForKey:@"Total Results"];
         }
         
-        
-        for(int x=0; x<arrThisData.count; x++) {
+        if (isChecked) {
             
-            NSString* strThisData = [arrThisData objectAtIndex:x];
-            BOOL showCell = NO;
+            NSString* strThisRowHeader = [arrResultsRowHeaders objectAtIndex:i];
+            [emailBody appendString:[NSString stringWithFormat:@"<tr><td style=\"background-color:%@; height:20px;\">%@</td>", strRowColor, strThisRowHeader]];
             
+            for(int x=0; x<arrThisData.count; x++) {
+                
+                //get the cell values (except for the totals, which can change based on what is to be displayed in the email)
+                NSString* strThisData;
+                if (i<6) { 
+                    strThisData = [arrThisData objectAtIndex:x];
+                } else {
+                    //add the total times
+                    for(NSString* strThisCellKey in dictResultCells) {
+                        
+                        OAI_Label* lblThisLabel = [dictResultCells objectForKey:strThisCellKey];
+                        
+                        if([strThisCellKey rangeOfString:@"Total Time"].location !=NSNotFound) {
+                            if([strThisCellKey rangeOfString:@"ALDAHOL"].location != NSNotFound) {
+                                strThisData = lblThisLabel.text;
+                            } else if ([strThisCellKey rangeOfString:@"AcecideC"].location != NSNotFound) {
+                                strThisData = lblThisLabel.text;
+                            } else if ([strThisCellKey rangeOfString:@"Competition"].location != NSNotFound) {
+                                strThisData = lblThisLabel.text;
+                            }
+                        }
+                    }
+                }
+                
+                BOOL showCell = NO;
+                //determine if the cell should be displayed or not
+                if (x==0) {
+                    if (showALDAHOL) { 
+                        showCell = YES;
+                    }
+                } else if (x==1) {
+                    if (showAcecide) {
+                        showCell = YES;
+                    }
+                } else if (x==2) {
+                    if (showCompetitor) {
+                        showCell = YES;
+                    }
+                }
             
-            //determine if the cell should be displayed or not
-            if (x==0) {
-                if (showALDAHOL) { 
-                    showCell = YES;
+                //show the cell
+                if (showCell) { 
+                    [emailBody appendString:[NSString stringWithFormat:@"<td style=\"background-color:%@; height:20px;\">%@</td>", strRowColor, strThisData]];
                 }
-            } else if (x==1) {
-                if (showAcecide) {
-                    showCell = YES;
-                }
-            } else if (x==2) {
-                if (showCompetitor) {
-                    showCell = YES;
-                }
+                
+                //reset
+                showCell = NO;
             }
             
-            //show the cell
-            if (showCell) { 
-                [emailBody appendString:[NSString stringWithFormat:@"<td style=\"background-color:%@; height:20px;\">%@</td>", strRowColor, strThisData]];
-            }
-            
-            //reset
-            showCell = NO;
         }
         
         [emailBody appendString:@"</tr>"];
         
+        //reset isChecked
+        isChecked = YES;
     }
     
     [emailBody appendString:@"</tbody></table></div><p>"];
@@ -2389,19 +2654,20 @@
         
         [emailBody appendString:[NSString stringWithFormat:@"<tr><td style=\"background-color:%@; height:20px;\">%@</td>", strRowColor, strThisRowHeader]];
         
+        
         //get the correct array
         if (i==0) {
-            arrThisData = [dictResultsData objectForKey:@"Pre Cleaning"];
+            arrThisData = [dictResultsData objectForKey:@"Pre-Cleaning"];
         } else if (i==1) {
-            arrThisData = [dictResultsData objectForKey:@"Leakage"];
+            arrThisData = [dictResultsData objectForKey:@"Leakage Testing"];
         } else if (i==2) {
             arrThisData = [dictResultsData objectForKey:@"Manual Cleaning"];
         } else if (i==3) {
-            arrThisData = [dictResultsData objectForKey:@"AER Processing Cleaning"];
+            arrThisData = [dictResultsData objectForKey:@"AER Processing"];
         } else if (i==4) {
-            arrThisData = [dictResultsData objectForKey:@"AER Post Processing Cleaning"];
+            arrThisData = [dictResultsData objectForKey:@"Post-AER Processing"];
         } else if (i==5) {
-            arrThisData = [dictResultsData objectForKey:@"Time Totals"];
+            arrThisData = [dictResultsData objectForKey:@"Total Time Per Cycle (Minutes)    "];
         }
         
         for(int x=0; x<arrThisData.count; x++) {
@@ -2482,15 +2748,17 @@
         //attach the pdf file
         [mailViewController addAttachmentData:pdfData mimeType:@"application/pdf" fileName:strPDFFileName];
         
+        //make sure the pdf file is in the documents directory
+        [fileManager moveFileToDocDirectory:@"OER_MarketingContent.pdf" :@"There was a problem moving the PDF file into the documents directory."];
         
         //get path to pdf file
-        /*NSString* pdf2FilePath = [documentsDirectory stringByAppendingPathComponent:@"OER_MarketingContent.pdf"];
+        NSString* pdf2FilePath = [documentsDirectory stringByAppendingPathComponent:@"OER_MarketingContent.pdf"];
         
         //convert pdf file to NSData
         NSData* pdf2Data = [NSData dataWithContentsOfFile:pdf2FilePath];
         
         //attach the pdf file
-        [mailViewController addAttachmentData:pdf2Data mimeType:@"application/pdf" fileName:@"OER_MarketingContent.pdf"];*/
+        [mailViewController addAttachmentData:pdf2Data mimeType:@"application/pdf" fileName:@"OER_MarketingContent.pdf"];
     
         
         
@@ -2574,6 +2842,15 @@
             [scSections setContentOffset:svOffSet animated:YES];
         }
     }
+}
+
+#pragma mark - Dismiss Keyboard
+
+- (void) dismissKeyboard {
+    
+    UIView* firstResponder = [self findFirstResponder:self.view];
+    [firstResponder resignFirstResponder];
+    
 }
 
 - (UIView *)findFirstResponder : (UIView*) viewToSearch {
@@ -2673,8 +2950,15 @@
         if (isValid) {
             
             if (textField.tag == 800) {
-                
+            
                 float textFieldValue = [textField.text floatValue];
+                
+                if (textFieldValue > .99)  {
+                    //convert to percentage
+                    textFieldValue = textFieldValue/100;
+                    //reset the value
+                    textField.text = [NSString stringWithFormat:@"%f", textFieldValue];
+                }
                 
                 if (textFieldValue > .105) {
                     
@@ -2692,21 +2976,29 @@
                 
                 } else {
                     
+                    /*
                     //fill in the other chem discount
                     for(NSString* strThisKey in dictTextFields) {
                         if([[dictTextFields objectForKey:strThisKey] isMemberOfClass:[OAI_TextField class]]) {
                             
                             OAI_TextField* txtThisField = (OAI_TextField*)[dictTextFields objectForKey:strThisKey];
                             
+                            
+                            
                             if(txtThisField !=textField) { 
                             
                                 if ([strThisKey rangeOfString:@"Chemical"].location != NSNotFound) {
-                                    txtThisField.text = textField.text;
+                                    
+                                    if ([txtThisField.textFieldTitle rangeOfString:@"Competition"].location == NSNotFound) {
+                                        txtThisField.text = textField.text;
+                                    }
+                                
                                 }
                             }
                             
                         }
                     }
+                     */
 
                     //calculate the discount
                     [self calculate:@"Chemicals":NO];
@@ -2718,6 +3010,14 @@
                 //other discounts
                 
                 float textFieldValue = [textField.text floatValue];
+                
+                if (textFieldValue > .99)  {
+                    //convert to percentage
+                    textFieldValue = textFieldValue/100;
+                    //reset the value
+                    textField.text = [NSString stringWithFormat:@"%f", textFieldValue];
+                }
+                
                 if (textFieldValue > .105) {
                     
                     UIAlertView *alert = [[UIAlertView alloc]
@@ -2779,7 +3079,6 @@
                     //convert str to decimal
                     NSDecimalNumber* decCurrency = [[NSDecimalNumber alloc] initWithString:strWorkingString];
                     
-                    NSLog(@"%@", [self convertToCurrencyString:decCurrency]);
                     //convert string to currency
                     textField.text = [self convertToCurrencyString:decCurrency];
                     
@@ -2977,6 +3276,8 @@
 }
 
 #pragma mark - Default Methods
+
+
 
 - (void)didReceiveMemoryWarning
 {

@@ -8,6 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		DB0FA26C174E51C700F358C8 /* PDF Code in Resources */ = {isa = PBXBuildFile; fileRef = DB0FA26B174E51C700F358C8 /* PDF Code */; };
+		DB362C5F175F738200125B6E /* OER_MarketingContent.pdf in Resources */ = {isa = PBXBuildFile; fileRef = DB362C5E175F738200125B6E /* OER_MarketingContent.pdf */; };
+		DB475AF2176F5AC800235B4B /* OAI_CheckBox.m in Sources */ = {isa = PBXBuildFile; fileRef = DB475AF1176F5AC800235B4B /* OAI_CheckBox.m */; };
+		DB475AF5176F5DB900235B4B /* OAI_SimpleCheckbox.m in Sources */ = {isa = PBXBuildFile; fileRef = DB475AF4176F5DB900235B4B /* OAI_SimpleCheckbox.m */; };
+		DB475AF8176F5F5300235B4B /* btnRadioOff.png in Resources */ = {isa = PBXBuildFile; fileRef = DB475AF6176F5F5300235B4B /* btnRadioOff.png */; };
+		DB475AF9176F5F5300235B4B /* btnRadioOn.png in Resources */ = {isa = PBXBuildFile; fileRef = DB475AF7176F5F5300235B4B /* btnRadioOn.png */; };
+		DB475AFC1771E7D300235B4B /* OAI_View.m in Sources */ = {isa = PBXBuildFile; fileRef = DB475AFB1771E7D300235B4B /* OAI_View.m */; };
+		DB475AFF1771F30700235B4B /* UIView+GetViewHierarchy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB475AFE1771F30700235B4B /* UIView+GetViewHierarchy.m */; };
 		DB9ED7A9174FC42D00F65851 /* btnReload.png in Resources */ = {isa = PBXBuildFile; fileRef = DB9ED7A8174FC42D00F65851 /* btnReload.png */; };
 		DBBF85221716E267004CB92B /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DBBF85211716E267004CB92B /* UIKit.framework */; };
 		DBBF85241716E267004CB92B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DBBF85231716E267004CB92B /* Foundation.framework */; };
@@ -20,7 +27,6 @@
 		DBBF85381716E268004CB92B /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DBBF85371716E267004CB92B /* Default-568h@2x.png */; };
 		DBBF853B1716E268004CB92B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DBBF853A1716E268004CB92B /* ViewController.m */; };
 		DBBF853E1716E268004CB92B /* ViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DBBF853C1716E268004CB92B /* ViewController.xib */; };
-		DBBF854B1716E2B6004CB92B /* OER_MarketingContent.pdf in Resources */ = {isa = PBXBuildFile; fileRef = DBBF854A1716E2B6004CB92B /* OER_MarketingContent.pdf */; };
 		DBBF854E1716E2C2004CB92B /* NSString-StripNonNumerics.m in Sources */ = {isa = PBXBuildFile; fileRef = DBBF854D1716E2C2004CB92B /* NSString-StripNonNumerics.m */; };
 		DBBF85591716E2CB004CB92B /* OAI_ScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = DBBF85501716E2CB004CB92B /* OAI_ScrollView.m */; };
 		DBBF855A1716E2CB004CB92B /* OAI_TextField.m in Sources */ = {isa = PBXBuildFile; fileRef = DBBF85521716E2CB004CB92B /* OAI_TextField.m */; };
@@ -56,12 +62,23 @@
 		DBBF859D1716E615004CB92B /* oerIcon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DBBF859C1716E615004CB92B /* oerIcon@2x.png */; };
 		DBBF859F1716E6B6004CB92B /* Default-Portrait~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = DBBF859E1716E6B6004CB92B /* Default-Portrait~ipad.png */; };
 		DBBF85A11716E6BC004CB92B /* Default-Portrait@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = DBBF85A01716E6BC004CB92B /* Default-Portrait@2x~ipad.png */; };
-		DBDE84C417280E3E006D55CE /* OAI_SimpleCheckbox.m in Sources */ = {isa = PBXBuildFile; fileRef = DBDE84C317280E3E006D55CE /* OAI_SimpleCheckbox.m */; };
+		DBC21BF4176B8DDD00465E0F /* imgDropDown.png in Resources */ = {isa = PBXBuildFile; fileRef = DBC21BF3176B8DDD00465E0F /* imgDropDown.png */; };
 		DBDE84C617282A28006D55CE /* checkmark.png in Resources */ = {isa = PBXBuildFile; fileRef = DBDE84C517282A28006D55CE /* checkmark.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		DB0FA26B174E51C700F358C8 /* PDF Code */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "PDF Code"; sourceTree = "<group>"; };
+		DB362C5E175F738200125B6E /* OER_MarketingContent.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = OER_MarketingContent.pdf; sourceTree = "<group>"; };
+		DB475AF0176F5AC800235B4B /* OAI_CheckBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OAI_CheckBox.h; sourceTree = "<group>"; };
+		DB475AF1176F5AC800235B4B /* OAI_CheckBox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OAI_CheckBox.m; sourceTree = "<group>"; };
+		DB475AF3176F5DB900235B4B /* OAI_SimpleCheckbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OAI_SimpleCheckbox.h; sourceTree = "<group>"; };
+		DB475AF4176F5DB900235B4B /* OAI_SimpleCheckbox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OAI_SimpleCheckbox.m; sourceTree = "<group>"; };
+		DB475AF6176F5F5300235B4B /* btnRadioOff.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btnRadioOff.png; sourceTree = "<group>"; };
+		DB475AF7176F5F5300235B4B /* btnRadioOn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btnRadioOn.png; sourceTree = "<group>"; };
+		DB475AFA1771E7D200235B4B /* OAI_View.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OAI_View.h; sourceTree = "<group>"; };
+		DB475AFB1771E7D300235B4B /* OAI_View.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OAI_View.m; sourceTree = "<group>"; };
+		DB475AFD1771F30700235B4B /* UIView+GetViewHierarchy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+GetViewHierarchy.h"; sourceTree = "<group>"; };
+		DB475AFE1771F30700235B4B /* UIView+GetViewHierarchy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+GetViewHierarchy.m"; sourceTree = "<group>"; };
 		DB9ED7A8174FC42D00F65851 /* btnReload.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btnReload.png; sourceTree = "<group>"; };
 		DBBF851E1716E267004CB92B /* oer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = oer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DBBF85211716E267004CB92B /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -79,7 +96,6 @@
 		DBBF85391716E268004CB92B /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		DBBF853A1716E268004CB92B /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		DBBF853D1716E268004CB92B /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ViewController.xib; sourceTree = "<group>"; };
-		DBBF854A1716E2B6004CB92B /* OER_MarketingContent.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = OER_MarketingContent.pdf; sourceTree = "<group>"; };
 		DBBF854C1716E2C1004CB92B /* NSString-StripNonNumerics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString-StripNonNumerics.h"; sourceTree = "<group>"; };
 		DBBF854D1716E2C2004CB92B /* NSString-StripNonNumerics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString-StripNonNumerics.m"; sourceTree = "<group>"; };
 		DBBF854F1716E2CB004CB92B /* OAI_ScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OAI_ScrollView.h; sourceTree = "<group>"; };
@@ -131,8 +147,7 @@
 		DBBF859C1716E615004CB92B /* oerIcon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "oerIcon@2x.png"; sourceTree = "<group>"; };
 		DBBF859E1716E6B6004CB92B /* Default-Portrait~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait~ipad.png"; sourceTree = "<group>"; };
 		DBBF85A01716E6BC004CB92B /* Default-Portrait@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait@2x~ipad.png"; sourceTree = "<group>"; };
-		DBDE84C217280E3E006D55CE /* OAI_SimpleCheckbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OAI_SimpleCheckbox.h; sourceTree = "<group>"; };
-		DBDE84C317280E3E006D55CE /* OAI_SimpleCheckbox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OAI_SimpleCheckbox.m; sourceTree = "<group>"; };
+		DBC21BF3176B8DDD00465E0F /* imgDropDown.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = imgDropDown.png; sourceTree = "<group>"; };
 		DBDE84C517282A28006D55CE /* checkmark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkmark.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -223,7 +238,7 @@
 		DBBF85441716E282004CB92B /* Files */ = {
 			isa = PBXGroup;
 			children = (
-				DBBF854A1716E2B6004CB92B /* OER_MarketingContent.pdf */,
+				DB362C5E175F738200125B6E /* OER_MarketingContent.pdf */,
 			);
 			name = Files;
 			sourceTree = "<group>";
@@ -231,6 +246,9 @@
 		DBBF85451716E287004CB92B /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				DB475AF6176F5F5300235B4B /* btnRadioOff.png */,
+				DB475AF7176F5F5300235B4B /* btnRadioOn.png */,
+				DBC21BF3176B8DDD00465E0F /* imgDropDown.png */,
 				DB9ED7A8174FC42D00F65851 /* btnReload.png */,
 				DBDE84C517282A28006D55CE /* checkmark.png */,
 				DBBF857E1716E2EC004CB92B /* btnCancelHighlight.png */,
@@ -279,8 +297,8 @@
 		DBBF85471716E290004CB92B /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				DBDE84C217280E3E006D55CE /* OAI_SimpleCheckbox.h */,
-				DBDE84C317280E3E006D55CE /* OAI_SimpleCheckbox.m */,
+				DB475AF3176F5DB900235B4B /* OAI_SimpleCheckbox.h */,
+				DB475AF4176F5DB900235B4B /* OAI_SimpleCheckbox.m */,
 				DBBF854F1716E2CB004CB92B /* OAI_ScrollView.h */,
 				DBBF85501716E2CB004CB92B /* OAI_ScrollView.m */,
 				DBBF85511716E2CB004CB92B /* OAI_TextField.h */,
@@ -291,6 +309,10 @@
 				DBBF85561716E2CB004CB92B /* OAI_BarChart.m */,
 				DBBF85571716E2CB004CB92B /* OAI_EmailSetup.h */,
 				DBBF85581716E2CB004CB92B /* OAI_EmailSetup.m */,
+				DB475AF0176F5AC800235B4B /* OAI_CheckBox.h */,
+				DB475AF1176F5AC800235B4B /* OAI_CheckBox.m */,
+				DB475AFA1771E7D200235B4B /* OAI_View.h */,
+				DB475AFB1771E7D300235B4B /* OAI_View.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -308,6 +330,8 @@
 			children = (
 				DBBF854C1716E2C1004CB92B /* NSString-StripNonNumerics.h */,
 				DBBF854D1716E2C2004CB92B /* NSString-StripNonNumerics.m */,
+				DB475AFD1771F30700235B4B /* UIView+GetViewHierarchy.h */,
+				DB475AFE1771F30700235B4B /* UIView+GetViewHierarchy.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -368,7 +392,6 @@
 				DBBF85361716E267004CB92B /* Default@2x.png in Resources */,
 				DBBF85381716E268004CB92B /* Default-568h@2x.png in Resources */,
 				DBBF853E1716E268004CB92B /* ViewController.xib in Resources */,
-				DBBF854B1716E2B6004CB92B /* OER_MarketingContent.pdf in Resources */,
 				DBBF857D1716E2E2004CB92B /* OLYMPUS_SL_MST.mp3 in Resources */,
 				DBBF85891716E2EC004CB92B /* btnCancelHighlight.png in Resources */,
 				DBBF858A1716E2EC004CB92B /* btnCancelNormal.png in Resources */,
@@ -388,6 +411,10 @@
 				DBDE84C617282A28006D55CE /* checkmark.png in Resources */,
 				DB0FA26C174E51C700F358C8 /* PDF Code in Resources */,
 				DB9ED7A9174FC42D00F65851 /* btnReload.png in Resources */,
+				DB362C5F175F738200125B6E /* OER_MarketingContent.pdf in Resources */,
+				DBC21BF4176B8DDD00465E0F /* imgDropDown.png in Resources */,
+				DB475AF8176F5F5300235B4B /* btnRadioOff.png in Resources */,
+				DB475AF9176F5F5300235B4B /* btnRadioOn.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -417,7 +444,10 @@
 				DBBF85791716E2D8004CB92B /* OAI_MessageBox.m in Sources */,
 				DBBF857A1716E2D8004CB92B /* OAI_OERCalculator.m in Sources */,
 				DBBF857B1716E2D8004CB92B /* OAI_Calculations.m in Sources */,
-				DBDE84C417280E3E006D55CE /* OAI_SimpleCheckbox.m in Sources */,
+				DB475AF2176F5AC800235B4B /* OAI_CheckBox.m in Sources */,
+				DB475AF5176F5DB900235B4B /* OAI_SimpleCheckbox.m in Sources */,
+				DB475AFC1771E7D300235B4B /* OAI_View.m in Sources */,
+				DB475AFF1771F30700235B4B /* UIView+GetViewHierarchy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

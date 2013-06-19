@@ -70,7 +70,7 @@
     float cyclesPerYear = roundf(procedureCount/scopesPerBasin);
     int intCyclesPerYear = (int)cyclesPerYear;
     
-    [_dictResults setObject:[NSString stringWithFormat:@"%f", scopesPerBasin] forKey:@"Scopes Per Basin"];
+    [_dictResults setObject:[NSString stringWithFormat:@"%.02f", scopesPerBasin] forKey:@"Scopes Per Basin"];
     [_dictResults setObject:[NSString stringWithFormat:@"%i", intCyclesPerYear] forKey:@"Annual Cycle Count"];
         
     //get textfield values - work with float/doubles then convert everything to required numeric type
@@ -279,7 +279,7 @@
     }
 
     
-    //NSLog(@"%@", _dictResults);
+    
     //get those results based on base and textfield values, place into dictionary
     
     NSMutableDictionary* userData = [[NSMutableDictionary alloc] init];
@@ -300,10 +300,8 @@
 }
 
 - (void) calculateSection : (NSString*) strThisSection : (OAI_TextField*) txtThisField : (NSString*) strThisKey : (NSString*) strThisDiscount {
-    
-    //these are the assumptions provided in the excel sheet
-    
-    
+   
+    //these are the assumptions provided in the excel sheet    
     
     //list prices
     float ALDAHOL_LP = 115.00;
@@ -497,9 +495,11 @@
         
     } else {
         
+        
         if ([strThisKey rangeOfString:@"Cost Per Scope"].location != NSNotFound) {
             
             NSString* strThisValue = txtThisField.text;
+            
             if (!strThisValue) {
                 strThisValue = @"0.00";
             }

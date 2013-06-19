@@ -24,7 +24,9 @@
 #import "OAI_TextField.h"
 #import "OAI_Label.h"
 #import "OAI_ScrollView.h"
+#import "OAI_CheckBox.h"
 #import "NSString-StripNonNumerics.h"
+#import "OAI_View.h"
 
 
 @interface ViewController : UIViewController <UIScrollViewDelegate, UITextFieldDelegate, MFMailComposeViewControllerDelegate, UIGestureRecognizerDelegate, UITableViewDataSource, UITableViewDelegate>{
@@ -38,6 +40,7 @@
     OAI_StringManager* stringManager;
     OAI_EmailSetup* vEmailManager;
     OAI_PDFManager* pdfManager;
+    OAI_View* vMainView;
     
     
     UIScrollView* scNav;
@@ -54,10 +57,14 @@
     NSMutableDictionary* dictResults;
     NSMutableDictionary* dictResultCells;
     NSMutableDictionary* dictInitialValues;
+    NSMutableArray* arrResultHeaders;
     NSArray* arrTypes;
     NSArray* arrResultsTableHeaders;
     NSMutableDictionary* dictResultsData;
     NSArray* arrResultsRowHeaders;
+    NSMutableArray* arrResultsRowHeaderLabels;
+    NSMutableArray* arrResultsRowHeaderChecks;
+    NSMutableArray* arrResultsRowCells; 
     NSArray* arrTimeSavingsRowHeaders;
     NSMutableDictionary* dictCompetitors;
     NSArray* arrCompetitorNames;
@@ -78,6 +85,11 @@
     UITextField* myTextElement;
     CGPoint myScrollViewOrigiOffSet;
     
+    BOOL hasItems;
+    float competitionTotal;
+    float aldaholTotal;
+    float acedicdeTotal;
+    
 }
 
 - (void) calculate : (NSString*) strCalculateWhat : (BOOL) isOpening;
@@ -96,7 +108,7 @@
 
 - (NSString* ) convertToCurrencyString : (NSDecimalNumber*) numberToConvert;
 
-- (UIView*) getTimeSavings : (UIScrollView*) parentScroll;
+- (void) getTimeSavings;
 
 - (void) toggleEmailSetup : (UIButton*) myButton;
 
@@ -117,6 +129,12 @@
 - (void) resetValues;
 
 - (void) showResults : (NSDictionary*) dictResults;
+
+- (void) dismissKeyboard;
+
+- (void) resetComparisonDisplay : (NSString*) strThisRowHeader : (OAI_CheckBox*) thisCheckbox;
+
+- (void) totalComparisons; 
 
 
 
