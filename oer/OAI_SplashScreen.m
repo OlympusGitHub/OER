@@ -20,6 +20,7 @@
         colorManager = [[OAI_ColorManager alloc] init];
         fileManager = [[OAI_FileManager alloc] init];
         
+        
     }
     return self;
 }
@@ -36,7 +37,7 @@
     
     //load the logo
     UIImage* logoImage = [UIImage imageNamed:@"OA_img_logo_iPadOptimized"];
-    UIImageView* imgVOAILogo = [[UIImageView alloc] initWithImage:logoImage];
+    imgVOAILogo = [[UIImageView alloc] initWithImage:logoImage];
                                 
     //reset the image to the center of the window
     CGRect logoFrame = imgVOAILogo.frame;
@@ -45,12 +46,12 @@
     imgVOAILogo.frame = logoFrame;
     
     //add the OMDT title
-    NSString* OAIMDT_title = @"Olympus Mobile Development Team";
+    OAIMDT_title = @"Olympus Mobile Development Team";
     CGSize titleSize = [OAIMDT_title sizeWithFont:[UIFont fontWithName:@"Helvetica" size:24.0]];
     float labelX = (parentBounds.size.width/2) - (titleSize.width/2);
     float labelY = logoFrame.origin.y + 300.0;
     
-    UILabel* OAIMDT = [[UILabel alloc] initWithFrame:CGRectMake(labelX, labelY, titleSize.width, titleSize.height)];
+    OAIMDT = [[UILabel alloc] initWithFrame:CGRectMake(labelX, labelY, titleSize.width, titleSize.height)];
     OAIMDT.text = OAIMDT_title;
     OAIMDT.backgroundColor = [UIColor clearColor];
     OAIMDT.textColor = [colorManager setColor:8.0 :16.0 :123.0];
@@ -94,6 +95,38 @@
     
     
     
+}
+
+- (void) adjustToRotation : (UIDeviceOrientation) orientation {
+    
+    CGRect parentBounds = CGRectMake(0.0, 0.0, 768.0, 1024.0);
+    float imageY = 0.0;
+    
+    if (orientation == 1 || orientation == 2) {
+        
+        parentBounds.size.width = 768.0;
+        parentBounds.size.height = 1024.0;
+        imageY = 300.0;
+        
+    } else if (orientation == 3 || orientation == 4) {
+        
+        parentBounds.size.width = 1024.0;
+        parentBounds.size.height = 768.0;
+        imageY = 150.0;
+    }
+    
+    //get cetner of width
+    float parentCenter =  (parentBounds.size.width/2);
+    
+    
+    //reset view
+    [self setFrame:CGRectMake(0.0, 0.0, parentBounds.size.width, parentBounds.size.height)];
+             
+    //reset image
+    [imgVOAILogo setFrame:CGRectMake(parentCenter-(imgVOAILogo.frame.size.width/2), imageY, imgVOAILogo.frame.size.width, imgVOAILogo.frame.size.height)];
+    
+    //reset title
+    [OAIMDT setFrame:CGRectMake(parentCenter-(OAIMDT.frame.size.width/2), imgVOAILogo.frame.origin.y + 300.0, OAIMDT.frame.size.width, OAIMDT.frame.size.height)];
 }
 
 /*

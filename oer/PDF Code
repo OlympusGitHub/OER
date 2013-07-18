@@ -1,271 +1,22 @@
-/*********************PAGE 1****************************************/
-        UIGraphicsBeginPDFPageWithInfo(CGRectMake(0, 0, pageSize.width, pageSize.height), nil);
-        
-        //add some intro text
-        NSString* introText = [NSString stringWithFormat:@"Following are the results of the Operational Cost Projections With the Olympus OER-Pro for %@.", _strFacilityName];
-        
-        CGSize introTextSize = [introText sizeWithFont:contentFont constrainedToSize:pageConstraint lineBreakMode:NSLineBreakByWordWrapping];
-        CGRect introTextFrame = CGRectMake(kMarginInset*2, 40.0, introTextSize.width, introTextSize.height);
-        textColor = clrOlympusBlue;
-        [self drawText:introText :introTextFrame :headerFont:textColor:1];
-        
-        //table title
-        NSString* strAnnualProcedures = [NSString stringWithFormat:@"Annual Procedures: %@", [dictResults objectForKey:@"Annual Procedures"]];
-        textColor = clrDarkGray;
-        CGSize annualProceduresSize = [strAnnualProcedures sizeWithFont:headerFont];
-        CGRect tableTitleFrame = CGRectMake(kMarginInset, introTextFrame.origin.y+introTextFrame.size.height + 10.0, annualProceduresSize.width, 30.0);
-        [self drawText:strAnnualProcedures :tableTitleFrame :headerFont:textColor:1];
-        
-        
-        //results headers
-        NSArray* arrResultsHeaders = [dictResults objectForKey:@"Results Table Headers"];
-                
-        float cellX = kMarginInset;
-        float cellY = tableTitleFrame.origin.y+tableTitleFrame.size.height + 5.0;
-        float cellW = 0.0;
-        float cellH = 30.0;
-        
-        for(int i=0; i<arrResultsHeaders.count; i++) {
-            
+NSString* strHeaderValue;
             BOOL showHeader = NO;
-            NSString* strThisHeader = [arrResultsHeaders objectAtIndex:i];
             
             //determine if the header should be displayed or not
-            if (i==1) {
-                if (showALDAHOL) {
-                    showHeader = YES;
-                }
-            } else if (i==2) {
-                if (showAcecide) {
-                    showHeader = YES;
-                }
-            } else if (i==3) {
-                if (showCompetitor) {
-                    showHeader = YES;
-                    strThisHeader = _strSelectedCompetitor;
-                }
-            } else if (i==0) {
-                showHeader = YES;
-            }
-
-            
-            //build backgrounds
             if (i==0) {
-                cellW = 190.0;
-                
-            } else {
-                cellW = 126.0;
-            }
-            
-            if(showHeader) { 
-            
-                //set cgsize
-                CGSize cellConstraint = CGSizeMake(cellW-2, 999.0);
-                
-                //make border rectangle
-                borderColor = [UIColor whiteColor];
-                
-                //make border rect
-                borderFrame = CGRectMake(cellX, tableTitleFrame.origin.y+tableTitleFrame.size.height + 5.0, cellW, kLineWidth*30);
-                
-                [self drawBorder:borderColor:borderFrame];
-                
-                
-                //file the background color
-                CGPoint headerBarStartPoint = CGPointMake(cellX, tableTitleFrame.origin.y + tableTitleFrame.size.height+20);
-                CGPoint headerBarEndPoint = CGPointMake(cellX + cellW, tableTitleFrame.origin.y + tableTitleFrame.size.height+20);
-                lineWidth = kLineWidth*30;
-                [self drawLine:lineWidth:clrOlympusBlue:headerBarStartPoint:headerBarEndPoint];
-                
-                //add the header text
-                CGRect textFrame = CGRectMake(cellX, cellY+2.0, cellW, cellH);
-                textColor = [UIColor whiteColor];
-                [self drawText:strThisHeader :textFrame :tableFontBold :textColor :1];
-                
-                cellX = cellX + cellW;
-                
-            }
-            
-        }
-        
-        //add table content
-        
-        //results content
-        NSArray* arrResultsRowHeaders = [dictResults objectForKey:@"Results Row Headers"];
-        //NSArray* arrResults = [dictResults objectForKey:@""];
-        
-        
-        //reset coords
-        cellY = cellY + cellH;
-        cellW = 190.0;
-        cellX = kMarginInset;
-
-        for(int i=0; i<arrResultsRowHeaders.count; i++) {
-            
-            //set cgsize
-            CGSize cellConstraint = CGSizeMake(cellW-2, 999.0);
-            
-            NSString* strThisHeader = [arrResultsRowHeaders objectAtIndex:i];
-            CGSize thisHeaderSize = [strThisHeader sizeWithFont:tableFontBold constrainedToSize:cellConstraint lineBreakMode:NSLineBreakByWordWrapping];
-            
-            //make border rectangle
-            borderColor = [UIColor grayColor];
-            
-            //make border rect
-            borderFrame = CGRectMake(cellX, cellY, cellW, kLineWidth*20);
-            
-            [self drawBorder:borderColor:borderFrame];
-            
-            
-            //set alternating colors
-            UIColor* backgroundColor; 
-            if (i%2) {
-                backgroundColor = [colorManager setColor:253.0 :236.0 :190.0];
-            } else {
-                backgroundColor = [colorManager setColor:230.0 :230.0 :230.0];
-            }
-            
-            //fill the background color
-            CGPoint headerBarStartPoint = CGPointMake(cellX, cellY+10.0);
-            CGPoint headerBarEndPoint = CGPointMake(cellX + cellW, cellY+10.0);
-            lineWidth = kLineWidth*20;
-            [self drawLine:lineWidth:backgroundColor:headerBarStartPoint:headerBarEndPoint];
-            
-            //add the row header text
-            CGRect textFrame = CGRectMake(cellX, cellY+2.0, cellW, cellH);
-            textColor = clrDarkGray;
-            [self drawText:strThisHeader :textFrame :tableFontBold :textColor :1];
-            
-            //get the correct results array for the row header
-            NSArray* arrResultsData = [[NSArray alloc] init];
-            if ([strThisHeader rangeOfString:@"Service"].location !=NSNotFound) {
-                arrResultsData = [dictResults objectForKey:@"Service Results"];
-            } else if ([strThisHeader rangeOfString:@"Chemical"].location !=NSNotFound) {
-                arrResultsData = [dictResults objectForKey:@"Chemical Results"];
-            } else if ([strThisHeader rangeOfString:@"Detergent"].location !=NSNotFound) {
-                arrResultsData = [dictResults objectForKey:@"Detergent Results"];
-            } else if ([strThisHeader rangeOfString:@"Test Strips"].location !=NSNotFound) {
-                arrResultsData = [dictResults objectForKey:@"Test Strip Results"];
-            } else if ([strThisHeader rangeOfString:@"Filters"].location !=NSNotFound) {
-                arrResultsData = [dictResults objectForKey:@"Filter Results"];
-            } else if ([strThisHeader rangeOfString:@"Labor"].location !=NSNotFound) {
-                arrResultsData = [dictResults objectForKey:@"Labor Results"];
-            } else if ([strThisHeader rangeOfString:@"Total"].location !=NSNotFound) {
-                arrResultsData = [dictResults objectForKey:@"Total Results"];
-            }
-                        
-            cellX = cellX + cellW;
-            cellW = 126.0;
-            cellH = 20.0;
-            
-            //loop through the results array
-            for(int x =0; x<arrResultsData.count; x++) {
-                
-                BOOL showCell = NO;
-                
-                //determine if the header should be displayed or not
-                if (x==1) {
-                    if (showALDAHOL) {
-                        showCell = YES;
-                    }
-                } else if (x==2) {
-                    if (showAcecide) {
-                        showCell = YES;
-                    }
-                } else if (x==3) {
-                    if (showCompetitor) {
-                        showCell = YES;
-                    }
-                } else if (x==0) {
-                    showCell = YES;
-                }
-
-                
-                NSString* strCellValue = [arrResultsData objectAtIndex:x];
-                
-                if (showCell) {
-                                
-                    //make border rectangle
-                    borderColor = [UIColor grayColor];
-                    
-                    //make border rect
-                    borderFrame = CGRectMake(cellX, cellY, cellW, kLineWidth*20);
-                    
-                    [self drawBorder:borderColor:borderFrame];
-                    
-                    //fill the background color
-                    CGPoint headerBarStartPoint = CGPointMake(cellX, cellY+10.0);
-                    CGPoint headerBarEndPoint = CGPointMake(cellX + cellW, cellY+10.0);
-                    lineWidth = kLineWidth*20;
-                    [self drawLine:lineWidth:backgroundColor:headerBarStartPoint:headerBarEndPoint];
-                    
-                    //add the row header text
-                    textFrame = CGRectMake(cellX, cellY+2.0, cellW, cellH);
-                    textColor = clrDarkGray;
-                    [self drawText:strCellValue :textFrame :tableFontBold :textColor :1];
-                    
-                    cellX = cellX + cellW;
-                }
-                
-                showCell = NO;
-                
-            }
-            
-            //increment y
-            cellY = cellY + 20;
-            cellW = 190.0;
-            cellX = kMarginInset;
-            
-        }
-        
-        //add the cost notes
-        NSString* strCostNotes = @"The additional cost of the OER-Pro with Acecide may be offset by the time and safety improvements noted in this document.\n\nThe OER-Pro is designed to reprocess two endoscopes per cycle. The \"cost per scope\" reflects the cost for reprocessing one scope when scopes are reprocessed per cycle.\n\nThe number of cycles and the cost of filters per case varies depending on water quality and is difficult to project. Filter costs for an Olympus-purchased prefiltration system are included in this tool. Additionally, other factors such as test strip interpretation, selected chemistry and other environmental factors great influence the number of cycles before a change is required. The projected numbers provided in this calculator are only an estimate. Olympus suggests meeting with your Clinical Bioengineering Department to address local issues related to this expense.";
-        
-        CGSize costNoteSize = [strCostNotes sizeWithFont:tableFont constrainedToSize:CGSizeMake(pageSize.width-(kMarginInset*2), 999.0) lineBreakMode:NSLineBreakByWordWrapping];
-        
-        //add the row header text
-        textFrame = CGRectMake(kMarginInset, cellY+2.0, costNoteSize.width, costNoteSize.height);
-        textColor = clrDarkGray;
-        [self drawText:strCostNotes :textFrame :tableFont :textColor :0];
-        
-        //time savings table
-        //table title
-        NSString* strTimeSavings = @"Time Savings";
-        CGSize timeSavingsSize = [strTimeSavings sizeWithFont:headerFont];
-        tableTitleFrame = CGRectMake(kMarginInset, textFrame.origin.y + textFrame.size.height + 10.0, timeSavingsSize.width, 30.0);
-        [self drawText:strTimeSavings :tableTitleFrame :headerFont:textColor:1];
-        
-        //build the headers
-        cellX = kMarginInset;
-        cellY = tableTitleFrame.origin.y + tableTitleFrame.size.height;
-        cellW = 0.0;
-        cellH = kLineWidth*30;
-        
-        NSArray* arrTypes = [dictResults objectForKey:@"Time Savings Headers"];
-        
-        for(int i=0; i<arrTypes.count+1; i++) {
-            
-            NSString* strHeaderValue;
-            BOOL showHeader = NO;
-            
-            //determine if the header should be displayed or not
-            if (i==1) {
                 if (showALDAHOL) {
                     showHeader = YES;
                 }
-            } else if (i==2) {
+            } else if (i==1) {
                 if (showAcecide) {
                     showHeader = YES;
                 }
-            } else if (i==3) {
+            } else if (i==2) {
                 if (showCompetitor) {
                     showHeader = YES;
                     strHeaderValue = _strSelectedCompetitor;
                 }
-            } else if (i==0) {
-                showHeader = YES;
-            }
-
+            } 
+            
             
             //set the cell width
             if (i==0) {
@@ -273,17 +24,34 @@
             } else {
                 cellW = 126.0;
                 
-                //get the cell value
                 strHeaderValue = [arrTypes objectAtIndex:i-1];
+                
+                if (i-1<2) {
+                    strHeaderValue = [arrTypes objectAtIndex:i-1];
+                } else if (i-1==2) {
+                    if (showCompetitor) {
+                        
+                        if(_strSelectedCompetitor) {
+                            strHeaderValue = _strSelectedCompetitor;
+                        } else {
+                            strHeaderValue = @"Competitor";
+                        }
+                        
+                        
+                    } else {
+                      strHeaderValue = @"Competitor";
+                    }
+                }
             }
+        
             
             //borders
             //make border rectangle
             
-            if(showHeader) { 
-            
+            if(showHeader) {
+                
                 borderColor = [UIColor whiteColor];
-            
+                
                 //make border rect
                 borderFrame = CGRectMake(cellX, cellY, cellW, cellH);
                 
@@ -296,146 +64,12 @@
                 [self drawLine:lineWidth:clrOlympusBlue:headerBarStartPoint:headerBarEndPoint];
                 
                 //headers
-                
-                if (i>0) {
-                    textColor = [UIColor whiteColor];
-                    textFrame = CGRectMake(cellX, cellY+2.0, cellW, cellH);
-                    [self drawText:strHeaderValue :textFrame :tableFontBold:textColor:1];
-                }
+                textColor = [UIColor whiteColor];
+                textFrame = CGRectMake(cellX, cellY+2.0, cellW, cellH);
+                [self drawText:strHeaderValue :textFrame :tableFontBold:textColor:1];
                 
                 cellX = cellX + cellW;
-            
+                
             }
             
             showHeader = NO;
-        }
-        
-        //fill in the table values
-        cellY = cellY + 30.0;
-        cellX = kMarginInset;
-        cellW = 190.0;
-        cellH = 20.0;
-        
-        NSArray* arrTimeSavingRowHeaders = [dictResults objectForKey:@"Time Savings Row Headers"];
-        
-        for(int i=0; i<arrTimeSavingRowHeaders.count; i++) {
-            
-            NSString* strTimeRowHeader = [arrTimeSavingRowHeaders objectAtIndex:i];
-            
-            //make border rectangle
-            borderColor = [UIColor grayColor];
-            
-            //make border rect
-            borderFrame = CGRectMake(cellX, cellY, cellW, kLineWidth*20);
-            
-            [self drawBorder:borderColor:borderFrame];
-            
-            //set alternating colors
-            UIColor* backgroundColor;
-            if (i%2) {
-                backgroundColor = [colorManager setColor:253.0 :236.0 :190.0];
-            } else {
-                backgroundColor = [colorManager setColor:230.0 :230.0 :230.0];
-            }
-            
-            //fill the background color
-            CGPoint headerBarStartPoint = CGPointMake(cellX, cellY+10.0);
-            CGPoint headerBarEndPoint = CGPointMake(cellX + cellW, cellY+10.0);
-            lineWidth = kLineWidth*20;
-            [self drawLine:lineWidth:backgroundColor:headerBarStartPoint:headerBarEndPoint];
-            
-            textColor = clrDarkGray;
-            textFrame = CGRectMake(cellX, cellY+2.0, cellW, cellH);
-            [self drawText:strTimeRowHeader :textFrame :tableFontBold:textColor:1];
-            
-            //get the time savings values
-            NSArray* arrCellValues = [[NSArray alloc] init];
-            
-            if ([strTimeRowHeader rangeOfString:@"Pre-Cleaning"].location !=NSNotFound) {
-                arrCellValues = [dictResults objectForKey:@"Pre Cleaning"];
-            } else if ([strTimeRowHeader rangeOfString:@"Leakage"].location !=NSNotFound) {
-                arrCellValues = [dictResults objectForKey:@"Leakage"];
-            } else if ([strTimeRowHeader rangeOfString:@"Manual Cleaning"].location !=NSNotFound) {
-                arrCellValues = [dictResults objectForKey:@"Manual Cleaning"];
-            } else if ([strTimeRowHeader rangeOfString:@"AER PRocessing"].location !=NSNotFound) {
-                arrCellValues = [dictResults objectForKey:@"AER Processing Cleaning"];
-            } else if ([strTimeRowHeader rangeOfString:@"Post-AER Processing"].location !=NSNotFound) {
-                arrCellValues = [dictResults objectForKey:@"AER Post Processing Cleaning"];
-            } else if ([strTimeRowHeader rangeOfString:@"Total Time Per Cycle (Minutes)"].location !=NSNotFound) {
-                arrCellValues = [dictResults objectForKey:@"Time Totals"];
-            }
-            
-            cellX = cellX + cellW;
-            cellW = 126.0;
-            
-            for(int x=0; x<arrCellValues.count; x++) {
-                
-                NSString* strCellValue = [arrCellValues objectAtIndex:x];
-                BOOL showCell = NO;
-                
-                //determine if the header should be displayed or not
-                if (x==1) {
-                    if (showALDAHOL) {
-                        showCell = YES;
-                    }
-                } else if (x==2) {
-                    if (showAcecide) {
-                        showCell = YES;
-                    }
-                } else if (x==3) {
-                    if (showCompetitor) {
-                        showCell = YES;
-                        strCellValue = _strSelectedCompetitor;
-                    }
-                } else if (x==0) {
-                    showCell = YES;
-                }
-
-                
-                
-                
-                if(showCell) { 
-                
-                    //make border rectangle
-                    borderColor = [UIColor grayColor];
-                    
-                    //make border rect
-                    borderFrame = CGRectMake(cellX, cellY, cellW, kLineWidth*20);
-                    
-                    [self drawBorder:borderColor:borderFrame];
-                    
-                    //fill the background color
-                    CGPoint headerBarStartPoint = CGPointMake(cellX, cellY+10.0);
-                    CGPoint headerBarEndPoint = CGPointMake(cellX + cellW, cellY+10.0);
-                    lineWidth = kLineWidth*20;
-                    [self drawLine:lineWidth:backgroundColor:headerBarStartPoint:headerBarEndPoint];
-                    
-                    //add the row header text
-                    textFrame = CGRectMake(cellX, cellY+2.0, cellW, cellH);
-                    textColor = clrDarkGray;
-                    [self drawText:strCellValue :textFrame :tableFontBold :textColor :1];
-                    
-                    cellX = cellX + cellW;
-                }
-                
-                showCell = NO;
-
-            }
-            
-            cellY = cellY + 20.0;
-            cellX = kMarginInset;
-            cellW = 190.0;
-            
-        }
-        
-        //time savings notes
-        NSString* strTimeSavingNotes = @"OER-Pro Time Values:\nOur intimate knowledge of endoscope design allows us to use proprietary technologies to provide you with an enhanced reprocessing experience. As part of that experience, the OER-Pro eliminates 7 of the 11 recommended manual cleaning steps.\n\nAcecide-C:\nConservatively Acecide-C saving estimate vs. ALDAHOL is: 9 minutes\nAnnual staff time savings is estimated to be at least: 300 hours\nAt $15 per hour, this annual savings totals: $4500";
-        
-        CGSize timeSavingNoteSize = [strTimeSavingNotes sizeWithFont:tableFont constrainedToSize:pageSize lineBreakMode:NSLineBreakByWordWrapping];
-        
-        float textX = kMarginInset;
-        float textY = (cellY + cellH) + 10.0;
-        
-        textFrame = CGRectMake(textX, textY, timeSavingNoteSize.width, timeSavingNoteSize.height);
-        textColor = clrDarkGray;
-        [self drawText:strTimeSavingNotes :textFrame :tableFontBold :textColor :0];

@@ -15,6 +15,8 @@
 		DB475AF9176F5F5300235B4B /* btnRadioOn.png in Resources */ = {isa = PBXBuildFile; fileRef = DB475AF7176F5F5300235B4B /* btnRadioOn.png */; };
 		DB475AFC1771E7D300235B4B /* OAI_View.m in Sources */ = {isa = PBXBuildFile; fileRef = DB475AFB1771E7D300235B4B /* OAI_View.m */; };
 		DB475AFF1771F30700235B4B /* UIView+GetViewHierarchy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB475AFE1771F30700235B4B /* UIView+GetViewHierarchy.m */; };
+		DB8F71501778C83400826AF2 /* ComparisonCode in Resources */ = {isa = PBXBuildFile; fileRef = DB8F714F1778C83400826AF2 /* ComparisonCode */; };
+		DB97F5E1179097E600DC3F37 /* imgOERTitleScreen.png in Resources */ = {isa = PBXBuildFile; fileRef = DB97F5E0179097E600DC3F37 /* imgOERTitleScreen.png */; };
 		DB9ED7A9174FC42D00F65851 /* btnReload.png in Resources */ = {isa = PBXBuildFile; fileRef = DB9ED7A8174FC42D00F65851 /* btnReload.png */; };
 		DBBF85221716E267004CB92B /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DBBF85211716E267004CB92B /* UIKit.framework */; };
 		DBBF85241716E267004CB92B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DBBF85231716E267004CB92B /* Foundation.framework */; };
@@ -79,6 +81,8 @@
 		DB475AFB1771E7D300235B4B /* OAI_View.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OAI_View.m; sourceTree = "<group>"; };
 		DB475AFD1771F30700235B4B /* UIView+GetViewHierarchy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+GetViewHierarchy.h"; sourceTree = "<group>"; };
 		DB475AFE1771F30700235B4B /* UIView+GetViewHierarchy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+GetViewHierarchy.m"; sourceTree = "<group>"; };
+		DB8F714F1778C83400826AF2 /* ComparisonCode */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ComparisonCode; sourceTree = "<group>"; };
+		DB97F5E0179097E600DC3F37 /* imgOERTitleScreen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = imgOERTitleScreen.png; sourceTree = "<group>"; };
 		DB9ED7A8174FC42D00F65851 /* btnReload.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btnReload.png; sourceTree = "<group>"; };
 		DBBF851E1716E267004CB92B /* oer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = oer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DBBF85211716E267004CB92B /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -215,6 +219,7 @@
 				DBBF85311716E267004CB92B /* AppDelegate.m */,
 				DBBF85391716E268004CB92B /* ViewController.h */,
 				DBBF853A1716E268004CB92B /* ViewController.m */,
+				DB8F714F1778C83400826AF2 /* ComparisonCode */,
 				DBBF853C1716E268004CB92B /* ViewController.xib */,
 				DBBF85281716E267004CB92B /* Supporting Files */,
 			);
@@ -246,6 +251,7 @@
 		DBBF85451716E287004CB92B /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				DB97F5E0179097E600DC3F37 /* imgOERTitleScreen.png */,
 				DB475AF6176F5F5300235B4B /* btnRadioOff.png */,
 				DB475AF7176F5F5300235B4B /* btnRadioOn.png */,
 				DBC21BF3176B8DDD00465E0F /* imgDropDown.png */,
@@ -415,6 +421,8 @@
 				DBC21BF4176B8DDD00465E0F /* imgDropDown.png in Resources */,
 				DB475AF8176F5F5300235B4B /* btnRadioOff.png in Resources */,
 				DB475AF9176F5F5300235B4B /* btnRadioOn.png in Resources */,
+				DB8F71501778C83400826AF2 /* ComparisonCode in Resources */,
+				DB97F5E1179097E600DC3F37 /* imgOERTitleScreen.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

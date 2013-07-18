@@ -42,11 +42,22 @@
         
     }
     
+    
     NSMutableDictionary* userData = [[NSMutableDictionary alloc] init];
     
-    [userData setObject:@"Checkbox Toggle" forKey:@"Action"];
-    [userData setObject:_strMyOperCostType  forKey:@"Row Header"];
-    [userData setObject:self forKey:@"Checkbox"];
+    //call back if checkbox is located on results page
+    if (![_strMyOperCostType isEqualToString:@"PreFilter"]) {
+            
+        [userData setObject:@"Checkbox Toggle" forKey:@"Action"];
+        [userData setObject:_strMyOperCostType  forKey:@"Row Header"];
+        [userData setObject:self forKey:@"Checkbox"];
+    
+    //call back for pre filter calculations toggle
+    } else if ([_strMyOperCostType isEqualToString:@"PreFilter"]) {
+        
+        [userData setObject:@"Prefilter Calculations" forKey:@"Action"];
+        [userData setObject:self forKey:@"Checkbox"];
+    }
     
     /*This is the call back to the notification center, */
     [[NSNotificationCenter defaultCenter] postNotificationName:@"theMessenger" object:self userInfo: userData];

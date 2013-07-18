@@ -32,6 +32,10 @@
 @property (nonatomic, retain) NSArray* arrEmailCheckboxes;
 @property (nonatomic, retain) NSString* strSelectedCompetitor;
 
+@property (nonatomic, retain) NSString* strALDAHOLSavings;
+@property (nonatomic, retain) NSString* strAcecideSavings;
+
+
 +(OAI_PDFManager* )sharedPDFManager;
 
 - (void) makePDF : (NSString*) fileName : (NSDictionary*) dictResults;

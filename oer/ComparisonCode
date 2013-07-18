@@ -1,0 +1,337 @@
+//get all the cost per scope from the results
+        if ([strThisKey rangeOfString:@"Cost Per Scope"].location !=NSNotFound) {
+            
+            //look for our categories
+            if ([strThisKey rangeOfString:@"Service"].location !=NSNotFound) {
+                
+                //look for our categories
+                if ([strThisKey rangeOfString:@"ALDAHOL"].location !=NSNotFound) {
+                    serviceCostALDAHOL = [[dictResults objectForKey:@"Service_Service Cost Per Scope_ALDAHOL"] floatValue];
+                    serviceCostAcecideC = [[dictResults objectForKey:@"Service_Service Cost Per Scope_AcecideC"] floatValue];
+                    NSString* strServiceCompetition = [dictResults objectForKey:@"Service_Service Cost Per Scope_Competition"];
+                    
+                    
+                    //get string, strip dollar symbols and decimal, convert to float
+                    strServiceCompetition = [self stripDollarSign:strServiceCompetition];
+                    strServiceCompetition = [self stripDecimalPoints:strServiceCompetition];
+                    serviceCompetitionCost = [strServiceCompetition floatValue];
+                    
+                    NSDecimalNumber* decServiceCostALDAHOL = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", serviceCostALDAHOL]];
+                    NSDecimalNumber* decServiceCostAcecideC = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", serviceCostAcecideC]];
+                    NSDecimalNumber* decServiceCompetitionCost = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", serviceCompetitionCost]];
+                    
+                    //convert to currency string
+                    NSString* strServiceALDAHOLCost = [self convertToCurrencyString:decServiceCostALDAHOL];
+                    NSString* strServiceAcecideCCost = [self convertToCurrencyString:decServiceCostAcecideC];
+                    NSString* strServiceCompetitionCost = [self convertToCurrencyString:decServiceCompetitionCost];
+                    
+                    NSMutableArray* arrServiceResults = [[NSMutableArray alloc] init];
+                    [arrServiceResults addObject:strServiceALDAHOLCost];
+                    [arrServiceResults addObject:strServiceAcecideCCost];
+                    [arrServiceResults addObject:strServiceCompetitionCost];
+                    
+                    [dictResultsData setObject:arrServiceResults forKey:@"Service Results"];
+                    
+                    OAI_Label* lblServiceCostALDAHOL = [dictResultCells objectForKey:@"Service Cost Per Scope ALDAHOL"];
+                    lblServiceCostALDAHOL.text = strServiceALDAHOLCost;
+                    
+                    OAI_Label* lblServiceCostAcecideC = [dictResultCells objectForKey:@"Service Cost Per Scope AcecideC"];
+                    lblServiceCostAcecideC.text = strServiceAcecideCCost;
+                    
+                    OAI_Label* lblServiceCostCompetition = [dictResultCells objectForKey:@"Service Cost Per Scope Competition"];
+                    lblServiceCostCompetition.text = strServiceCompetitionCost;
+                    
+                    if(!strSelectedCompetitor) {
+                        lblServiceCostCompetition.alpha = 0.0;
+                    } else {
+                        lblServiceCostCompetition.alpha = 1.0;
+                    }
+                    
+                }
+                
+            } else if ([strThisKey rangeOfString:@"Chemicals"].location !=NSNotFound) {
+                
+                //look for our categories
+                if ([strThisKey rangeOfString:@"ALDAHOL"].location !=NSNotFound) {
+                    
+                    chemicalCostALDAHOL = [[dictResults objectForKey:@"Chemicals_Chemical Cost Per Scope_ALDAHOL"] floatValue];
+                    chemicalCostAcecideC = [[dictResults objectForKey:@"Chemicals_Chemical Cost Per Scope_AcecideC"] floatValue];
+                    NSString* strChemicalCompetition = [dictResults objectForKey:@"Chemicals_Chemical Cost Per Scope_Competition"];
+                    //-->had to do this because for some reason the competition chemcical value was not translating to a float value
+                    float thisNumber = [strChemicalCompetition floatValue];
+                    chemicalCompetitionCost = thisNumber;
+                    
+                    //get string, strip dollar symbols and decimal, convert to float
+                    strChemicalCompetition = [self stripDollarSign:strChemicalCompetition];
+                    strChemicalCompetition = [self stripDecimalPoints:strChemicalCompetition];
+                    
+                    NSDecimalNumber* decChemicalCostALDAHOL = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", chemicalCostALDAHOL]];
+                    NSDecimalNumber* decChemicalCostAcecideC = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", chemicalCostAcecideC]];
+                    NSDecimalNumber* decChemicalCompetitionCost = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f",  thisNumber]];
+                    
+                    //convert to currency string
+                    NSString* strChemicalALDAHOLCost = [self convertToCurrencyString:decChemicalCostALDAHOL];
+                    NSString* strChemicalAcecideCCost = [self convertToCurrencyString:decChemicalCostAcecideC];
+                    NSString* strChemicalCompetitionCost = [self convertToCurrencyString:decChemicalCompetitionCost];
+                    
+                    NSMutableArray* arrChemicalResults = [[NSMutableArray alloc] init];
+                    [arrChemicalResults addObject:strChemicalALDAHOLCost];
+                    [arrChemicalResults addObject:strChemicalAcecideCCost];
+                    [arrChemicalResults addObject:strChemicalCompetitionCost];
+                    
+                    [dictResultsData setObject:arrChemicalResults forKey:@"Chemical Results"];
+                    
+                    OAI_Label* lblChemicalCostALDAHOL = [dictResultCells objectForKey:@"Chemical Cost Per Scope ALDAHOL"];
+                    lblChemicalCostALDAHOL.text = strChemicalALDAHOLCost;
+                    
+                    OAI_Label* lblChemicalCostAcecideC = [dictResultCells objectForKey:@"Chemical Cost Per Scope AcecideC"];
+                    lblChemicalCostAcecideC.text = strChemicalAcecideCCost;
+                    
+                    OAI_Label* lblChemicalCostCompetition = [dictResultCells objectForKey:@"Chemical Cost Per Scope Competition"];
+                    lblChemicalCostCompetition.text = strChemicalCompetitionCost;
+                    
+                    if(!strSelectedCompetitor) {
+                        lblChemicalCostCompetition.alpha = 0.0;
+                    } else {
+                        lblChemicalCostCompetition.alpha = 1.0;
+                    }
+                    
+                }
+                
+            } else if ([strThisKey rangeOfString:@"Detergents"].location !=NSNotFound) {
+                
+                //look for our categories
+                if ([strThisKey rangeOfString:@"ALDAHOL"].location !=NSNotFound) {
+                    
+                    detergentCostALDAHOL = [[dictResults objectForKey:@"Detergents_Detergent Cost Per Scope_ALDAHOL"] floatValue];
+                    detergentCostAcecideC = [[dictResults objectForKey:@"Detergents_Detergent Cost Per Scope_AcecideC"] floatValue];
+                    NSString* strDetergentCost = [dictResults objectForKey:@"Detergents_Detergent Cost Per Scope_Competition"];
+                    
+                    //get string, strip dollar symbols and decimal, convert to float
+                    strDetergentCost = [self stripDollarSign:strDetergentCost];
+                    strDetergentCost = [self stripDecimalPoints:strDetergentCost];
+                    detergentCostCompetition = [strDetergentCost floatValue];
+                    
+                    //convert floats to NSDecimal
+                    NSDecimalNumber* decDetergentCostALDAHOL = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", detergentCostALDAHOL]];
+                    NSDecimalNumber* decDetergentCostAcecideC = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", detergentCostAcecideC]];
+                    NSDecimalNumber* decDetergentCostCompetition = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", detergentCostCompetition]];
+                    
+                    //convert to currency string
+                    NSString* strDetergentALDAHOLCost = [self convertToCurrencyString:decDetergentCostALDAHOL];
+                    NSString* strDetergentAcecideCCost = [self convertToCurrencyString:decDetergentCostAcecideC];
+                    NSString* strDetergentCompetitionCost = [self convertToCurrencyString:decDetergentCostCompetition];
+                    
+                    NSMutableArray* arrDetergentResults = [[NSMutableArray alloc] init];
+                    [arrDetergentResults addObject:strDetergentALDAHOLCost];
+                    [arrDetergentResults addObject:strDetergentAcecideCCost];
+                    [arrDetergentResults addObject:strDetergentCompetitionCost];
+                    
+                    [dictResultsData setObject:arrDetergentResults forKey:@"Detergent Results"];
+                    
+                    OAI_Label* lblDetergentCostALDAHOL = [dictResultCells objectForKey:@"Detergent Cost Per Scope ALDAHOL"];
+                    lblDetergentCostALDAHOL.text = strDetergentALDAHOLCost;
+                    
+                    OAI_Label* lblDetergentCostAcecideC = [dictResultCells objectForKey:@"Detergent Cost Per Scope AcecideC"];
+                    lblDetergentCostAcecideC.text = strDetergentAcecideCCost;
+                    
+                    OAI_Label* lblDetergentCostCompetition = [dictResultCells objectForKey:@"Detergent Cost Per Scope Competition"];
+                    lblDetergentCostCompetition.text = strDetergentCompetitionCost;
+                    
+                    if(!strSelectedCompetitor) {
+                        lblDetergentCostCompetition.alpha = 0.0;
+                    } else {
+                        lblDetergentCostCompetition.alpha = 1.0;
+                    }
+                    
+                    
+                }
+                
+            } else if ([strThisKey rangeOfString:@"Test Strips"].location !=NSNotFound) {
+                
+                //look for our categories
+                if ([strThisKey rangeOfString:@"ALDAHOL"].location !=NSNotFound) {
+                    
+                    testStripsCostALDAHOL = [[dictResults objectForKey:@"Test Strips_Test Strip Cost Per Scope_ALDAHOL"] floatValue];
+                    testStripsCostAcecideC = [[dictResults objectForKey:@"Test Strips_Test Strip Cost Per Scope_AcecideC"] floatValue];
+                    NSString* strTestStripsCost = [dictResults objectForKey:@"Test Strips_Test Strip Cost Per Scope_Competition"];
+                    
+                    //get string, strip dollar symbols and decimal, convert to float
+                    strTestStripsCost = [self stripDollarSign:strTestStripsCost];
+                    strTestStripsCost = [self stripDecimalPoints:strTestStripsCost];
+                    testStripsCostCompetition = [strTestStripsCost floatValue];
+                    
+                    //convert floats to NSDecimal
+                    NSDecimalNumber* decTestStripsCostALDAHOL = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", testStripsCostALDAHOL]];
+                    NSDecimalNumber* decTestStripsCostAcecideC = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", testStripsCostAcecideC]];
+                    NSDecimalNumber* decTestStripsCostCompetition = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", testStripsCostCompetition]];
+                    
+                    //convert to currency string
+                    NSString* strTestStripsALDAHOLCost = [self convertToCurrencyString:decTestStripsCostALDAHOL];
+                    NSString* strTestStripsAcecideCCost = [self convertToCurrencyString:decTestStripsCostAcecideC];
+                    NSString* strTestStripsCompetitionCost = [self convertToCurrencyString:decTestStripsCostCompetition];
+                    
+                    NSMutableArray* arrTestStripsResults = [[NSMutableArray alloc] init];
+                    [arrTestStripsResults addObject:strTestStripsALDAHOLCost];
+                    [arrTestStripsResults addObject:strTestStripsAcecideCCost];
+                    [arrTestStripsResults addObject:strTestStripsCompetitionCost];
+                    
+                    [dictResultsData setObject:arrTestStripsResults forKey:@"Test Strip Results"];
+                    
+                    OAI_Label* lblTestStripsCostALDAHOL = [dictResultCells objectForKey:@"Test Strips Cost Per Scope ALDAHOL"];
+                    lblTestStripsCostALDAHOL.text = strTestStripsALDAHOLCost;
+                    
+                    OAI_Label* lblTestStripsCostAcecideC = [dictResultCells objectForKey:@"Test Strips Cost Per Scope AcecideC"];
+                    lblTestStripsCostAcecideC.text = strTestStripsAcecideCCost;
+                    
+                    OAI_Label* lblTestStripsCostCompetition = [dictResultCells objectForKey:@"Test Strips Cost Per Scope Competition"];
+                    lblTestStripsCostCompetition.text = strTestStripsCompetitionCost;
+                    
+                    if(!strSelectedCompetitor) {
+                        lblTestStripsCostCompetition.alpha = 0.0;
+                    } else {
+                        lblTestStripsCostCompetition.alpha = 1.0;
+                    }
+                    
+                }
+                
+            } else if ([strThisKey rangeOfString:@"Filters"].location !=NSNotFound) {
+                
+                //look for our categories
+                if ([strThisKey rangeOfString:@"ALDAHOL"].location !=NSNotFound) {
+                    
+                    filtersCostALDAHOL = [[dictResults objectForKey:@"Filters_Filter Cost Per Scope_ALDAHOL"] floatValue];
+                    filtersCostAcecideC = [[dictResults objectForKey:@"Filters_Filter Cost Per Scope_AcecideC"] floatValue];
+                    NSString* strFiltersCost = [dictResults objectForKey:@"Filters_Filter Cost Per Scope_Competition"];
+                    
+                    //get string, strip dollar symbols and decimal, convert to float
+                    strFiltersCost = [self stripDollarSign:strFiltersCost];
+                    strFiltersCost = [self stripDecimalPoints:strFiltersCost];
+                    filtersCostCompetition = [strFiltersCost floatValue];
+                    
+                    //convert floats to NSDecimal
+                    NSDecimalNumber* decFiltersCostALDAHOL = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", filtersCostALDAHOL]];
+                    NSDecimalNumber* decFiltersCostAcecideC = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", filtersCostAcecideC]];
+                    NSDecimalNumber* decFiltersCostCompetition = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", filtersCostCompetition]];
+                    
+                    //convert to currency string
+                    NSString* strFilterALDAHOLCost = [self convertToCurrencyString:decFiltersCostALDAHOL];
+                    NSString* strFilterAcecideCCost = [self convertToCurrencyString:decFiltersCostAcecideC];
+                    NSString* strFilterCompetitionCost = [self convertToCurrencyString:decFiltersCostCompetition];
+                    
+                    NSMutableArray* arrFiltersResults = [[NSMutableArray alloc] init];
+                    [arrFiltersResults addObject:strFilterALDAHOLCost];
+                    [arrFiltersResults addObject:strFilterAcecideCCost];
+                    [arrFiltersResults addObject:strFilterCompetitionCost];
+                    
+                    [dictResultsData setObject:arrFiltersResults forKey:@"Filter Results"];
+                    
+                    
+                    OAI_Label* lblFilterCostALDAHOL = [dictResultCells objectForKey:@"Filters Cost Per Scope ALDAHOL"];
+                    lblFilterCostALDAHOL.text = strFilterALDAHOLCost;
+                    
+                    OAI_Label* lblFilterCostAcecideC = [dictResultCells objectForKey:@"Filters Cost Per Scope AcecideC"];
+                    lblFilterCostAcecideC.text = strFilterAcecideCCost;
+                    
+                    OAI_Label* lblFilterCostCompetition = [dictResultCells objectForKey:@"Filters Cost Per Scope Competition"];
+                    lblFilterCostCompetition.text = strFilterCompetitionCost;
+                    
+                    if(!strSelectedCompetitor) {
+                        lblFilterCostCompetition.alpha = 0.0;
+                    } else {
+                        lblFilterCostCompetition.alpha = 1.0;
+                    }
+                    
+                }
+                
+            } else if ([strThisKey rangeOfString:@"Labor"].location !=NSNotFound) {
+                
+                //look for our categories
+                if ([strThisKey rangeOfString:@"ALDAHOL"].location !=NSNotFound) {
+                    
+                    laborCostALDAHOL = [[dictResults objectForKey:@"Labor_Labor Cost Per Scope_ALDAHOL"] floatValue];
+                    laborCostAcecideC = [[dictResults objectForKey:@"Labor_Labor Cost Per Scope_AcecideC"] floatValue];
+                    NSString* strLaborCost = [dictResults objectForKey:@"Labor_Labor Cost Per Scope_Competition"];
+                    
+                    //get string, strip dollar symbols and decimal, convert to float
+                    strLaborCost = [self stripDollarSign:strLaborCost];
+                    strLaborCost = [self stripDecimalPoints:strLaborCost];
+                    laborCostCompetition = [strLaborCost floatValue];
+                    
+                    //convert floats to NSDecimal
+                    NSDecimalNumber* decLaborCostALDAHOL = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", laborCostALDAHOL]];
+                    NSDecimalNumber* decLaborCostAcecideC = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", laborCostAcecideC]];
+                    NSDecimalNumber* decLaborCostCompetition = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", laborCostCompetition]];
+                    
+                    //convert to currency string
+                    NSString* strLaborALDAHOLCost = [self convertToCurrencyString:decLaborCostALDAHOL];
+                    NSString* strLaborAcecideCCost = [self convertToCurrencyString:decLaborCostAcecideC];
+                    NSString* strLaborCompetitionCost = [self convertToCurrencyString:decLaborCostCompetition];
+                    
+                    NSMutableArray* arrLaborResults = [[NSMutableArray alloc] init];
+                    [arrLaborResults addObject:strLaborALDAHOLCost];
+                    [arrLaborResults addObject:strLaborAcecideCCost];
+                    [arrLaborResults addObject:strLaborCompetitionCost];
+                    
+                    [dictResultsData setObject:arrLaborResults forKey:@"Labor Results"];
+                    
+                    OAI_Label* lblLaborCostALDAHOL = [dictResultCells objectForKey:@"Labor Cost Per Scope ALDAHOL"];
+                    lblLaborCostALDAHOL.text = strLaborALDAHOLCost;
+                    
+                    OAI_Label* lblLaborCostAcecideC = [dictResultCells objectForKey:@"Labor Cost Per Scope AcecideC"];
+                    lblLaborCostAcecideC.text = strLaborAcecideCCost;
+                    
+                    OAI_Label* lblLaborCostCompetition = [dictResultCells objectForKey:@"Labor Cost Per Scope Competition"];
+                    lblLaborCostCompetition.text = strLaborCompetitionCost;
+                    
+                    if(!strSelectedCompetitor) {
+                        lblLaborCostCompetition.alpha = 0.0;
+                    } else {
+                        lblLaborCostCompetition.alpha = 1.0;
+                    }
+                    
+                }
+                
+            }
+            
+        }
+        
+        float totalsALDAHOL = serviceCostALDAHOL + chemicalCostALDAHOL + detergentCostALDAHOL + testStripsCostALDAHOL + filtersCostALDAHOL + laborCostALDAHOL;
+        
+        float totalsAcecideC = serviceCostAcecideC + chemicalCostAcecideC + detergentCostAcecideC + testStripsCostAcecideC + filtersCostAcecideC + laborCostAcecideC;
+        
+        float totalsCompetition = serviceCompetitionCost + chemicalCompetitionCost + detergentCostCompetition + testStripsCostCompetition + filtersCostCompetition + laborCostCompetition;
+        
+        //convert floats to NSDecimal
+        NSDecimalNumber* decTotalsALDAHOL = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", totalsALDAHOL]];
+        NSDecimalNumber* decTotalsAcecideC = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", totalsAcecideC]];
+        NSDecimalNumber* decTotalsCompetition = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", totalsCompetition]];
+        
+        strALDAHOLTotalCost = [self convertToCurrencyString:decTotalsALDAHOL];
+        strAcecideCTotalCost = [self convertToCurrencyString:decTotalsAcecideC];
+        strCompetitionTotalCost = [self convertToCurrencyString:decTotalsCompetition];
+        
+        NSMutableArray* arrTotalResults = [[NSMutableArray alloc] init];
+        [arrTotalResults addObject:strALDAHOLTotalCost];
+        [arrTotalResults addObject:strAcecideCTotalCost];
+        [arrTotalResults addObject:strCompetitionTotalCost];
+        
+        [dictResultsData setObject:arrTotalResults forKey:@"Total Results"];
+        
+        OAI_Label* lblTotalCostALDAHOL = [dictResultCells objectForKey:@"Total Cost Per Scope ALDAHOL"];
+        lblTotalCostALDAHOL.text = strALDAHOLTotalCost;
+        
+        OAI_Label* lblTotalCostAcecideC = [dictResultCells objectForKey:@"Total Cost Per Scope AcecideC"];
+        lblTotalCostAcecideC.text = strAcecideCTotalCost;
+        
+        OAI_Label* lblTotalCostCompetition = [dictResultCells objectForKey:@"Total Cost Per Scope Competition"];
+        lblTotalCostCompetition.text = strCompetitionTotalCost;
+        
+        if (!strSelectedCompetitor) {
+            lblTotalCostCompetition.alpha = 0.0;
+        } else {
+            lblTotalCostCompetition.alpha = 1.0;
+        }
+        
+        //getting the y location of the chart
+        lastLabelY = lblTotalCostALDAHOL.frame.origin.y + lblTotalCostALDAHOL.frame.size.height + 10.0;

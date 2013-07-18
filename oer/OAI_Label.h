@@ -12,5 +12,6 @@
 
 @property (nonatomic, retain) NSString* myLabelID;
 @property (nonatomic, assign) int textFieldInputType;
+@property (nonatomic, assign) BOOL isLabel;
 
 @end

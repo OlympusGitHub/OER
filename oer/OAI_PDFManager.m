@@ -86,42 +86,38 @@
             }
         }
     }
-
+    
+    //set up our font styles
+    UIFont* headerFont = [UIFont fontWithName:@"Helvetica-Bold" size:14.0];
+    UIFont* contentFont = [UIFont fontWithName:@"Helvetica" size:13.0];
+    UIFont* tableFont = [UIFont fontWithName:@"Helvetica" size:8.0];
+    UIFont* tableFontBold = [UIFont fontWithName:@"Helvetica" size:10.0];
+    
+    //set up a some constraints
+    CGSize pageConstraint = CGSizeMake(pageSize.width - 2*kBorderInset-2*kMarginInset, pageSize.height - 2*kBorderInset - 2*kMarginInset);
+    
+    //set up a color holdr
+    UIColor* textColor;
+    UIColor* clrOlympusBlue = [colorManager setColor:8.0 :16.0 :123.0];
+    UIColor* clrDarkGray = [colorManager setColor:51.0 :51.0 :51.0];
+    UIColor* borderColor;
+    
+    //Olympus logo
+    UIImage* imgLogo = [UIImage imageNamed:@"OA_img_logo_iPadOptimized.png"];
+    
+    //for bars
+    float lineWidth;
+    
+    //border
+    CGRect borderFrame;
+    CGRect textFrame;
     
     UIGraphicsBeginPDFContextToFile(thefilePath, CGRectZero, nil);
     
     BOOL done = NO;
-    
+        
     do {
         
-        //set up a counter for page height
-        
-        //set up our font styles
-        UIFont* headerFont = [UIFont fontWithName:@"Helvetica-Bold" size:14.0];
-        UIFont* contentFont = [UIFont fontWithName:@"Helvetica" size:13.0];
-        UIFont* tableFont = [UIFont fontWithName:@"Helvetica" size:8.0];
-        UIFont* tableFontBold = [UIFont fontWithName:@"Helvetica" size:10.0];
-        
-        //set up a some constraints
-        CGSize pageConstraint = CGSizeMake(pageSize.width - 2*kBorderInset-2*kMarginInset, pageSize.height - 2*kBorderInset - 2*kMarginInset);
-        
-        //set up a color holdr
-        UIColor* textColor;
-        UIColor* clrOlympusBlue = [colorManager setColor:8.0 :16.0 :123.0];
-        UIColor* clrDarkGray = [colorManager setColor:51.0 :51.0 :51.0];
-        UIColor* borderColor;
-        
-        //Olympus logo
-        UIImage* imgLogo = [UIImage imageNamed:@"OA_img_logo_iPadOptimized.png"];
-        
-        //for bars
-        float lineWidth;
-        
-        //border
-        CGRect borderFrame;
-        CGRect textFrame;
-        
-        /*************************COVER PAGE*********************************/
         UIGraphicsBeginPDFPageWithInfo(CGRectMake(0, 0, pageSize.width, pageSize.height), nil);
         
         //add the olympus logo to top of page
@@ -131,28 +127,36 @@
         //page title
         NSString* strPDFTitle = [NSString stringWithFormat:@"Operational Cost Projections With the Olympus OER-Pro for %@", _strFacilityName];
         
-        /*************************PAGE 1*********************************/
         
         textColor = clrOlympusBlue;
         CGSize PDFTitleSize = [strPDFTitle sizeWithFont:headerFont constrainedToSize:pageConstraint lineBreakMode:NSLineBreakByWordWrapping];
         CGRect PDFTitleFrame = CGRectMake((pageSize.width/2)-(PDFTitleSize.width/2), imgLogoFrame.origin.y + imgLogoFrame.size.height + 50.0, PDFTitleSize.width, PDFTitleSize.height);
         [self drawText:strPDFTitle :PDFTitleFrame :headerFont :textColor :0];
         
+        /*************************PAGE 1*********************************/
+        
+        
         UIGraphicsBeginPDFPageWithInfo(CGRectMake(0, 0, pageSize.width, pageSize.height), nil);
         
         //add some intro text
-        NSString* introText = [NSString stringWithFormat:@"Following are the results of the Operational Cost Projections with the Olympus OER-Pro for %@.", _strFacilityName];
+        NSString* introText = [NSString stringWithFormat:@"Investing in Automatic Endoscope Reprocessing (AER) technology is an important decision to all organizations using flexible endoscopes. Understanding the benefits and costs associated with ownership of AER technology is critical to maximizing revenue and ensuring patient safety. That's why Olympus developed the Olympus OER-Pro Operational Cost Calculator.\n\nThe OER-Pro can be a compelling business proposition and a major addition to your existing portfolio of cleaning, disinfecting and sterilization products. In an effort to assist our current and prospective customers with their own analyses, Olympus has developed a flexible and tailored OER-Pro Operational Cost Calculator.\n\nThe OER-Pro is easier, faster, and more reliable to its competitor class and offers a full range of features and functions to consider when performing your analysis:\n\n• Compact single basin design allows you to reprocess up to two scopes at a time.\n• Reprocessing times as low as 26 minutes\n• Elimination of 7 of 11 manual reprocessing steps (FDA Approved)\n• RFID scanning technology that quickly and easily gathers scope model, serial number and technician ID.\n• Two dedicated High Level Disinfectant (HLD) options validated for material compatibility.\n• Optional data management capabilities allow you to efficiently manage cycle data.\n• Flexible financial options tailored to meet your needs\n• Accredited Biomed and technician training courses offered through Olympus University\n• Olympus offers 24/7 technical support\n• Our customers can utilize web portals for repair history and equipment information\n• Our broad Field Support Team is available to serve your needs\n\nThis calculator illustrates operational cost projection comparisons of the OER-Pro based on specific cost assumptions.  This tool is designed to be flexible and to take into account your unique customer information.\n\nThank you for your time and interest in Olympus' products and solutions. At Olympus, we appreciate the opportunity to partner with our customers to provide the most advanced and efficient care to your patients.  We look forward to doing business with you.\nBest regards,\n"];
+        
+        
         
         CGSize introTextSize = [introText sizeWithFont:contentFont constrainedToSize:pageConstraint lineBreakMode:NSLineBreakByWordWrapping];
         CGRect introTextFrame = CGRectMake(kMarginInset*2, 40.0, introTextSize.width, introTextSize.height);
         textColor = clrOlympusBlue;
-        [self drawText:introText :introTextFrame :headerFont:textColor:1];
+        [self drawText:introText :introTextFrame :contentFont:textColor:0];
+        
+        /*************************PAGE 2*********************************/
+        
+        UIGraphicsBeginPDFPageWithInfo(CGRectMake(0, 0, pageSize.width, pageSize.height), nil);
         
         //table title
         NSString* strAnnualProcedures = [NSString stringWithFormat:@"Annual Volume: %@", [dictResults objectForKey:@"Annual Procedures"]];
         textColor = clrDarkGray;
         CGSize annualProceduresSize = [strAnnualProcedures sizeWithFont:headerFont];
-        CGRect tableTitleFrame = CGRectMake(kMarginInset, introTextFrame.origin.y+introTextFrame.size.height + 10.0, annualProceduresSize.width, 30.0);
+        CGRect tableTitleFrame = CGRectMake(kMarginInset, kMarginInset*2, annualProceduresSize.width, 30.0);
         [self drawText:strAnnualProcedures :tableTitleFrame :headerFont:textColor:1];
         
         //results headers
@@ -295,27 +299,26 @@
             cellW = 126.0;
             cellH = 20.0;
             
+            BOOL showCell = NO;
+            
             //loop through the results array
             for(int x =0; x<arrResultsData.count; x++) {
                 
-                BOOL showCell = NO;
-                
                 //determine if the header should be displayed or not
-                if (x==1) {
+                if (x==0) {
                     if (showALDAHOL) {
                         showCell = YES;
                     }
-                } else if (x==2) {
+                } else if (x==1) {
                     if (showAcecide) {
                         showCell = YES;
                     }
-                } else if (x==3) {
+                } else if (x==2) {
                     if (showCompetitor) {
                         showCell = YES;
                     }
-                } else if (x==0) {
-                    showCell = YES;
                 }
+                
                 
                 
                 NSString* strCellValue = [arrResultsData objectAtIndex:x];
@@ -372,27 +375,40 @@
         tableTitleFrame = CGRectMake(kMarginInset, textFrame.origin.y + textFrame.size.height + 10.0, timeSavingsSize.width, 30.0);
         [self drawText:strTimeSavings :tableTitleFrame :headerFont:textColor:1];
         
-        //build the headers
-        cellX = kMarginInset;
-        cellY = tableTitleFrame.origin.y + tableTitleFrame.size.height;
-        cellW = 0.0;
-        cellH = kLineWidth*30;
-        
         NSArray* arrTypes = [dictResults objectForKey:@"Time Savings Headers"];
+        
+        //reset cell coords
+        cellY = tableTitleFrame.origin.y+tableTitleFrame.size.height + 5.0;
+        cellX = kMarginInset;
+        cellW = 190.0;
+        cellH = 30.0;
+        
+        NSArray* arrTimeSavingsHeaders = [dictResults objectForKey:@"Time Savings Headers"];
+        NSString* strHeaderValue;
         
         for(int i=0; i<arrTypes.count+1; i++) {
             
-            NSString* strHeaderValue;
             BOOL showHeader = NO;
+            
+            //set the cell width
+            if (i==0) {
+                cellW = 190.0;
+                showHeader = YES;
+                strHeaderValue = @"";
+            } else {
+                cellW = 126.0;
+            }
             
             //determine if the header should be displayed or not
             if (i==1) {
                 if (showALDAHOL) {
                     showHeader = YES;
+                    strHeaderValue = [arrTimeSavingsHeaders objectAtIndex:0];
                 }
             } else if (i==2) {
                 if (showAcecide) {
                     showHeader = YES;
+                    strHeaderValue = [arrTimeSavingsHeaders objectAtIndex:1];
                 }
             } else if (i==3) {
                 if (showCompetitor) {
@@ -401,61 +417,57 @@
                 }
             } else if (i==0) {
                 showHeader = YES;
+                strHeaderValue = @"";
             }
-            
-            
-            //set the cell width
-            if (i==0) {
-                cellW = 190.0;
-            } else {
-                cellW = 126.0;
-                
-                //get the cell value
-                strHeaderValue = [arrTypes objectAtIndex:i-1];
-            }
-            
-            //borders
-            //make border rectangle
             
             if(showHeader) {
                 
+                 //set cgsize
+                CGSize cellConstraint = CGSizeMake(cellW-2, 999.0);
+                
+                //make border rectangle
                 borderColor = [UIColor whiteColor];
                 
                 //make border rect
-                borderFrame = CGRectMake(cellX, cellY, cellW, cellH);
+                borderFrame = CGRectMake(cellX, tableTitleFrame.origin.y+tableTitleFrame.size.height + 5.0, cellW, kLineWidth*30);
                 
                 [self drawBorder:borderColor:borderFrame];
                 
-                //background
-                CGPoint headerBarStartPoint = CGPointMake(cellX, cellY+15.0);
-                CGPoint headerBarEndPoint = CGPointMake(cellX + cellW, cellY+15.0);
+                //fill the background color
+                CGPoint headerBarStartPoint = CGPointMake(cellX, tableTitleFrame.origin.y + tableTitleFrame.size.height+20);
+                CGPoint headerBarEndPoint = CGPointMake(cellX + cellW, tableTitleFrame.origin.y + tableTitleFrame.size.height+20);
                 lineWidth = kLineWidth*30;
                 [self drawLine:lineWidth:clrOlympusBlue:headerBarStartPoint:headerBarEndPoint];
                 
-                //headers
+                //add the header text
+                CGRect textFrame = CGRectMake(cellX, cellY+2.0, cellW, cellH);
+                textColor = [UIColor whiteColor];
+                [self drawText:strHeaderValue :textFrame :tableFontBold :textColor :1];
                 
-                if (i>0) {
-                    textColor = [UIColor whiteColor];
-                    textFrame = CGRectMake(cellX, cellY+2.0, cellW, cellH);
-                    [self drawText:strHeaderValue :textFrame :tableFontBold:textColor:1];
-                }
-                
+                //increment x
                 cellX = cellX + cellW;
                 
+                //reset show header
+                showHeader = NO;
+                
             }
-            
-            showHeader = NO;
+           
         }
         
-        //fill in the table values
-        cellY = cellY + 30.0;
+        //time savings row headers
+        
+        //reset the coords
         cellX = kMarginInset;
+        cellY = cellY + 30.0;
         cellW = 190.0;
         cellH = 20.0;
         
         NSArray* arrTimeSavingRowHeaders = [dictResults objectForKey:@"Time Savings Row Headers"];
+        NSArray* arrCellValues = [[NSArray alloc] init];
         
         for(int i=0; i<arrTimeSavingRowHeaders.count; i++) {
+            
+            BOOL showCell = NO;
             
             NSString* strTimeRowHeader = [arrTimeSavingRowHeaders objectAtIndex:i];
             
@@ -486,52 +498,38 @@
             [self drawText:strTimeRowHeader :textFrame :tableFontBold:textColor:1];
             
             //get the time savings values
-            NSArray* arrCellValues = [[NSArray alloc] init];
-            
-            if ([strTimeRowHeader rangeOfString:@"Pre-Cleaning"].location !=NSNotFound) {
-                arrCellValues = [dictResults objectForKey:@"Pre Cleaning"];
-            } else if ([strTimeRowHeader rangeOfString:@"Leakage"].location !=NSNotFound) {
-                arrCellValues = [dictResults objectForKey:@"Leakage"];
-            } else if ([strTimeRowHeader rangeOfString:@"Manual Cleaning"].location !=NSNotFound) {
-                arrCellValues = [dictResults objectForKey:@"Manual Cleaning"];
-            } else if ([strTimeRowHeader rangeOfString:@"AER PRocessing"].location !=NSNotFound) {
-                arrCellValues = [dictResults objectForKey:@"AER Processing Cleaning"];
-            } else if ([strTimeRowHeader rangeOfString:@"Post-AER Processing"].location !=NSNotFound) {
-                arrCellValues = [dictResults objectForKey:@"AER Post Processing Cleaning"];
-            } else if ([strTimeRowHeader rangeOfString:@"Total Time Per Cycle (Minutes)"].location !=NSNotFound) {
-                arrCellValues = [dictResults objectForKey:@"Time Totals"];
-            }
-            
-            cellX = cellX + cellW;
-            cellW = 126.0;
+            arrCellValues =  [dictResults objectForKey:strTimeRowHeader];
             
             for(int x=0; x<arrCellValues.count; x++) {
                 
-                NSString* strCellValue = [arrCellValues objectAtIndex:x];
-                BOOL showCell = NO;
+                //resize cellW
+                cellW = 126.0;
+                
+                //increment x
+                if (x>0) {
+                    cellX = cellX + cellW;
+                } else {
+                    cellX = cellX + 190.0;
+                }
                 
                 //determine if the header should be displayed or not
-                if (x==1) {
+                if (x==0) {
                     if (showALDAHOL) {
                         showCell = YES;
                     }
-                } else if (x==2) {
+                } else if (x==1) {
                     if (showAcecide) {
                         showCell = YES;
                     }
-                } else if (x==3) {
+                } else if (x==2) {
                     if (showCompetitor) {
                         showCell = YES;
-                        strCellValue = _strSelectedCompetitor;
                     }
-                } else if (x==0) {
-                    showCell = YES;
                 }
                 
-                
-                
-                
-                if(showCell) {
+                if (showCell) {
+                    
+                    NSString* strCellValue = [arrCellValues objectAtIndex:x];
                     
                     //make border rectangle
                     borderColor = [UIColor grayColor];
@@ -547,43 +545,76 @@
                     lineWidth = kLineWidth*20;
                     [self drawLine:lineWidth:backgroundColor:headerBarStartPoint:headerBarEndPoint];
                     
-                    //add the row header text
-                    textFrame = CGRectMake(cellX, cellY+2.0, cellW, cellH);
                     textColor = clrDarkGray;
-                    [self drawText:strCellValue :textFrame :tableFontBold :textColor :1];
+                    textFrame = CGRectMake(cellX, cellY+2.0, cellW, cellH);
+                    [self drawText:strCellValue :textFrame :tableFontBold:textColor:1];
                     
-                    cellX = cellX + cellW;
+                    
+                    
                 }
                 
+                cellW = 190.0;
                 showCell = NO;
-                
+
             }
             
+            //increment y
             cellY = cellY + 20.0;
+            
+            //reset x & w
             cellX = kMarginInset;
-            cellW = 190.0;
             
         }
         
-        //time savings notes
-        NSString* strTimeSavingNotes = @"OER-Pro Time Values:\nOur intimate knowledge of endoscope design allows us to use proprietary technologies to provide you with an enhanced reprocessing experience. As part of that experience, the OER-Pro eliminates 7 of the 11 recommended manual cleaning steps.\n\nAcecide-C:\nConservatively Acecide-C saving estimate vs. ALDAHOL is: 9 minutes\nAnnual staff time savings is estimated to be at least: 300 hours\nAt $15 per hour, this annual savings totals: $4500";
-        
-        CGSize timeSavingNoteSize = [strTimeSavingNotes sizeWithFont:tableFont constrainedToSize:pageSize lineBreakMode:NSLineBreakByWordWrapping];
-        
         float textX = kMarginInset;
-        float textY = (cellY + cellH) + 10.0;
+        float textY = cellY + 10.0;
         
-        textFrame = CGRectMake(textX, textY, timeSavingNoteSize.width, timeSavingNoteSize.height);
-        textColor = clrDarkGray;
-        [self drawText:strTimeSavingNotes :textFrame :tableFontBold :textColor :0];
+        //add informational text to bottom of time savings table
+        NSMutableString* strInfoText = [[NSMutableString alloc] initWithString:@"OER-Pro Time Values:\n\nOur intimate knowledge of endoscope design allows us to use proprietary technologies to provide you with an enhanced reprocessing experience. As part of that experience, the OER-Pro eliminates 7 of the 11 recommended manual cleaning steps."];
+        
+        if (_strSelectedCompetitor) {
+            
+            [strInfoText appendString:_strALDAHOLSavings];
+            
+            [strInfoText appendString:_strAcecideSavings];
+            
+            [strInfoText appendString:@"\n\nAcecide-C:\nConservatively Acecide-C saving estimate vs. ALDAHOL is: 3 minutes\nAnnual staff time savings is estimated to be at least: 100 hours\nAt $15 per hour, this annual savings totals: $1500"];
+        } else {
+            
+            [strInfoText appendString:@"\n\nALDAHOL 1.8:\nConservatively ALDAHOL 1.8 saving estimate vs. Competitor AER is N/A\nAnnual staff time savings is estimated to be at least: N/A\nAt $15 per hour, this annual savings totals: N/A"];
+            
+            [strInfoText appendString:@"\n\nAcecide-C:\nConservatively Acecide-C saving estimate vs. Competitor AER is N/A\nAnnual staff time savings is estimated to be at least: N/A\nAt $15 per hour, this annual savings totals: N/A"];
+            
+            [strInfoText appendString:@"\n\nAcecide-C:\nConservatively Acecide-C saving estimate vs. ALDAHOL is: 3 minutes\nAnnual staff time savings is estimated to be at least: 100 hours\nAt $15 per hour, this annual savings totals: $1500"];
+            
+        }
 
         
-        done = YES;
         
+        
+        CGSize infoSize = [strInfoText sizeWithFont:contentFont constrainedToSize:CGSizeMake(pageSize.width-(kMarginInset*2), 999.0) lineBreakMode:NSLineBreakByWordWrapping];
+        
+        textColor = clrDarkGray;
+        textFrame = CGRectMake(textX, textY, infoSize.width, infoSize.height);
+        [self drawText:strInfoText :textFrame :tableFont:textColor:0];
+        
+        //add disclaimer
+        NSString* strDisclaimer = stringManager.strDisclaimer;
+        CGSize disclaimerSize = [strDisclaimer sizeWithFont:contentFont constrainedToSize:CGSizeMake(pageSize.width-(kMarginInset*2), 999.0) lineBreakMode:NSLineBreakByWordWrapping];
+        
+        textColor = clrDarkGray;
+        textFrame = CGRectMake(textX, textFrame.origin.y + textFrame.size.height, disclaimerSize.width, disclaimerSize.height);
+        [self drawText:strDisclaimer :textFrame :tableFont:textColor:0];
+        
+        
+        
+        done = YES;
+    
     } while (!done);
     
     // Close the PDF context and write the contents out.
     UIGraphicsEndPDFContext();
+   
     
     //move the marketing pdf to the documents directory
     [fileManager moveFileToDocDirectory:@"OER_MarketingContent.pdf":@"There was a problem creating the PDF file!"];

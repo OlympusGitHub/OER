@@ -26,18 +26,15 @@
      numeric type 0=int, 1=%, 2=$, 3=decimal
      */
     
-    /*
-     for(NSString* strThisKey in _dictTextFields) {
-        NSLog(@"%@", strThisKey);
-    }
-     */
-    
+         
+    //NSLog(@"%@", [_dictTextFields allKeys]);
     
     //determine what we are calculating
     BOOL doChemicals = NO;
     BOOL doOthers = NO;
     BOOL doLabor = NO;
     BOOL doService = NO;
+    BOOL doFilters = NO;
     
     if([strCalculateWhat isEqualToString:@"Chemicals"]) {
         doChemicals = YES;
@@ -47,11 +44,14 @@
         doLabor = YES;
     } else if ([strCalculateWhat isEqualToString:@"Service"]) {
         doService = YES;
+    } else if ([strCalculateWhat isEqualToString:@"Filters"]) {
+        doFilters = YES;
     } else {
         doChemicals = YES;
         doOthers = YES;
         doLabor = YES;
         doService = YES;
+        doFilters = YES;
     }
     
     //init dictionary to hold our return values
@@ -60,7 +60,11 @@
     //set the number of OERs needed
     OAI_TextField* txtProcedureCount = [_dictTextFields objectForKey:@"Procedure Count"];
     float procedureCount = [txtProcedureCount.text floatValue];
-    float OERCount = roundf(procedureCount/2000);
+    [_dictResults setObject:[NSString stringWithFormat:@"%f", procedureCount] forKey:@"Procedure Count"];
+    
+    //OER Count
+    OAI_TextField* txtOERCount = [_dictTextFields objectForKey:@"OER Count"];
+    float OERCount = [txtOERCount.text floatValue];
     int intOERCount = (int)OERCount;
     [_dictResults setObject:[NSString stringWithFormat:@"%i", intOERCount] forKey:@"OER Count"];
     
@@ -75,7 +79,6 @@
         
     //get textfield values - work with float/doubles then convert everything to required numeric type
     OAI_TextField* txtThisField;
-    
     
     NSString* strThisDiscount;
     
@@ -135,9 +138,18 @@
                     
                 }
                 
-            } else if ([strThisKey rangeOfString:@"Filters"].location != NSNotFound) {
+            }
+            
+        }
+        
+        if (doFilters) {
+            
+            if ([strThisKey rangeOfString:@"Filters"].location != NSNotFound) {
+            
+                OAI_CheckBox* cbPreFilter = [_dictTextFields objectForKey:@"Pre Filter Check"];
+                preFilter = cbPreFilter.isChecked;
                 
-                //include the discount and compeition text fields
+                //include the discount and competition text fields
                 if([strThisKey rangeOfString:@"Discount"].location != NSNotFound || [strThisKey rangeOfString:@"Competition"].location != NSNotFound) {
                     
                     //get the discount
@@ -148,7 +160,7 @@
                     [self calculateSection:@"Filters":txtThisField:strThisKey:strThisDiscount];
                     
                 }
-                
+            
             }
             
         }
@@ -159,9 +171,22 @@
             }
         }
         
-        if (doService) { 
+        if (doService) {
+            
             if ([strThisKey rangeOfString:@"Service"].location != NSNotFound) {
-                [self calculateSection:@"Service":txtThisField:strThisKey:strThisDiscount];
+                if ([strThisKey rangeOfString:@"Labor"].location == NSNotFound) {
+                    
+                    if([strThisKey rangeOfString:@"Discount"].location != NSNotFound || [strThisKey rangeOfString:@"Competition"].location != NSNotFound) {
+                        
+                        //get the discount
+                        if([strThisKey rangeOfString:@"Discount"].location != NSNotFound) {
+                            strThisDiscount = txtThisField.text;
+                        }
+
+                        [self calculateSection:@"Service":txtThisField:strThisKey:strThisDiscount];
+                        
+                    }
+                }
             }
         }
 
@@ -344,7 +369,7 @@
             thisLP = ALDAHOL_LP;
             thisUPC = 4;
             thisURFO = 5;
-            thisENC = 17;
+            thisENC = 22;
         } else if ([strThisKey rangeOfString:@"Acecide"].location !=NSNotFound) {
             thisLP = AcecideC_LP;
             thisUPC = 6;
@@ -357,7 +382,7 @@
         thisUPC = 3;
         thisURFO = 1;
         thisENC = 30;
-        thisLP = 95.00;
+        thisLP = 100.00;
     } else if ([strThisKey rangeOfString:@"Test Strips"].location !=NSNotFound) {
         strThisSection = @"Test Strip";
         strThisSectionPlural = @"Test Strips";
@@ -365,12 +390,12 @@
             thisUPC = 12;
             thisURFO = 1;
             thisENC = 1;
-            thisLP = 99.75;
+            thisLP = 105.00;
         } else if ([strThisKey rangeOfString:@"AcecideC"].location !=NSNotFound) {
             thisUPC = 100;
             thisURFO = 1;
             thisENC = 1;
-            thisLP = 85.50;
+            thisLP = 90.00;
         }
     } else if ([strThisKey rangeOfString:@"Filters"].location !=NSNotFound) {
         strThisSection = @"Filter";
@@ -439,9 +464,13 @@
             [_dictResults setObject:[NSString stringWithFormat:@"%.02f", thisURFO] forKey:[NSString stringWithFormat:@"%@_Units Required For Operation (per basin)%@", strThisSectionPlural, strKeySuffix]];
             
         } else if ([strThisSection isEqualToString:@"Filter"]) {
-           
+            
+            //get the prefilter checkbox
+            OAI_CheckBox* cbPreFilter = [_dictTextFields objectForKey:@"Pre Filter Check"];
+            preFilter = cbPreFilter.isChecked;
+
             //get the filter cost
-            NSArray* arrFiltersCost = [self calculateFiltersCost:thisDiscount:OERCount:cyclesPerYear:scopesPerBasin];
+            NSArray* arrFiltersCost = [self calculateFiltersCost:thisDiscount:OERCount:cyclesPerYear:scopesPerBasin:preFilter];
             
             //pull the results
             NSString* strFilterCP = [arrFiltersCost objectAtIndex:0];
@@ -481,7 +510,7 @@
             
         } else if ([strThisSection isEqualToString:@"Service"]) {
             
-            NSArray* arrServiceCost = [self calculateServiceCost:thisDiscount:cyclesPerYear:scopesPerBasin];
+            NSArray* arrServiceCost = [self calculateServiceCost:thisDiscount:cyclesPerYear:scopesPerBasin:OERCount];
             
             NSString* strServiceCP = [arrServiceCost objectAtIndex:0];
             NSString* strServiceCPS = [arrServiceCost objectAtIndex:1];
@@ -580,7 +609,7 @@
 
 #pragma mark - Calculate Filters 
 
-- (NSArray*) calculateFiltersCost : (float) myFilterDiscount : (float) myOERCount : (float) myCyclesPerYear : (float) myScopesPerBasin {
+- (NSArray*) calculateFiltersCost : (float) myFilterDiscount : (float) myOERCount : (float) myCyclesPerYear : (float) myScopesPerBasin : (BOOL) hasPreFilter {
     
     //formula - list price  * number needed per year = total list price
     //tlp * discount = discounted price
@@ -600,8 +629,15 @@
     float MF01_0015PL_CP = MF01_0015PL_TLP - (MF01_0015PL_TLP * myFilterDiscount);*/
     
     //total list price for all filters
-    float filters_TLP = MAJ822_TLP + MAJ823_TLP + MAJ824_TLP + MF01_00114PL_TLP + MF01_0015PL_TLP;
+    float filters_TLP = 0.0;
+    if (preFilter) { 
+        filters_TLP = MAJ822_TLP + MAJ823_TLP + MAJ824_TLP + MF01_00114PL_TLP + MF01_0015PL_TLP;
+    } else {
+        filters_TLP = MAJ822_TLP + MAJ823_TLP + MAJ824_TLP;
+    }
+    
     float filters_CP = (filters_TLP-(filters_TLP*myFilterDiscount)*myOERCount);
+                      
     float filters_CPC = filters_CP/myCyclesPerYear;
     float filters_CPS = filters_CPC/myScopesPerBasin;
     
@@ -611,10 +647,10 @@
     
 }
 
--(NSArray*) calculateServiceCost : (float) myServiceDiscount : (float) myCyclesPerYear : (float) myScopesPerBasin {
+-(NSArray*) calculateServiceCost : (float) myServiceDiscount : (float) myCyclesPerYear : (float) myScopesPerBasin : (float) myOERCount {
     
-    float service_ELP = 3995.00; //froma assumptions
-    float service_CP = service_ELP-(service_ELP*myServiceDiscount);
+    float service_ELP = 3995.00; //from assumptions
+    float service_CP = (service_ELP-(service_ELP*myServiceDiscount)*myOERCount);
     
     float service_CPC = service_CP/myCyclesPerYear;
     

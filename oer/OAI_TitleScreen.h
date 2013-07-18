@@ -15,6 +15,9 @@
 }
 
 @property (nonatomic, retain) NSString* strAppTitle;
+@property (nonatomic, retain) NSString* strImageName;
+@property (nonatomic, assign) BOOL hasTitle;
+@property (nonatomic, assign) BOOL hasImage; 
 
 - (void) buildTitleScreen;
 

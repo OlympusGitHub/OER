@@ -27,27 +27,43 @@
     //init the color manager
     colorManager = [[OAI_ColorManager alloc] init];
     
-    //get the size of the title string
-    CGSize titleSize = [strAppTitle sizeWithFont:[UIFont fontWithName:@"Helvetica-Bold" size: 24.0]];
+    if (_hasTitle) {
     
-    UILabel* lblTitle = [[UILabel alloc] initWithFrame:CGRectMake((self.frame.size.width/2)-(titleSize.width/2), 300.0, titleSize.width, titleSize.height)];
-    lblTitle.text = strAppTitle;
-    lblTitle.textColor = [colorManager setColor:8.0 :16.0 :123.0];
-    lblTitle.backgroundColor = [UIColor clearColor];
-    lblTitle.font = [UIFont fontWithName:@"Helvetica-Bold" size:24.0];
+        //get the size of the title string
+        CGSize titleSize = [strAppTitle sizeWithFont:[UIFont fontWithName:@"Helvetica-Bold" size: 24.0]];
     
-    [self addSubview:lblTitle];
+        UILabel* lblTitle = [[UILabel alloc] initWithFrame:CGRectMake((self.frame.size.width/2)-(titleSize.width/2), 300.0, titleSize.width, titleSize.height)];
+        lblTitle.text = strAppTitle;
+        lblTitle.textColor = [colorManager setColor:8.0 :16.0 :123.0];
+        lblTitle.backgroundColor = [UIColor clearColor];
+        lblTitle.font = [UIFont fontWithName:@"Helvetica-Bold" size:24.0];
+        
+        [self addSubview:lblTitle];
+        
+        //add title image
+        UIImage* imgTitle = [UIImage imageNamed:@"imgTitleScreen.png"];
+        UIImageView* vImgTitle = [[UIImageView alloc] initWithFrame:CGRectMake((self.frame.size.width/2)-(imgTitle.size.width/2), lblTitle.frame.origin.y + lblTitle.frame.size.height + 10.0, imgTitle.size.width, imgTitle.size.height)];
+        [vImgTitle setImage:imgTitle];
+        [self addSubview:vImgTitle];
+    }
     
-    //add title image
-    UIImage* imgTitle = [UIImage imageNamed:@"imgTitleScreen.png"];
-    UIImageView* vImgTitle = [[UIImageView alloc] initWithFrame:CGRectMake((self.frame.size.width/2)-(imgTitle.size.width/2), lblTitle.frame.origin.y + lblTitle.frame.size.height + 10.0, imgTitle.size.width, imgTitle.size.height)];
-    [vImgTitle setImage:imgTitle];
-    [self addSubview:vImgTitle];
+    if (_hasImage) {
+        
+        UIImage* imgTitleScreen = [UIImage imageNamed:_strImageName];
+        UIImageView* ivTitleScreen = [[UIImageView alloc] initWithImage:imgTitleScreen];
+        
+        //reset the frame to center
+        [ivTitleScreen setFrame:CGRectMake((self.frame.size.width/2)-(imgTitleScreen.size.width/2), (self.frame.size.height/2)-(imgTitleScreen.size.height/2), imgTitleScreen.size.width, imgTitleScreen.size.height)];
+        [self addSubview:ivTitleScreen];
+        
+    }
+    
+    
 }
 
 - (void) fadeTitleScreen   {
     
-    [UIView animateWithDuration:1.0 delay:.5 options:UIViewAnimationOptionCurveEaseOut
+    [UIView animateWithDuration:3.0 delay:1.0 options:UIViewAnimationOptionCurveEaseOut
      
         animations:^{
             self.alpha = 0.0;
@@ -61,6 +77,10 @@
             self.frame = myFrame;
         }
      ];
+}
+
+- (void) adjustToRotation : (UIDeviceOrientation) orientation {
+    
 }
 
 /*

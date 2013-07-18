@@ -22,11 +22,17 @@
     NSURL* olympusSoundURL;
     AVAudioPlayer* audioPlayer;
     
+    UIImageView* imgVOAILogo;
+    NSString* OAIMDT_title;
+    UILabel* OAIMDT;
+    
 }
 
 @property (nonatomic, retain) UIView* parentView;
 @property (nonatomic, retain) OAI_TitleScreen* myTitleScreen;
 
-- (void) runSplashScreenAnimation; 
+- (void) runSplashScreenAnimation;
+
+- (void) adjustToRotation : (UIDeviceOrientation) orientation; 
 
 @end

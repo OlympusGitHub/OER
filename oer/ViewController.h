@@ -45,6 +45,7 @@
     
     UIScrollView* scNav;
     OAI_ScrollView* scSections;
+    UISegmentedControl* scTopNav;
     
     UIFont* headerFont;
     UIFont* cellFont;
@@ -54,9 +55,12 @@
     UIColor* clrLightGrey;
     
     NSMutableDictionary* dictTextFields;
+    NSMutableDictionary* dictEstimatedUnitFields;
+    NSMutableDictionary* dictEstimatedResults;
     NSMutableDictionary* dictResults;
     NSMutableDictionary* dictResultCells;
     NSMutableDictionary* dictInitialValues;
+    NSMutableDictionary* dictTimeSavingNotes;
     NSMutableArray* arrResultHeaders;
     NSArray* arrTypes;
     NSArray* arrResultsTableHeaders;
@@ -90,11 +94,28 @@
     float aldaholTotal;
     float acedicdeTotal;
     
+    float totalsALDAHOL;
+    float totalsAcecideC;
+    float totalsCompetition;
+    
+    float timeSavingsALDAHOLTotals;
+    float timeSavingsAcedideCTotals;
+    float timeSavingsCompetitionTotals;
+    
+    float aldaholTimeSavings;
+    float aldaholStaffTimeSavings;
+    float aldaholAnnualSavings;
+    float acecideTimeSavings;
+    float acecideStaffTimeSavings;
+    float acecideAnnualSavings;
+    
 }
 
 - (void) calculate : (NSString*) strCalculateWhat : (BOOL) isOpening;
 
 - (void) calculateWithResults : (UIButton*) myButton;
+
+- (void) calculateEstimates;
 
 - (BOOL) checkStringValue : (NSString*) stringToCheck;
 
@@ -103,6 +124,8 @@
 - (BOOL) validateThisEntry : (OAI_TextField*) textField;
 
 - (void) showComparison : (UIButton*) myButton;
+
+- (void) showEstimatedUnits;
 
 - (void) showCalculations : (UIButton*) myButton;
 
@@ -120,6 +143,10 @@
 
 - (void) setDiscount : (NSString*) strDiscount;
 
+- (NSString*) convertToPercentage : (float) numberToConvert;
+
+- (BOOL) checkDiscountValue : (NSString*) discountToCheck;
+
 - (NSString*) stripDollarSign : (NSString*) stringToStrip;
 
 - (NSString*) stripDecimalPoints : (NSString*) stringToStrip;
@@ -134,7 +161,9 @@
 
 - (void) resetComparisonDisplay : (NSString*) strThisRowHeader : (OAI_CheckBox*) thisCheckbox;
 
-- (void) totalComparisons; 
+- (void) totalComparisons;
+
+- (void) navOptions : (UISegmentedControl*) mySegmentedControl;
 
 
 
