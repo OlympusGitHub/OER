@@ -11,11 +11,16 @@
 
 @interface OAI_TitleBar : UIView {
     
+    UILabel* lblTitle;
+    UIFont* titleFont;
+    
 }
 
 @property (nonatomic, retain) NSString* titleBarTitle;
 
-- (void) buildTitleBar; 
+- (void) buildTitleBar;
+
+- (void) adjustForRotation : (UIDeviceOrientation) orientation;
 
 - (void) toggleAccount : (UIButton* ) btnAccount;
 

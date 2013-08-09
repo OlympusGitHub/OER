@@ -326,7 +326,7 @@
 
 - (void) calculateSection : (NSString*) strThisSection : (OAI_TextField*) txtThisField : (NSString*) strThisKey : (NSString*) strThisDiscount {
    
-    //these are the assumptions provided in the excel sheet    
+    //these are the assumptions provided in the excel sheet
     
     //list prices
     float ALDAHOL_LP = 115.00;
@@ -387,7 +387,7 @@
         strThisSection = @"Test Strip";
         strThisSectionPlural = @"Test Strips";
         if ([strThisKey rangeOfString:@"ALDAHOL"].location !=NSNotFound) {
-            thisUPC = 12;
+            thisUPC = 120;
             thisURFO = 1;
             thisENC = 1;
             thisLP = 105.00;
@@ -449,9 +449,14 @@
             //store results
             [_dictResults setObject:[NSString stringWithFormat:@"%.02f", thisDiscount] forKey:[NSString stringWithFormat:@"%@_Discount%@", strThisSectionPlural, strKeySuffix]];
             
-            [_dictResults setObject:[NSString stringWithFormat:@"%.02f", thisUPC] forKey:[NSString stringWithFormat:@"%@_Units Per Package%@", strThisSectionPlural, strKeySuffix]];
+            if ([strThisKey rangeOfString:@"Test Strip"].location != NSNotFound) {
+                [_dictResults setObject:[NSString stringWithFormat:@"%.02f", thisUPC] forKey:[NSString stringWithFormat:@"%@_Units Per Case/Package%@", strThisSectionPlural, strKeySuffix]];
+                [_dictResults setObject:[NSString stringWithFormat:@"%.00f", thisURFO] forKey:[NSString stringWithFormat:@"%@_Units Required For Operation (Per Basin)%@", strThisSectionPlural, strKeySuffix]];
+            } else { 
+                [_dictResults setObject:[NSString stringWithFormat:@"%.00f", thisUPC] forKey:[NSString stringWithFormat:@"%@_Units Per Package%@", strThisSectionPlural, strKeySuffix]];
+            }
             
-            [_dictResults setObject:[NSString stringWithFormat:@"%.02f", thisCP] forKey:[NSString stringWithFormat:@"%@_Purchase Price (per case)%@", strThisSectionPlural, strKeySuffix]];
+            [_dictResults setObject:[NSString stringWithFormat:@"%.00f", thisCP] forKey:[NSString stringWithFormat:@"%@_Purchase Price (per case)%@", strThisSectionPlural, strKeySuffix]];
             
             [_dictResults setObject:[NSString stringWithFormat:@"%.02f", thisENC] forKey:[NSString stringWithFormat:@"%@_Maximum Use Life (# cycles per basin)%@", strThisSectionPlural, strKeySuffix ]];
             
@@ -512,6 +517,8 @@
             
             NSArray* arrServiceCost = [self calculateServiceCost:thisDiscount:cyclesPerYear:scopesPerBasin:OERCount];
             
+            NSLog(@"%@", arrServiceCost);
+            
             NSString* strServiceCP = [arrServiceCost objectAtIndex:0];
             NSString* strServiceCPS = [arrServiceCost objectAtIndex:1];
             
@@ -527,6 +534,9 @@
         
         if ([strThisKey rangeOfString:@"Cost Per Scope"].location != NSNotFound) {
             
+            //get the text field here because it is never passed from calculate
+            txtThisField = [_dictTextFields objectForKey:strThisKey];
+            
             NSString* strThisValue = txtThisField.text;
             
             if (!strThisValue) {
@@ -537,6 +547,7 @@
             strThisValue = [self clearDollarSymbol:strThisValue];
         
             [_dictResults setObject:strThisValue forKey:strThisKey];
+            
     
         }
     }
@@ -569,11 +580,6 @@
             
         }
         
-    } else {
-        
-        //set  discount to 5%
-        discount = 0.05;
-        
     }
     
     return discount;
@@ -603,7 +609,7 @@
 #pragma mark - Calculate Cost Per Scope
 
 - (float) calculateCostPerScope : (float) myScopesPerBasin : (float) costPerCycle {
-
+   
     return costPerCycle/myScopesPerBasin;
 }
 
@@ -650,7 +656,7 @@
 -(NSArray*) calculateServiceCost : (float) myServiceDiscount : (float) myCyclesPerYear : (float) myScopesPerBasin : (float) myOERCount {
     
     float service_ELP = 3995.00; //from assumptions
-    float service_CP = (service_ELP-(service_ELP*myServiceDiscount)*myOERCount);
+    float service_CP = (service_ELP*myOERCount);
     
     float service_CPC = service_CP/myCyclesPerYear;
     

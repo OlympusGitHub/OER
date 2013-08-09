@@ -23,4 +23,6 @@
 
 - (void) fadeTitleScreen;
 
+- (void) adjustForRotation : (UIDeviceOrientation) orientation;
+
 @end

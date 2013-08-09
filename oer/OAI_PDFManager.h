@@ -62,4 +62,8 @@
 
 - (NSArray* ) gatherCellData : (NSDictionary*) theResults : (NSString* ) key;
 
+- (NSString*) stripDollarSign : (NSString*) stringToStrip;
+
+- (NSString*) convertToCurrencyString : (NSDecimalNumber*) numberToConvert;
+
 @end

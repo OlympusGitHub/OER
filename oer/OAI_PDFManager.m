@@ -358,8 +358,56 @@
             
         }
         
+        
         //add the cost notes
-        NSString* strCostNotes = @"The additional cost of the OER-Pro with Acecide may be offset by the time and safety improvements noted in this document.\n\nThe OER-Pro is designed to reprocess two endoscopes per cycle. The \"cost per scope\" reflects the cost for reprocessing one scope when scopes are reprocessed per cycle.\n\nThe number of cycles and the cost of filters per case varies depending on water quality and is difficult to project. Filter costs for an Olympus-purchased prefiltration system are included in this tool. Additionally, other factors such as test strip interpretation, selected chemistry and other environmental factors great influence the number of cycles before a change is required. The projected numbers provided in this calculator are only an estimate. Olympus suggests meeting with your Clinical Bioengineering Department to address local issues related to this expense.";
+        NSMutableString* strCostNotes = [[NSMutableString alloc] initWithString:@"The additional cost of the OER-Pro with Acecide may be offset by the time and safety improvements noted in this document."];
+        
+        if (_strSelectedCompetitor) {
+            
+            NSArray* arrTotal = [dictResults objectForKey:@"Total Results"];
+            NSString* strAldaholTotal = [arrTotal objectAtIndex:0];
+            
+            NSString* strAcecideTotal = [arrTotal objectAtIndex:1];
+            
+            NSString* strCompetitorTotal = [arrTotal objectAtIndex:2];
+            strCompetitorTotal = [self stripDollarSign:strCompetitorTotal];
+            
+            if (showALDAHOL) {
+                
+                //clean string and get advantage
+                strAldaholTotal = [self stripDollarSign:strAldaholTotal];
+                float aldaholAdvantage = [strCompetitorTotal floatValue] - [strAldaholTotal floatValue];
+                
+                //conver to decimal number
+                NSDecimalNumber* decAldaholAdvantage = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", aldaholAdvantage]];
+                
+                //convert to currency string
+                NSString* strAldaholAdvantage  = [self convertToCurrencyString:decAldaholAdvantage];
+                
+                [strCostNotes appendString:[NSString stringWithFormat:@"The cost difference between OER_Pro with Aldahol and %@ is %@", _strSelectedCompetitor, strAldaholAdvantage]];
+            }
+            
+            if (showAcecide) {
+                
+                //clean string and get advantage
+                strAcecideTotal = [self stripDollarSign:strAcecideTotal];
+                float acecideAdvantage = [strCompetitorTotal floatValue] - [strAcecideTotal floatValue];
+                
+                NSDecimalNumber* decAcecideAdvantage = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", acecideAdvantage]];
+                
+                //convert to currency
+                NSString* strAcecideAdvantage  = [self convertToCurrencyString:decAcecideAdvantage];
+                
+                [strCostNotes appendString:[NSString stringWithFormat:@"The cost difference between OER_Pro with Acecide and %@ is %@", _strSelectedCompetitor, strAcecideAdvantage]];
+                
+            }
+            
+            
+        }
+        
+        [strCostNotes appendString:[NSString stringWithFormat:@"The additional cost of the OER-Pro with Acecide may be offset by the time and safety improvements noted in this document.\n\nThe OER-Pro is designed to reprocess two endoscopes per cycle. The \"cost per scope\" reflects the cost for reprocessing %@ scope(s) when %@ scopes are reprocessed per cycle.\n\nThe number of cycles and the cost of filters per case varies depending on water quality and is difficult to project. Filter costs for an Olympus-purchased prefiltration system are included in this tool. Additionally, other factors such as test strip interpretation, selected chemistry and other environmental factors great influence the number of cycles before a change is required. The projected numbers provided in this calculator are only an estimate. Olympus suggests meeting with your Clinical Bioengineering Department to address local issues related to this expense.", [dictResults objectForKey:@"OER Count"], [dictResults objectForKey:@"Annual Cycle Count"]]];
+        
+        
         
         CGSize costNoteSize = [strCostNotes sizeWithFont:tableFont constrainedToSize:CGSizeMake(pageSize.width-(kMarginInset*2), 999.0) lineBreakMode:NSLineBreakByWordWrapping];
         
@@ -808,6 +856,32 @@
     NSArray* thisRowCellData;
     return thisRowCellData;
     
+}
+    
+#pragma mark - NSString Methods
+    
+- (NSString*) stripDollarSign : (NSString*) stringToStrip {
+    
+    //check to see if the number is already formatted correctly
+    NSRange dollarSignCheck = [stringToStrip rangeOfString:@"$"];
+    //only strip it if it has the $
+    if (dollarSignCheck.location != NSNotFound) {
+        NSString* cleanedString = [stringToStrip substringWithRange:NSMakeRange(1, stringToStrip.length-1)];
+        return cleanedString;
+    } else {
+        return stringToStrip;
+    }
+    
+    return 0;
+    
+}
+
+- (NSString*) convertToCurrencyString : (NSDecimalNumber*) numberToConvert {
+    
+    //convert to string
+    NSString* currencyString = [NSNumberFormatter localizedStringFromNumber:numberToConvert numberStyle:NSNumberFormatterCurrencyStyle];
+    
+    return currencyString;
 }
 
 @end

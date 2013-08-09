@@ -85,7 +85,7 @@
         //add ALDAHOL to the dict
         [dictAssumptions setObject:[NSString stringWithFormat:@"%f", TestStrips_base] forKey:@"Test Strips Base Price"];
         [dictAssumptions setObject:[NSString stringWithFormat:@"%f", TestStrips_contractPrice] forKey:@"Test Strips Contract Price"];
-        [dictAssumptions setObject:[NSString stringWithFormat:@"%f", TestStrips_unitsPerCase] forKey:@"Test Strips Unit Per Case"];
+        [dictAssumptions setObject:[NSString stringWithFormat:@"%f", TestStrips_unitsPerCase] forKey:@"Test Strips Units Per Case/Package"];
         [dictAssumptions setObject:[NSString stringWithFormat:@"%@", TestStrips_unitContent] forKey:@"Test Strips Unit Content"];
         [dictAssumptions setObject:[NSString stringWithFormat:@"%i", TestStrips_unitsRequired] forKey:@"Test Strips Units Required"];
         [dictAssumptions setObject:[NSString stringWithFormat:@"%f", TestStrips_OperCost] forKey:@"Test Strips Operating Cost"];
@@ -106,7 +106,7 @@
         //add Acecide Test Strips to the dict
         [dictAssumptions setObject:[NSString stringWithFormat:@"%f", AcecideTestStrips_base] forKey:@"Acecide Strips Base Price"];
         [dictAssumptions setObject:[NSString stringWithFormat:@"%f", AcecideTestStrips_contractPrice] forKey:@"Acecide Strips Contract Price"];
-        [dictAssumptions setObject:[NSString stringWithFormat:@"%f", AcecideTestStrips_unitsPerCase] forKey:@"Acecide Strips Unit Per Case"];
+        [dictAssumptions setObject:[NSString stringWithFormat:@"%f", AcecideTestStrips_unitsPerCase] forKey:@"Acecide Strips Units Per Case/Package"];
         [dictAssumptions setObject:[NSString stringWithFormat:@"%@", AcecideTestStrips_UnitContent] forKey:@"Acecide Strips Unit Content"];
         [dictAssumptions setObject:[NSString stringWithFormat:@"%i", AcecideTestStrips_unitsRequired] forKey:@"Acecide Strips Units Required"];
         [dictAssumptions setObject:[NSString stringWithFormat:@"%f", AcecideTestStrips_OperCost] forKey:@"Acecide Strips Operating Cost"];
@@ -260,7 +260,7 @@
         //set up the keys
         _arrChemicalKeys = [[NSArray alloc] initWithObjects:@"Discount", @"Purchase Price (per case)", @"Units Per Package", @"Units Required For Operation (per basin)", @"Maximum Use Life (# cycles per basin)", @"Chemical Cost Per Scope", nil];
         _arrDetergentKeys = [[NSArray alloc] initWithObjects:@"Discount", @"Purchase Price (per case)", @"Units Per Package", @"Units Required For Operation (per basin)", @"Maximum Use Life (# cycles per basin)", @"Detergent Cost Per Scope", nil];
-        _arrTestStripsKeys = [[NSArray alloc] initWithObjects:@"Discount", @"Purchase Price (per case)", @"Units Per Package", @"Maximum Use Life (# cycles per basin)", @"Test Strip Cost Per Scope", nil];
+        _arrTestStripsKeys = [[NSArray alloc] initWithObjects:@"Discount", @"Purchase Price (per case)", @"Units Per Case/Package", @"Units Required For Operation (Per Basin)", @"Maximum Use Life (# cycles per basin)", @"Test Strip Cost Per Scope", nil];
         _arrFiltersKeys = [[NSArray alloc] initWithObjects:@"Discount", @"Annual Cost", @"Filter Cost Per Scope", nil];
         _arrServiceKeys = [[NSArray alloc] initWithObjects:@"Discount", @"Annual Cost", @"Service Cost Per Scope", nil];
         _arrLaborKeys = [[NSArray alloc] initWithObjects:@"Additional Cost Above Service", @"Labor Cost Per Scope", nil];

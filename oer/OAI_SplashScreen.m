@@ -20,6 +20,10 @@
         colorManager = [[OAI_ColorManager alloc] init];
         fileManager = [[OAI_FileManager alloc] init];
         
+        //get version number
+        NSDictionary* dictAppInfo = [[NSBundle mainBundle] infoDictionary];
+        strVersion = [dictAppInfo objectForKey:@"CFBundleShortVersionString"];
+        
         
     }
     return self;
@@ -68,6 +72,17 @@
     audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:olympusSoundURL error:&error];
     audioPlayer.volume = .5;
     
+    NSString* strVersionTitle = [NSString stringWithFormat:@"Version %@", strVersion];
+    CGSize versionTitleSize = [strVersionTitle sizeWithFont:[UIFont fontWithName:@"Helvetica" size:10.0] constrainedToSize:CGSizeMake(100.0, 999.0) lineBreakMode:NSLineBreakByWordWrapping];
+    
+    UILabel* lblVersionNum = [[UILabel alloc] initWithFrame:CGRectMake(labelX + ((titleSize.width*2)-versionTitleSize.width), OAIMDT.frame.origin.y + OAIMDT.frame.size.height + 10.0, 100.0, 30.0)];
+    lblVersionNum.text = strVersionTitle;
+    lblVersionNum.textColor = [colorManager setColor:66.0 :66.0 :66.0];
+    lblVersionNum.backgroundColor = [UIColor clearColor];
+    lblVersionNum.font = [UIFont fontWithName:@"Helvetica" size:10.0];
+    lblVersionNum.tag = 101;
+    [self addSubview:lblVersionNum];
+    
     
     //fade
     [UIView animateWithDuration:3 delay:1.0 options:UIViewAnimationOptionCurveEaseOut
@@ -97,37 +112,60 @@
     
 }
 
-- (void) adjustToRotation : (UIDeviceOrientation) orientation {
+- (void) adjustForRotation : (UIDeviceOrientation) orientation {
     
-    CGRect parentBounds = CGRectMake(0.0, 0.0, 768.0, 1024.0);
-    float imageY = 0.0;
+    //get subviews
+    NSArray* arrMySubviews = self.subviews;
+    UIImageView* ivLogo;
+    UILabel* lblTitle;
+    UILabel* lblVersion;
     
-    if (orientation == 1 || orientation == 2) {
+    for(int i=0; i<arrMySubviews.count; i++) {
         
-        parentBounds.size.width = 768.0;
-        parentBounds.size.height = 1024.0;
-        imageY = 300.0;
-        
-    } else if (orientation == 3 || orientation == 4) {
-        
-        parentBounds.size.width = 1024.0;
-        parentBounds.size.height = 768.0;
-        imageY = 150.0;
+        if ([[arrMySubviews objectAtIndex:i] isMemberOfClass:[UIImageView class]]) {
+            ivLogo = [arrMySubviews objectAtIndex:i];
+        } else if ([[arrMySubviews objectAtIndex:i] isMemberOfClass:[UILabel class]]) {
+            UILabel* thisLabel = [arrMySubviews objectAtIndex:i];
+            
+            if (thisLabel.tag == 101) {
+                lblVersion = thisLabel;
+            } else {
+                lblTitle = thisLabel;
+            }
+        }
     }
     
-    //get cetner of width
-    float parentCenter =  (parentBounds.size.width/2);
+    //rotate the view
+    if (UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation)) {
+        
+        [self setFrame:CGRectMake(0.0, 0.0, 1024.0, 768.0)];
+        
+    } else if (UIDeviceOrientationIsPortrait([UIDevice currentDevice].orientation)) {
+        
+        [self setFrame:CGRectMake(0.0, 0.0, 768.0, 1024.0)];
+        
+    }
     
+    CGRect myFrame = self.frame;
     
-    //reset view
-    [self setFrame:CGRectMake(0.0, 0.0, parentBounds.size.width, parentBounds.size.height)];
-             
-    //reset image
-    [imgVOAILogo setFrame:CGRectMake(parentCenter-(imgVOAILogo.frame.size.width/2), imageY, imgVOAILogo.frame.size.width, imgVOAILogo.frame.size.height)];
+    //center the logo
+    CGRect myLogoFrame = ivLogo.frame;
+    myLogoFrame.origin.x = (myFrame.size.width/2)-(myLogoFrame.size.width/2);
     
-    //reset title
-    [OAIMDT setFrame:CGRectMake(parentCenter-(OAIMDT.frame.size.width/2), imgVOAILogo.frame.origin.y + 300.0, OAIMDT.frame.size.width, OAIMDT.frame.size.height)];
+    ivLogo.frame = myLogoFrame;
+    
+    //center the title
+    CGRect myTitleFrame = lblTitle.frame;
+    myTitleFrame.origin.x = (myFrame.size.width/2)-(myTitleFrame.size.width/2);
+    
+    lblTitle.frame = myTitleFrame;
+    
+    //reset version number label
+    CGRect myVersionFrame = lblVersion.frame;
+    myVersionFrame.origin.x = ((self.frame.size.width/2) - (myTitleFrame.size.width/2)) + myTitleFrame.size.width-myVersionFrame.size.width;
+    lblVersion.frame = myVersionFrame;
 }
+
 
 /*
 // Only override drawRect: if you perform custom drawing.

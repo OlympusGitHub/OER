@@ -79,7 +79,55 @@
      ];
 }
 
-- (void) adjustToRotation : (UIDeviceOrientation) orientation {
+- (void) adjustForRotation : (UIDeviceOrientation) orientation {
+    
+    //get subviews
+    NSArray* arrMySubviews = self.subviews;
+    UIImageView* ivTitleImage;
+    UILabel* lblTitle;
+    
+    for(int i=0; i<arrMySubviews.count; i++) {
+        
+        if ([[arrMySubviews objectAtIndex:i] isMemberOfClass:[UIImageView class]]) {
+            ivTitleImage = [arrMySubviews objectAtIndex:i];
+        } else if ([[arrMySubviews objectAtIndex:i] isMemberOfClass:[UILabel class]]) {
+            lblTitle = [arrMySubviews objectAtIndex:i];
+        }
+    }
+    
+    //rotate the view
+    if (UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation)) {
+        
+        [self setFrame:CGRectMake(0.0, 0.0, 1024.0, 768.0)];
+        
+    } else if (UIDeviceOrientationIsPortrait([UIDevice currentDevice].orientation)) {
+        
+        [self setFrame:CGRectMake(0.0, 0.0, 768.0, 1024.0)];
+        
+    }
+    
+    CGRect myFrame = self.frame;
+        
+    if (_hasImage) {
+        
+        //center the logo
+        CGRect myImageFrame = ivTitleImage.frame;
+        myImageFrame.origin.x = (myFrame.size.width/2)-(myImageFrame.size.width/2);
+        myImageFrame.origin.y = (myFrame.size.height/2)-(myImageFrame.size.height/2);
+        
+        ivTitleImage.frame = myImageFrame;
+        
+    }
+    
+    if (_hasTitle) { 
+    
+        //center the title
+        CGRect myTitleFrame = lblTitle.frame;
+        myTitleFrame.origin.x = (myFrame.size.width/2)-(myTitleFrame.size.width/2);
+    
+        lblTitle.frame = myTitleFrame;
+        
+    }
     
 }
 

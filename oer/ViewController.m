@@ -20,7 +20,8 @@
 {
     [super viewDidLoad];
     
-    hasItems = YES;    
+    hasItems = YES;
+    displayedPage = 1;
     
     /**************MANAGERS****************/
     calculator = [[OAI_Calculations alloc] init];
@@ -41,6 +42,9 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+    
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(onKeyboardHide:) name:UIKeyboardWillHideNotification object:nil];
+
     
     /**************FONTS****************/
     headerFont = [UIFont fontWithName:@"Helvetica-Bold" size:20.0];
@@ -215,8 +219,6 @@
     titleBarManager.titleBarTitle = @"Olympus OER-Pro Operational Cost Calculator";
     [titleBarManager buildTitleBar];
     [vMainView addSubview:titleBarManager];
-    
-    
         
     /*************************************
      NAV SECTION
@@ -230,6 +232,7 @@
     scNav.canCancelContentTouches = NO;
     [scNav setDelaysContentTouches:NO];
     [scNav setContentSize:CGSizeMake(768*3, 1004)];
+    scNav.tag = 500;
     
     [vMainView addSubview:scNav];
     
@@ -244,6 +247,8 @@
             vUserInputs.layer.shadowColor = [UIColor blackColor].CGColor;
             vUserInputs.layer.shadowOffset = CGSizeMake(2.0, 2.0);
             vUserInputs.layer.shadowOpacity = .75;
+            vUserInputs.autoresizesSubviews = YES;
+            vUserInputs.tag = 501;
             
             //set the string and size
             NSString* strOERSpecifics = @"Olympus OER Pro Specifics";
@@ -294,7 +299,7 @@
                 vLabelBorder.layer.borderColor = [colorManager setColor:204.0 :204.0 :204.0].CGColor;
                 
                 //set the label
-                UILabel* lblRowHeader = [[UILabel alloc] initWithFrame:CGRectMake(4.0, 0.0, thisRowHeaderSize.width, 30.0)];
+                OAI_Label* lblRowHeader = [[OAI_Label alloc] initWithFrame:CGRectMake(4.0, 0.0, thisRowHeaderSize.width, 30.0)];
                 lblRowHeader.text = [arrSpecificsRowHeaders objectAtIndex:i];
                 lblRowHeader.textColor = [colorManager setColor:204.0 :204.0 :204.0];
                 lblRowHeader.backgroundColor = [UIColor clearColor];
@@ -358,8 +363,9 @@
             rowY = (scTopNav.frame.origin.y + scTopNav.frame.size.height)+5.0;
             
             //add a header bar
-            UIView* vTableSection = [[UIView alloc] initWithFrame:CGRectMake(0.0, rowY, vUserInputs.frame.size.width, self.view.frame.size.height-vUserInputs.frame.size.height)];
+            vTableSection = [[UIView alloc] initWithFrame:CGRectMake(0.0, rowY, 768.0, self.view.frame.size.height-vUserInputs.frame.size.height)];
             vTableSection.backgroundColor = [UIColor whiteColor];
+            vTableSection.tag = 506;
             
             //get the splits
             float barThird = scNav.frame.size.width/3;
@@ -418,6 +424,8 @@
                 //increment x
                 labelX = labelX + labelW + 1.0;
             }
+            
+            /***************TABLE******************/
             
             //add the scroll view
             scSections = [[OAI_ScrollView alloc] initWithFrame:CGRectMake(0.0, lblThisHeader.frame.origin.y + lblThisHeader.frame.size.height +2, vTableSection.bounds.size.width, vTableSection.frame.size.height-lblThisHeader.frame.size.height)];
@@ -552,7 +560,7 @@
                                 
                                 if ([strThisSectionTitle isEqualToString:@"Chemicals"]) {
                                     txtThisInput.tag = 800;
-                                } else if ([strThisSectionTitle isEqualToString:@"Detergent"]) {
+                                } else if ([strThisSectionTitle isEqualToString:@"Detergents"]) {
                                     txtThisInput.tag = 801;
                                 } else if ([strThisSectionTitle isEqualToString:@"Test Strips"]) {
                                     txtThisInput.tag = 802;
@@ -583,6 +591,8 @@
                                 txtThisInput.tag = 802;
                             } else if ([strThisSectionTitle isEqualToString:@"Service"]) {
                                 txtThisInput.tag = 804;
+                            } else {
+                                txtThisInput.tag = 310;
                             }
                             
                             //set up text field label
@@ -590,9 +600,10 @@
                             
                             //add it to the master text field dictionary
                             [dictTextFields setObject:txtThisInput forKey:txtThisInput.textFieldTitle];
-                            
+          
                             //ad it to the section
                             [scSections addSubview:txtThisInput];
+                                                        
                             
                         } else {
                             
@@ -667,6 +678,7 @@
             
             //results page
             UIView* vResults = [[UIView alloc] initWithFrame:CGRectMake(772.0, 0.0, 768.0, 1004.0)];
+            vResults.tag = 502;
             
             //header area
             UIView* vResultsHeader = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, 768.0, 100.0)];
@@ -1155,6 +1167,7 @@
             dictEstimatedUnitFields = [[NSMutableDictionary alloc] init];
             
             UIView* vPageWrapper = [[UIView alloc] initWithFrame:CGRectMake(1544.0, 0.0, 769.0, 1024.0)];
+            vPageWrapper.tag = 503;
             
             //top section
             UIView* vEstimatedUnits = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, 768.0, 260.0)];
@@ -1544,7 +1557,6 @@
      *************************************/
     
     UIView* objectWrapper = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, self.view.frame.size.width, self.view.frame.size.height)];
-    objectWrapper.backgroundColor = [UIColor orangeColor];
     [self.view addSubview:objectWrapper];
     
     titleScreenManager = [[OAI_TitleScreen alloc] initWithFrame:CGRectMake(0.0, 0.0, self.view.frame.size.width, self.view.frame.size.height)];
@@ -1570,8 +1582,6 @@
         [vMainView addSubview:appSplashScreen];
         [appSplashScreen runSplashScreenAnimation];
     }
-    
-        
     
     
     /*******************************
@@ -1787,7 +1797,23 @@
                     
                     //give element value
                     if (isTextField) {
-                        thisTextField.text = [dictInitialValues objectForKey:strThisValueKey];
+                        
+                        if (thisTextField.tag > 299 || thisTextField.tag < 304) {
+                            
+                            if ([thisTextField.textFieldTitle isEqualToString:@"OER Count"]) {
+                                thisTextField.text = @"1";
+                            } else if ([thisTextField.textFieldTitle isEqualToString:@"Procedure Count"]) {
+                                thisTextField.text = @"2000";
+                            } else if ([thisTextField.textFieldTitle isEqualToString:@"Scopes Per Basin"]) {
+                                thisTextField.text = @"1.75";
+                            } else {
+                                thisTextField.text = @"0";
+                            }
+                            
+                            
+                        } else { 
+                            thisTextField.text = [dictInitialValues objectForKey:strThisValueKey];
+                        }
                     }
                     
                     if (isLabel) {
@@ -1851,16 +1877,390 @@
     UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
     
     //rotate splash screen
-    [appSplashScreen adjustToRotation:orientation];
+    [appSplashScreen adjustForRotation:orientation];
     
     //rotate title screen
+    [titleScreenManager adjustForRotation:orientation];
     
     //rotate title bar
+    [titleBarManager adjustForRotation:orientation];
     
-    //rotate main view
+    //get the orientation
+    if (UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation)) {
+        isLandscape = YES;
+    } else if (UIDeviceOrientationIsPortrait([UIDevice currentDevice].orientation)) {
+        isLandscape = NO;
+    }
     
-    //center items on main view if landscape, put at 0/0 if portrait
+    //resize the scNav based on the orientation
+    CGRect navFrame = scNav.frame;
+    if (isLandscape) {
+        navFrame.size.width = 1024.0;
+        navFrame.size.height = 768.0;
+    } else {
+        navFrame.size.width = 768.0;
+        navFrame.size.height = 1024.0;
+    }
+    scNav.frame = navFrame;
     
+    NSArray* arrSCNavSubs = scNav.subviews;
+    
+    UISegmentedControl* scThisControl;
+    UIView* vThisView;
+    
+    //get the object
+    float objX = 0.0;
+    float objW = 0.0;
+    
+    //get center point of view
+    float myViewCenterX = 0.0;
+    if(isLandscape) {
+        myViewCenterX = 1024/2;
+    } else {
+        myViewCenterX = 768/2;
+    }
+    
+    //loop through objects
+    for(int i=0; i<arrSCNavSubs.count; i++) {
+        
+        if ([[arrSCNavSubs objectAtIndex:i] isMemberOfClass:[UIView class]]) {
+            
+            //get the view
+            vThisView = [arrSCNavSubs objectAtIndex:i];
+            
+            //get the frame
+            CGRect thisViewFrame = vThisView.frame;
+            
+            //reset the width
+            if(isLandscape) {
+                objW = 1024.0;
+            } else {
+                objW = 768.0;
+            }
+            thisViewFrame.size.width = objW;
+            
+            //reset the x point if needed
+            if (vThisView.tag == 502) {
+                
+                if (isLandscape) {
+                    objX = 1025.0;
+                } else {
+                    objX = 769.0;
+                }
+                
+                
+            } else if (vThisView.tag == 503) {
+                objX = (objW*2) + 1.0;
+            } else if (vThisView.tag == 506) {
+                
+                //this is the input table
+                /*objX = myViewCenterX-(vTableSection.frame.size.width/2);
+                objW = 768.0;
+                thisViewFrame.size.width = objW;*/
+            }
+            
+            thisViewFrame.origin.x = objX;
+        
+            //reset the view frame
+            vThisView.frame = thisViewFrame;
+            
+            if (vThisView.tag == 501) {
+                [self adjustCalculationsForOrientation:vThisView];
+            } else if (vThisView.tag == 502) {
+                [self adjustResultsForOrientation:vThisView];
+            } else if (vThisView.tag == 503) {
+                [self adjustEstimatedForOritentation:vThisView];
+            }
+        
+        } else if ([[arrSCNavSubs objectAtIndex:i] isMemberOfClass:[UISegmentedControl class]]) {
+            
+            scThisControl = [arrSCNavSubs objectAtIndex:i];
+            
+            CGRect thisControlFrame = scThisControl.frame;
+            thisControlFrame.origin.x = myViewCenterX-(scThisControl.frame.size.width/2);
+            scThisControl.frame = thisControlFrame;
+            
+        }
+    }
+    
+    //adjust the scroll view offset
+    float offSetMultiplier = 0.0;
+    if (isLandscape) {
+        offSetMultiplier = 1024.0;
+    } else {
+        offSetMultiplier = 768.0;
+    }
+    
+    CGPoint scrollOffSet = CGPointMake((displayedPage-1)*offSetMultiplier, 0.0);
+    [scNav setContentOffset:scrollOffSet];
+    
+}
+
+- (void) adjustCalculationsForOrientation : (UIView*) vInputs {
+    
+    
+    //get center point of view
+    float myViewCenterX = 0.0;
+    if(isLandscape) {
+        myViewCenterX = 1024/2;
+    } else {
+        myViewCenterX = 768/2;
+    }
+    
+    //get the subviews
+    NSArray* arrInputSubs = vInputs.subviews;
+    
+    for(int x=0; x<arrInputSubs.count; x++) {
+        
+        if ([[arrInputSubs objectAtIndex:x] isMemberOfClass:[UILabel class]]) {
+            
+            //reset the label x
+            UILabel* lblThisLabel = [arrInputSubs objectAtIndex:x];
+            CGRect thisLabelFrame = lblThisLabel.frame;
+            
+            thisLabelFrame.origin.x = myViewCenterX - (thisLabelFrame.size.width/2);
+            
+            lblThisLabel.frame = thisLabelFrame;
+            
+        } else if ([[arrInputSubs objectAtIndex:x] isMemberOfClass:[UIView class]]) {
+            
+            UIView* vThisView = [arrInputSubs objectAtIndex:x];
+            
+            CGRect thisViewFrame = vThisView.frame;
+            
+            if (isLandscape) {
+                thisViewFrame.origin.x = (myViewCenterX) - thisViewFrame.size.width;
+            } else {
+                thisViewFrame.origin.x = 20.0;
+            }
+            
+            vThisView.frame = thisViewFrame;
+            
+        } else if ([[arrInputSubs objectAtIndex:x] isMemberOfClass:[OAI_TextField class]]) {
+            
+            OAI_TextField* txtThisField = [arrInputSubs objectAtIndex:x];
+            
+            CGRect thisTextFrame = txtThisField.frame;
+            
+            if (isLandscape) { 
+                thisTextFrame.origin.x = myViewCenterX + 10.0;
+            } else {
+                thisTextFrame.origin.x = myViewCenterX + 20.0;
+            }
+            
+            txtThisField.frame = thisTextFrame;
+        }
+    }
+    
+    
+    //adjust the table view
+    /*CGRect tableViewFrame = vTableSection.frame;
+    tableViewFrame.size.width = 768.0;
+    if (isLandscape) {
+        tableViewFrame.origin.x = myViewCenterX-(vTableSection.frame.size.width/2);
+    } else {
+        tableViewFrame.origin.x = 0.0;
+    }
+    
+    vTableSection.frame = tableViewFrame;*/
+    
+    //get the scroll view
+    NSArray* arrTableSubs = vTableSection.subviews;
+    
+    for(int i=0; i<arrTableSubs.count; i++) {
+        
+        if ([[arrTableSubs objectAtIndex:i] isKindOfClass:[UIScrollView class]]) {
+            
+            UIScrollView* svThisScroll = [arrTableSubs objectAtIndex:i];
+                        
+            if (isLandscape) {
+                [svThisScroll setContentSize:CGSizeMake(svThisScroll.frame.size.width, 2200.0)];
+            } else {
+                [svThisScroll setContentSize:CGSizeMake(svThisScroll.frame.size.width, 2000.0)];
+            }
+            
+            [vTableSection bringSubviewToFront:svThisScroll];
+        }
+    }
+    
+}
+
+
+
+- (void) adjustResultsForOrientation : (UIView*) vResults {
+    
+    //get center point of view
+    float myViewCenterX = 0.0;
+    if(isLandscape) {
+        myViewCenterX = 1024/2;
+    } else {
+        myViewCenterX = 768/2;
+    }
+    
+    //get the subviews
+    NSArray* arrResultSubs = vResults.subviews;
+    
+    for(int i=0; i<arrResultSubs.count; i++) {
+        
+        if ([[arrResultSubs objectAtIndex:i] isMemberOfClass:[UIView class]]) {
+            
+            //adjust the width of the top view
+            UIView* vThisView = [arrResultSubs objectAtIndex:i];
+
+            CGRect thisViewFrame = vThisView.frame;
+            
+            if (isLandscape) {
+                thisViewFrame.size.width = 1024.0;
+            } else {
+                thisViewFrame.size.width = 768.0;
+            }
+            
+            vThisView.frame = thisViewFrame;
+            
+            //get the subviews (label and button)
+            NSArray* arrResultTopSubs = vThisView.subviews;
+            
+            for(int x=0; x<arrResultTopSubs.count; x++) {
+                
+                if ([[arrResultTopSubs objectAtIndex:x] isMemberOfClass:[UILabel class]]) {
+                    
+                    UILabel* lblThisLabel = [arrResultTopSubs objectAtIndex:i];
+                    
+                    CGRect thisLabelFrame = lblThisLabel.frame;
+                    thisLabelFrame.origin.x = myViewCenterX-(thisLabelFrame.size.width/2);
+                    lblThisLabel.frame = thisLabelFrame;
+                    
+                } else if ([[arrResultTopSubs objectAtIndex:x] isMemberOfClass:[UIButton class]]) {
+                    
+                    UIButton* btnThisButton = [arrResultTopSubs objectAtIndex:x];
+                    
+                    CGRect thisButtonFrame = btnThisButton.frame;
+                    thisButtonFrame.origin.x = myViewCenterX-(thisButtonFrame.size.width/2);
+                    btnThisButton.frame = thisButtonFrame;
+                    
+                }
+                
+            }
+            
+        } else if ([[arrResultSubs objectAtIndex:i] isMemberOfClass:[UIScrollView class]]) {
+            
+            UIScrollView* svThisScroll = [arrResultSubs objectAtIndex:i];
+            CGRect thisScrollFrame = svThisScroll.frame;
+            
+            if (isLandscape) {
+                thisScrollFrame.origin.x = myViewCenterX-(thisScrollFrame.size.width/2);
+            } else {
+                thisScrollFrame.origin.x = 0.0;
+            }
+            
+            svThisScroll.frame = thisScrollFrame;
+        }
+    }
+    
+    
+    
+}
+
+- (void) adjustEstimatedForOritentation : (UIView*) vEstimated {
+    
+    //get center point of view
+    float myViewCenterX = 0.0;
+    if(isLandscape) {
+        myViewCenterX = 1024/2;
+    } else {
+        myViewCenterX = 768/2;
+    }
+    
+    //get the subviews
+    NSArray* arrEstimatedSubs = vEstimated.subviews;
+    
+    for(int i=0; i<arrEstimatedSubs.count; i++) {
+        
+        if ([[arrEstimatedSubs objectAtIndex:i] isMemberOfClass:[UIView class]]) {
+            
+            //adjust the width of the top view
+            UIView* vThisView = [arrEstimatedSubs objectAtIndex:i];
+            
+            CGRect thisViewFrame = vThisView.frame;
+            
+            if (isLandscape) {
+                thisViewFrame.size.width = 1024.0;
+            } else {
+                thisViewFrame.size.width = 768.0;
+            }
+            
+            vThisView.frame = thisViewFrame;
+            
+            //get the subviews
+            NSArray* arrInputSubs = vThisView.subviews;
+            
+            for(int x=0; x<arrInputSubs.count; x++) {
+                
+                if ([[arrInputSubs objectAtIndex:x] isMemberOfClass:[UILabel class]]) {
+                    
+                    //reset the label x
+                    UILabel* lblThisLabel = [arrInputSubs objectAtIndex:x];
+                    CGRect thisLabelFrame = lblThisLabel.frame;
+                    
+                    thisLabelFrame.origin.x = myViewCenterX - (thisLabelFrame.size.width/2);
+                    
+                    lblThisLabel.frame = thisLabelFrame;
+                    
+                } else if ([[arrInputSubs objectAtIndex:x] isMemberOfClass:[UIView class]]) {
+                    
+                    UIView* vThisView = [arrInputSubs objectAtIndex:x];
+                    
+                    CGRect thisViewFrame = vThisView.frame;
+                    
+                    if (isLandscape) {
+                        thisViewFrame.origin.x = (myViewCenterX) - thisViewFrame.size.width;
+                    } else {
+                        thisViewFrame.origin.x = 20.0;
+                    }
+                    
+                    vThisView.frame = thisViewFrame;
+                    
+                } else if ([[arrInputSubs objectAtIndex:x] isMemberOfClass:[OAI_TextField class]]) {
+                    
+                    OAI_TextField* txtThisField = [arrInputSubs objectAtIndex:x];
+                    
+                    CGRect thisTextFrame = txtThisField.frame;
+                    
+                    if (isLandscape) { 
+                        thisTextFrame.origin.x = myViewCenterX + 10.0;
+                    } else {
+                        thisTextFrame.origin.x = myViewCenterX + 20.0;
+                    }
+                    
+                    txtThisField.frame = thisTextFrame;
+                }
+            }
+        
+        } else if ([[arrEstimatedSubs objectAtIndex:i] isMemberOfClass:[UISegmentedControl class]]) {
+            
+            UISegmentedControl* scThisControl = [arrEstimatedSubs objectAtIndex:i];
+            CGRect thisControlFrame = scThisControl.frame;
+            
+            thisControlFrame.origin.x = myViewCenterX-(thisControlFrame.size.width/2);
+            
+            scThisControl.frame = thisControlFrame;
+            
+        } else if ([[arrEstimatedSubs objectAtIndex:i] isMemberOfClass:[UIScrollView class]]) {
+            
+            UIScrollView* svThisScroll = [arrEstimatedSubs objectAtIndex:i];
+            CGRect thisScrollFrame = svThisScroll.frame;
+            thisScrollFrame.origin.x = myViewCenterX-(thisScrollFrame.size.width/2);
+            
+            svThisScroll.frame = thisScrollFrame;
+            
+            if (isLandscape) {
+                [svThisScroll setContentSize:CGSizeMake(svThisScroll.frame.size.width, 1500.0)];
+            } else {
+                [svThisScroll setContentSize:CGSizeMake(svThisScroll.frame.size.width, 1200.0)];
+            }
+            
+        }
+    }
     
 }
 
@@ -1920,6 +2320,19 @@
             }
         }
         
+        //get the table section subviews
+        NSArray* arrTableSectionSubs = vTableSection.subviews;
+        
+        for(int i=0; i<arrTableSectionSubs.count; i++) {
+            
+            if ([[arrTableSectionSubs objectAtIndex:i] isMemberOfClass:[UIScrollView class]]) {
+                
+                if (isLandscape) {
+                } else {
+                }
+            }
+        }
+        
     }
     
     [self animateView:vAccount :vAccountFrame];
@@ -1961,7 +2374,9 @@
 
 - (void) showResults : (NSDictionary*) dictTheResults {
     
-    
+    //NSLog(@"%@", dictTheResults);
+    //NSLog(@"%@", dictTheResults.allKeys);
+
     //loop through the results dictionary and see what comes out
     for(NSString* strThisKey in dictTheResults) {
         
@@ -2090,10 +2505,12 @@
 
 - (BOOL) checkStringValue : (NSString*) stringToCheck {
     
+    
     NSNumberFormatter* numFormatter = [[NSNumberFormatter alloc] init];
     [numFormatter setAllowsFloats: YES];
     
     if ([numFormatter numberFromString: stringToCheck]) {
+        
         return YES;
     } else {
         return NO;
@@ -2168,7 +2585,6 @@
     
     return isValid;
     
-    
 }
 
 - (NSString*) convertToCurrencyString : (NSDecimalNumber*) numberToConvert {
@@ -2225,8 +2641,6 @@
         
         //validate that the user entered a number
         NSString* strValue = textField.text;
-        
-        
         
         if (intInputType == 0 || intInputType == 1 ) {
             
@@ -2451,6 +2865,8 @@
 
 - (void) showEstimatedUnits {
     
+    displayedPage = 3;
+    
     [self calculateEstimates];
     
     for(NSString* strThisKey in dictEstimatedUnitFields) {
@@ -2480,7 +2896,13 @@
 
     
     //set up a point
-    float pageX = 2 * 772.0;
+    float pageX = 0.0;
+    if (isLandscape) {
+        pageX = 2* 1025.0;
+    } else { 
+        pageX = 2 * 772.0;
+    }
+    
     float pageY = 0.0;
     CGPoint scrollOffset = CGPointMake(pageX, pageY);
     
@@ -2489,14 +2911,12 @@
 }
 
 - (void) showComparison : (UIButton*) myButton {
-        
+    
+    displayedPage = 2;
+    
     dictResultsData = [[NSMutableDictionary alloc] init];
     
     //NSLog(@"%@", dictResults);
-    
-    //fix the cost note
-    UILabel* lblCostNote = [dictTextFields objectForKey:@"Cost Notes"];
-    lblCostNote.text = [NSString stringWithFormat:@"Items marked in red will not appear in email message!\n\nThe additional cost of the OER-Pro with Acecide may be offset by the time and safety improvements noted in this document.\n\nThe OER-Pro is designed to reprocess two endoscopes per cycle. The \"cost per scope\" reflects the cost for reprocessing one scope when %@ scopes are reprocessed per cycle.\n\nThe number of cycles and the cost of filters per case varies depending on water quality and is difficult to project. Filter costs for an Olympus-purchased prefiltration system are included in this tool. Additionally, other factors such as test strip interpretation, selected chemistry and other environmental factors great influence the number of cycles before a change is required. The projected numbers provided in this calculator are only an estimate. Olympus suggests meeting with your Clinical Bioengineering Department to address local issues related to this expense.", [dictResults objectForKey:@"Annual Cycle Count"]];
     
     OAI_TextField* txtAnnualProcedures =  [dictTextFields objectForKey:@"Procedure Count"];
     [dictResultsData setObject:txtAnnualProcedures.text forKey:@"Annual Procedures"];
@@ -2836,46 +3256,96 @@
             
         }
         
-        totalsALDAHOL = serviceCostALDAHOL + chemicalCostALDAHOL + detergentCostALDAHOL + testStripsCostALDAHOL + filtersCostALDAHOL + laborCostALDAHOL;
-        
-        totalsAcecideC = serviceCostAcecideC + chemicalCostAcecideC + detergentCostAcecideC + testStripsCostAcecideC + filtersCostAcecideC + laborCostAcecideC;
-        
-        totalsCompetition = serviceCompetitionCost + chemicalCompetitionCost + detergentCostCompetition + testStripsCostCompetition + filtersCostCompetition + laborCostCompetition;
-        
-        //convert floats to NSDecimal
-        NSDecimalNumber* decTotalsALDAHOL = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", totalsALDAHOL]];
-        NSDecimalNumber* decTotalsAcecideC = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", totalsAcecideC]];
-        NSDecimalNumber* decTotalsCompetition = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", totalsCompetition]];
-        
-        strALDAHOLTotalCost = [self convertToCurrencyString:decTotalsALDAHOL];
-        strAcecideCTotalCost = [self convertToCurrencyString:decTotalsAcecideC];
-        strCompetitionTotalCost = [self convertToCurrencyString:decTotalsCompetition];
-        
-        NSMutableArray* arrTotalResults = [[NSMutableArray alloc] init];
-        [arrTotalResults addObject:strALDAHOLTotalCost];
-        [arrTotalResults addObject:strAcecideCTotalCost];
-        [arrTotalResults addObject:strCompetitionTotalCost];
-        
-        [dictResultsData setObject:arrTotalResults forKey:@"Total Results"];
-        
-        OAI_Label* lblTotalCostALDAHOL = [dictResultCells objectForKey:@"Total Cost Per Scope ALDAHOL"];
-        lblTotalCostALDAHOL.text = strALDAHOLTotalCost;
-        
-        OAI_Label* lblTotalCostAcecideC = [dictResultCells objectForKey:@"Total Cost Per Scope AcecideC"];
-        lblTotalCostAcecideC.text = strAcecideCTotalCost;
-        
-        OAI_Label* lblTotalCostCompetition = [dictResultCells objectForKey:@"Total Cost Per Scope Competition"];
-        lblTotalCostCompetition.text = strCompetitionTotalCost;
-        
-        if (!strSelectedCompetitor) {
-            lblTotalCostCompetition.alpha = 0.0;
-        } else {
-            lblTotalCostCompetition.alpha = 1.0;
-        }
-        
-        //getting the y location of the chart
-        lastLabelY = lblTotalCostALDAHOL.frame.origin.y + lblTotalCostALDAHOL.frame.size.height + 10.0;
     }
+    
+    //totals and notes
+        
+    totalsALDAHOL = serviceCostALDAHOL + chemicalCostALDAHOL + detergentCostALDAHOL + testStripsCostALDAHOL + filtersCostALDAHOL + laborCostALDAHOL;
+    
+    totalsAcecideC = serviceCostAcecideC + chemicalCostAcecideC + detergentCostAcecideC + testStripsCostAcecideC + filtersCostAcecideC + laborCostAcecideC;
+    
+    totalsCompetition = serviceCompetitionCost + chemicalCompetitionCost + detergentCostCompetition + testStripsCostCompetition + filtersCostCompetition + laborCostCompetition;
+    
+           
+    //convert floats to NSDecimal
+    NSDecimalNumber* decTotalsALDAHOL = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", totalsALDAHOL]];
+    NSDecimalNumber* decTotalsAcecideC = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", totalsAcecideC]];
+    NSDecimalNumber* decTotalsCompetition = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", totalsCompetition]];
+    
+    strALDAHOLTotalCost = [self convertToCurrencyString:decTotalsALDAHOL];
+    strAcecideCTotalCost = [self convertToCurrencyString:decTotalsAcecideC];
+    strCompetitionTotalCost = [self convertToCurrencyString:decTotalsCompetition];
+    
+    NSMutableArray* arrTotalResults = [[NSMutableArray alloc] init];
+    [arrTotalResults addObject:strALDAHOLTotalCost];
+    [arrTotalResults addObject:strAcecideCTotalCost];
+    [arrTotalResults addObject:strCompetitionTotalCost];
+    
+    [dictResultsData setObject:arrTotalResults forKey:@"Total Results"];
+    
+    OAI_Label* lblTotalCostALDAHOL = [dictResultCells objectForKey:@"Total Cost Per Scope ALDAHOL"];
+    lblTotalCostALDAHOL.text = strALDAHOLTotalCost;
+    
+    OAI_Label* lblTotalCostAcecideC = [dictResultCells objectForKey:@"Total Cost Per Scope AcecideC"];
+    lblTotalCostAcecideC.text = strAcecideCTotalCost;
+    
+    OAI_Label* lblTotalCostCompetition = [dictResultCells objectForKey:@"Total Cost Per Scope Competition"];
+    lblTotalCostCompetition.text = strCompetitionTotalCost;
+    
+    if (!strSelectedCompetitor) {
+        lblTotalCostCompetition.alpha = 0.0;
+    } else {
+        lblTotalCostCompetition.alpha = 1.0;
+    }
+    
+    //getting the y location of the chart
+    lastLabelY = lblTotalCostALDAHOL.frame.origin.y + lblTotalCostALDAHOL.frame.size.height + 10.0;
+    
+    //fix the cost note
+    UILabel* lblCostNote = [dictTextFields objectForKey:@"Cost Notes"];
+    
+    strCostNote = [[NSMutableString alloc] initWithString:@"\n\nItems marked in red will not appear in email message!\n\n"];
+    
+    if (strSelectedCompetitor) {
+        
+        float aldaholAdvantage = totalsCompetition - totalsALDAHOL;
+        float acecideAdvantage = totalsCompetition - totalsAcecideC;
+        
+        //convert the text to a decimal number
+        NSDecimalNumber* decAldaholAdvantage = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", aldaholAdvantage]];
+        NSDecimalNumber* decAcecideAdvantage = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", acecideAdvantage]];
+        
+        //convert to currency and add to string
+        NSString* strAldaholAdvantageText = [NSString stringWithFormat:@"The cost difference between OER_Pro with Aldahol and %@ is %@", strSelectedCompetitor, [self convertToCurrencyString:decAldaholAdvantage]];
+        
+        NSString* strAcecideAdvantageText = [NSString stringWithFormat:@"The cost difference between OER_Pro with Acecide and %@ is %@", strSelectedCompetitor, [self convertToCurrencyString:decAcecideAdvantage]];
+        
+        //add strings to cost note
+        [strCostNote appendString:[NSString stringWithFormat:@"%@\n\n", strAldaholAdvantageText]];
+        [strCostNote appendString:[NSString stringWithFormat:@"%@\n\n", strAcecideAdvantageText]];
+        
+    }
+    
+    [strCostNote appendString:[NSString stringWithFormat:@"The additional cost of the OER-Pro with Acecide may be offset by the time and safety improvements noted in this document.\n\nThe OER-Pro is designed to reprocess two endoscopes per cycle. The \"cost per scope\" reflects the cost for reprocessing %@ scope(s) when %@ scopes are reprocessed per cycle.\n\nThe number of cycles and the cost of filters per case varies depending on water quality and is difficult to project. Filter costs for an Olympus-purchased prefiltration system are included in this tool. Additionally, other factors such as test strip interpretation, selected chemistry and other environmental factors great influence the number of cycles before a change is required. The projected numbers provided in this calculator are only an estimate. Olympus suggests meeting with your Clinical Bioengineering Department to address local issues related to this expense.", [dictResults objectForKey:@"OER Count"], [dictResults objectForKey:@"Annual Cycle Count"]]];
+     
+    lblCostNote.text = strCostNote;
+    
+    
+    if (strSelectedCompetitor) { 
+        if (totalsCompetition == 0) {
+            
+            UIAlertView *alert = [[UIAlertView alloc]
+              initWithTitle: @"Comparison Warning"
+              message: @"You selected a competitor to compare to but there does not seem to be any cost associated with that competitor!"
+              delegate: nil
+              cancelButtonTitle:@"OK"
+              otherButtonTitles:
+              nil];
+            
+            [alert show];
+        }
+    }
+
     
     [self getTimeSavings];
     
@@ -3055,7 +3525,13 @@
     }
         
     //set up a point
-    float pageX = 1 * 772.0;
+    float pageX;
+    if (isLandscape) {
+        pageX = 1 * 1025.0;
+    } else {
+        pageX = 1 * 772.0;
+    }
+    
     float pageY = 0.0;
     CGPoint scrollOffset = CGPointMake(pageX, pageY);
     
@@ -3191,6 +3667,8 @@
 }
 
 - (void) showCalculations : (UIButton*) myButton {
+    
+    displayedPage = 1;
     
     //set up a point
     float pageX = 0.0;
@@ -3555,9 +4033,55 @@
     [emailBody appendString:@"</tbody></table></div><p>"];
     
     //comparison notes
-    NSString* strCostNotes = @"<div>The additional cost of the OER-Pro with Acecide may be offset by the time and safety improvements noted in this document.<p>The OER-Pro is designed to reprocess two endoscopes per cycle. The \"cost per scope\" reflects the cost for reprocessing one scope when scopes are reprocessed per cycle.</p><p>The number of cycles and the cost of filters per case varies depending on water quality and is difficult to project. Filter costs for an Olympus-purchased prefiltration system are included in this tool. Additionally, other factors such as test strip interpretation, selected chemistry and other environmental factors great influence the number of cycles before a change is required. The projected numbers provided in this calculator are only an estimate. Olympus suggests meeting with your Clinical Bioengineering Department to address local issues related to this expense.</div></p>";
     
-    [emailBody appendString:strCostNotes];
+    NSMutableString* strCostNoteHTML = [[NSMutableString alloc] initWithString:@"<div><p>Items marked in red will not appear in email message!</p>"];
+    
+    if (strSelectedCompetitor) {
+        
+        float aldaholAdvantage;
+        float acecideAdvantage;
+        
+        //get the competitor total
+        UILabel* lblTotalCompetition = [dictResultCells objectForKey:@"Total Cost Per Scope Competition"];
+        NSString* strTotalCompetition = lblTotalCompetition.text;
+        strTotalCompetition = [self stripDollarSign:strTotalCompetition];
+        
+        if (showALDAHOL) {
+            
+            UILabel* lblTotalAldahol = [dictResultCells objectForKey:@"Total Cost Per Scope ALDAHOL"];
+            NSString* strTotalAldahol = lblTotalAldahol.text;
+            strTotalAldahol = [self stripDollarSign:strTotalAldahol];
+            
+            aldaholAdvantage = [strTotalCompetition floatValue] - [strTotalAldahol floatValue];
+            
+            //convert the text to a decimal number
+            NSDecimalNumber* decAldaholAdvantage = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", aldaholAdvantage]];
+            
+            //convert to currency and add to string
+            NSString* strAldaholAdvantageText = [NSString stringWithFormat:@"The cost difference between OER_Pro with Aldahol and %@ is %@", strSelectedCompetitor, [self convertToCurrencyString:decAldaholAdvantage]];
+            
+            //add strings to cost note
+            [strCostNoteHTML appendString:[NSString stringWithFormat:@"<p>%@</p>", strAldaholAdvantageText]];
+        }
+        
+        if (showAcecide) {
+            UILabel* lblTotalAcecide =  [dictResultCells objectForKey:@"Total Cost Per Scope AcecideC"];
+            NSString* strTotalAcecide = lblTotalAcecide.text;
+            strTotalAcecide = [self stripDollarSign:strTotalAcecide];
+            acecideAdvantage = [strTotalCompetition floatValue] - [strTotalAcecide floatValue];
+            
+            NSDecimalNumber* decAcecideAdvantage = [[NSDecimalNumber alloc] initWithString:[NSString stringWithFormat:@"%f", acecideAdvantage]];
+            
+            NSString* strAcecideAdvantageText = [NSString stringWithFormat:@"The cost difference between OER_Pro with Acecide and %@ is %@", strSelectedCompetitor, [self convertToCurrencyString:decAcecideAdvantage]];
+            
+            [strCostNoteHTML appendString:[NSString stringWithFormat:@"<p>%@</p>", strAcecideAdvantageText]];
+        }
+        
+    }
+    
+    [strCostNoteHTML appendString:[NSString stringWithFormat:@"<p>The additional cost of the OER-Pro with Acecide may be offset by the time and safety improvements noted in this document.</p><p>The OER-Pro is designed to reprocess two endoscopes per cycle. The \"cost per scope\" reflects the cost for reprocessing %@ scope(s) when %@ scopes are reprocessed per cycle.</p><p>The number of cycles and the cost of filters per case varies depending on water quality and is difficult to project. Filter costs for an Olympus-purchased prefiltration system are included in this tool. Additionally, other factors such as test strip interpretation, selected chemistry and other environmental factors great influence the number of cycles before a change is required. The projected numbers provided in this calculator are only an estimate. Olympus suggests meeting with your Clinical Bioengineering Department to address local issues related to this expense.</p></div>", [dictResults objectForKey:@"OER Count"], [dictResults objectForKey:@"Annual Cycle Count"]]];
+    
+    [emailBody appendString:strCostNoteHTML];
     
     //start time savings table
     [emailBody appendString:@"<div style=\"font-weight: 900; font-size:18px; color:#666; padding-top: 10px; padding-bottom:10px\">Time Savngs:</div>"];
@@ -3903,28 +4427,87 @@
     //[scSections setContentOffset:myScrollViewOrigiOffSet animated:YES];
 }
 
+-(void)onKeyboardHide:(NSNotification *)notification {
+    
+    if (isLandscape) {
+        
+        CGRect thisViewFrame = vMainView.frame;
+        
+        thisViewFrame.origin.y = 0.0;
+        
+        [UIView animateWithDuration:0.4
+         
+             animations:^(void) {
+                 vMainView.frame = thisViewFrame;
+             }
+
+             completion:^(BOOL finished) {
+             }
+         ];
+    }
+}
+
 - (void) checkKeyboardConflict {
     
     //get the first responder
     UIView* vFirstResponder = [self findFirstResponder:self.view];
-    BOOL isTextField = NO;
     float objDiff;
     
     //make sure we are working with a text field
     if ([vFirstResponder isMemberOfClass:[OAI_TextField class]]) {
         
-        isTextField = YES;
+            //portrait mode
+            if (!isLandscape) {
+                
+                //textfield is under keyboard
+                if ((vFirstResponder.frame.origin.y+400.0) > myKeyboardFrame.origin.y) {
+                    
+                    //get the difference between the two origins
+                    objDiff = ((vFirstResponder.frame.origin.y+480.0) - myKeyboardFrame.origin.y);
+                    
+                    //scroll view frame
+                    CGPoint svOffSet = CGPointMake(myScrollViewOrigiOffSet.x, 0+objDiff);
+                    
+                    [scSections setContentOffset:svOffSet animated:YES];
+                    
+                }
+                
+            } else {
+                
+                UIView* vParentView = vFirstResponder.superview;
+                
+                if ([vParentView isKindOfClass:[UIScrollView class]]) {
+                    
+                    UIView* vGrandParent = vParentView.superview;
+                    
+                    float myYPoint = vGrandParent.frame.origin.y + vParentView.frame.origin.y + (vFirstResponder.frame.origin.y + vFirstResponder.frame.size.height);
+                    
+                    if (myYPoint > myKeyboardFrame.origin.y) {
+                        
+                        //set the scroll view offset to the first responder
+                        [scSections setContentOffset:CGPointMake(myScrollViewOrigiOffSet.x, vFirstResponder.frame.origin.y)];
+                        
+                        //scroll the main view
+                        CGRect thisViewFrame = vMainView.frame;
+                        
+                        thisViewFrame.origin.y = thisViewFrame.origin.y - (myKeyboardFrame.origin.y/2);
+                        
+                        [UIView animateWithDuration:0.4
+                         
+                             animations:^(void) {
+                                 vMainView.frame = thisViewFrame;
+                             }
+             
+                             completion:^(BOOL finished) {
+                             }
+                         ];
+
+                        
+                    }
+                }
+                               
+            }
         
-        if ((vFirstResponder.frame.origin.y+400.0) > myKeyboardFrame.origin.y) {
-            
-            //get the difference between the two origins
-            objDiff = ((vFirstResponder.frame.origin.y+480.0) - myKeyboardFrame.origin.y);
-            
-            //scroll view frame
-            CGPoint svOffSet = CGPointMake(myScrollViewOrigiOffSet.x, 0+objDiff);
-            
-            [scSections setContentOffset:svOffSet animated:YES];
-        }
     }
 }
 
@@ -3934,7 +4517,7 @@
     
     UIView* firstResponder = [self findFirstResponder:self.view];
     [firstResponder resignFirstResponder];
-    
+        
 }
 
 - (UIView *)findFirstResponder : (UIView*) viewToSearch {
@@ -4049,6 +4632,39 @@
         
         [self calculate:@"All":NO];
         
+    } else if (textField.tag == 310) {
+        
+        //cost per scope fields
+        //check for a valid entry
+        BOOL isValid = YES;
+        
+        //make sure there is an entry
+        if(textField.text.length > 0 || textField.text != nil) {
+            
+            //validate it
+            isValid = [self validateEntries:textField.textFieldTitle:textField];
+            
+        }
+        
+        if (isValid) {
+            
+            NSString* strWorkingString = textField.text;
+            
+            //i am getting false positive returns on some string so make sure to strip $ and decimal points here before processing
+            strWorkingString = [self stripDollarSign:strWorkingString];
+            strWorkingString = [self stripDecimalPoints:strWorkingString];
+            
+            
+            //convert the text to a decimal number
+            NSDecimalNumber* decThisValue = [[NSDecimalNumber alloc] initWithString:strWorkingString];
+            
+            //convert to a currency string
+            strWorkingString = [self convertToCurrencyString:decThisValue];
+            
+            textField.text = strWorkingString;
+        }
+        
+        
     }  else if (textField.tag > 899) {
         
         BOOL isValid = YES;
@@ -4111,6 +4727,7 @@
                 
                 //convert number entered to percentage
                 if ([textField.text floatValue] > .99)  {
+                    
                     strWorkingString = [self convertToPercentage:[textField.text floatValue]];
                 }
                 

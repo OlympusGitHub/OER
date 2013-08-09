@@ -46,6 +46,7 @@
     UIScrollView* scNav;
     OAI_ScrollView* scSections;
     UISegmentedControl* scTopNav;
+    UIView* vTableSection;
     
     UIFont* headerFont;
     UIFont* cellFont;
@@ -109,6 +110,11 @@
     float acecideStaffTimeSavings;
     float acecideAnnualSavings;
     
+    BOOL isLandscape;
+    int displayedPage;
+    
+    NSMutableString* strCostNote;
+    
 }
 
 - (void) calculate : (NSString*) strCalculateWhat : (BOOL) isOpening;
@@ -164,6 +170,12 @@
 - (void) totalComparisons;
 
 - (void) navOptions : (UISegmentedControl*) mySegmentedControl;
+
+- (void) adjustResultsForOrientation : (UIView*) vResults;
+
+- (void) adjustEstimatedForOritentation : (UIView*) vEstimated;
+
+- (void) adjustCalculationsForOrientation : (UIView*) vInputs;
 
 
 

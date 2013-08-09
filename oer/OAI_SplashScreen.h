@@ -26,6 +26,8 @@
     NSString* OAIMDT_title;
     UILabel* OAIMDT;
     
+    NSString* strVersion;
+    
 }
 
 @property (nonatomic, retain) UIView* parentView;
@@ -33,6 +35,6 @@
 
 - (void) runSplashScreenAnimation;
 
-- (void) adjustToRotation : (UIDeviceOrientation) orientation; 
+- (void) adjustForRotation : (UIDeviceOrientation) orientation; 
 
 @end
